@@ -113,7 +113,7 @@ var RelationshipGraph = (function () {
 
         // Create a canvas to measure the pixel width of the parent labels.
         this.ctx = document.createElement('canvas').getContext('2d');
-        this.ctx.font = '90% Helvetica';
+        this.ctx.font = '100% Helvetica';
 
         /**
          * Function to create the tooltip.
@@ -337,7 +337,7 @@ var RelationshipGraph = (function () {
 
             children.enter().append('rect')
                 .attr('x', function (obj) {
-                    var x = width + ((obj.index - 1) * that.config.blockSize);
+                    var x = width + ((obj.index - 1) * that.config.blockSize) + 25;
                     maxWidth += ((x + that.config.blockSize) > maxWidth) ? (x + that.config.blockSize) : 0;
                     return x;
                 })
@@ -367,10 +367,12 @@ var RelationshipGraph = (function () {
                 d3.select('.d3-tip').remove();
                 this.svg.call(this.tip);
             }
+            
+            var parentNode = this.svg[0][0].parentNode;
 
             // Resize the SVG to fit the graph
-            this.svg.attr('width', (maxWidth + 15))
-                .attr('height', (maxHeight + 15));
+            parentNode.setAttribute('width', maxWidth);
+            parentNode.setAttribute('height', maxHeight);
         }
     };
 

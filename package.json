@@ -11,6 +11,6 @@
     "type": "git",
     "url": ""
   },
-  "main": "index.js",
+  "main": "d3.relationshipgraph.min.js",
   "version": "1.0.0"
 }
