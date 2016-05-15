@@ -1,0 +1,16 @@
+{
+  "name": "d3-relationshipgraph",
+  "description": "A D3 graph to show parent child relationships.",
+  "homepage": "",
+  "author": "Harrison Kelly <harrison.kelly@plexxi.com",
+  "contributors": [
+    "Harrison Kelly"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "main": "index.js",
+  "version": "1.0.0"
+}

@@ -1,0 +1,39 @@
+.relationshipGraph-block {
+    stroke: #F7F7F7;
+    stroke-width: 1px;
+    pointer-events: all;
+}
+
+.relationshipGraph-block:hover {
+    cursor: pointer;
+}
+
+.relationshipGraph-Text {
+    font-family: Helvetica, sans-serif;
+    font-size: 90%;
+    fill: #323232;
+}
+
+.relationshipGraph-tip {
+    font-weight: bold;
+    font-family: Helvetica, sans-serif;
+    font-size: 9pt;
+    line-height: 1;
+    padding: 12px;
+    background: #323232;
+    color: #e7e7e7;
+    border-radius: 6px;
+    z-index: 50;
+}
+
+.relationshipGraph-tip:after {
+    display: inline-block;
+    font-size: 25px;
+    width: 100%;
+    top: 48% !important;
+    height: 5px;
+    color: #323232;
+    content: "\25B6";
+    position: absolute;
+    text-align: right;
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ParentChildGraph D3 Example</title>
+
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.6.7/d3-tip.js"></script>
+
+    <script src="../d3.relationshipgraph.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="../src/RelationshipGraph.css">
+</head>
+<body>
+<div id="graph" style="margin: 10% 40%"></div>
+<div id="test"></div>
+<script>
+    var graph = d3.select('#graph').relationshipGraph();
+    var json = [
+        {
+            "Name": "A",
+            "parent": "A",
+            "color": 0,
+            "parentColor": 4
+        },
+        {
+            "Name": "B",
+            "parent": "A",
+            "color": 1,
+            "parentColor": 4
+        },
+        {
+            "Name": "C",
+            "parent": "A",
+            "color": 1,
+            "parentColor": 4
+        },
+        {
+            "Name": "D",
+            "parent": "A",
+            "color": 1,
+            "parentColor": 4
+        },
+        {
+            "Name": "E",
+            "parent": "A",
+            "color": 0,
+            "parentColor": 4
+        },
+        {
+            "Name": "F",
+            "parent": "A",
+            "color": 2,
+            "parentColor": 4
+        },
+        {
+            "Name": "G",
+            "parent": "A",
+            "color": 3,
+            "parentColor": 4
+        },
+        {
+            "Name": "H",
+            "parent": "A",
+            "color": 0,
+            "parentColor": 4
+        },
+        {
+            "Name": "A",
+            "parent": "B",
+            "color": 0,
+            "parentColor": 4
+        },
+        {
+            "Name": "B",
+            "parent": "B",
+            "color": 1,
+            "parentColor": 4
+        },
+        {
+            "Name": "C",
+            "parent": "B",
+            "color": 1,
+            "parentColor": 4
+        },
+        {
+            "Name": "D",
+            "parent": "B",
+            "color": 1,
+            "parentColor": 4
+        },
+        {
+            "Name": "E",
+            "parent": "B",
+            "color": 0,
+            "parentColor": 4
+        },
+        {
+            "Name": "F",
+            "parent": "B",
+            "color": 2,
+            "parentColor": 4
+        },
+        {
+            "Name": "G",
+            "parent": "B",
+            "color": 3,
+            "parentColor": 4
+        },
+        {
+            "Name": "H",
+            "parent": "B",
+            "color": 0,
+            "parentColor": 4
+        },
+        {
+            "Name": "I",
+            "parent": "B",
+            "color": 0,
+            "parentColor": 4
+        },
+        {
+            "Name": "J",
+            "parent": "B",
+            "color": 1,
+            "parentColor": 4
+        },
+        {
+            "Name": "K",
+            "parent": "B",
+            "color": 1,
+            "parentColor": 4
+        },
+        {
+            "Name": "L",
+            "parent": "B",
+            "color": 1,
+            "parentColor": 4
+        },
+        {
+            "Name": "M",
+            "parent": "B",
+            "color": 0,
+            "parentColor": 4
+        },
+        {
+            "Name": "N",
+            "parent": "B",
+            "color": 2,
+            "parentColor": 4
+        },
+        {
+            "Name": "O",
+            "parent": "B",
+            "color": 3,
+            "parentColor": 4
+        },
+        {
+            "Name": "P",
+            "parent": "B",
+            "color": 0,
+            "parentColor": 4
+        }
+    ];
+
+    graph.showTooltipKeys(false);
+    graph.setTooltipPlacement('w');
+    graph.generate(json);
+</script>
+</body>
+</html>
