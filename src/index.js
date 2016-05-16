@@ -97,7 +97,8 @@ var RelationshipGraph = (function () {
 
         /**
          * Contains the configuration for the graph.
-         * @type {{blockSize: number, selection: string, showTooltips: boolean, maxChildCount: number, onClick: (Function|noop), showKeys: boolean}}
+         * @type {{blockSize: number, selection: d3.selection, showTooltips: (*|boolean), maxChildCount: (*|number),
+         *          onClick: (*|noop), showKeys: (*|boolean), thresholds: (*|Array), colors: (*|Array)}}
          */
         this.config = {
             blockSize: 24,  // The block size for each child.
@@ -106,7 +107,8 @@ var RelationshipGraph = (function () {
             maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row before wrapping.
             onClick: userConfig.onClick || noop,  // The callback function to call when a child is clicked. This function gets passed the JSON for the child.
             showKeys: userConfig.showKeys || true,  // Whether or not to show the keys in the tooltip.
-            thresholds: userConfig.thresholds
+            thresholds: userConfig.thresholds,  // Thresholds to determine the colors of the child blocks with.
+            colors: userConfig.colors  // Colors to use for blocks.
         };
 
         /**
@@ -223,12 +225,12 @@ var RelationshipGraph = (function () {
                 previousParent = null,
                 parents = [],
                 parentSizes = {},
-                colors = ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
-                    '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1',
-                    '#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc',
-                    '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f',
-                    '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
-                ],
+                colors = this.config.colors || ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
+                        '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1',
+                        '#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc',
+                        '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f',
+                        '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
+                    ],
                 maxWidth = 0,
                 maxHeight = 0,
                 that = this;
