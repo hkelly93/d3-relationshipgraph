@@ -3,14 +3,31 @@
   "description": "A D3 graph to show parent child relationships.",
   "homepage": "",
   "author": "Harrison Kelly <harrison.kelly@plexxi.com",
+  "keywords": [
+    "d3",
+    "relationship",
+    "graph",
+    "parent",
+    "child",
+    "relationshipgraph",
+    "d3.relationshipgraph"
+  ],
   "contributors": [
     "Harrison Kelly"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/hkelly93/d3-relationshipgraph"
   },
   "main": "d3.relationshipgraph.min.js",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "files": [
+    "src",
+    "d3.relationshipgraph.min.js"
+  ],
+  "dependencies": {
+    "d3": "3",
+    "d3-tip": "0.6.7"
+  }
 }

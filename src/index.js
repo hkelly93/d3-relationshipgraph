@@ -22,7 +22,6 @@
  * THE SOFTWARE.
  */
 
-// TODO: Add ability to pass in colors.
 (function () {
     'use strict';
 
