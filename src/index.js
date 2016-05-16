@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+// TODO: Add ability to pass in colors.
 (function () {
     'use strict';
 
@@ -89,6 +90,11 @@ var RelationshipGraph = (function () {
      * @constructor
      */
     function RelationshipGraph(selection, userConfig) {
+        // Verify that the user config contains the thresholds.
+        if (userConfig.thresholds === undefined || typeof userConfig.thresholds != 'object') {
+            throw "Thresholds must be an Object.";
+        }
+
         /**
          * Contains the configuration for the graph.
          * @type {{blockSize: number, selection: string, showTooltips: boolean, maxChildCount: number, onClick: (Function|noop), showKeys: boolean}}
@@ -197,8 +203,6 @@ var RelationshipGraph = (function () {
         json.forEach(function (element) {
             if (element.parent === undefined) {
                 throw 'Child does not have a parent.';
-            } else if (element.color === undefined || element.color > 3 || element.color < 0) {
-                throw 'Child color is unsupported.';
             }
             else if (element.parentColor === undefined || element.parentColor > 4 || element.parentColor < 0) {
                 throw 'Parent color is unsupported.';
@@ -219,11 +223,11 @@ var RelationshipGraph = (function () {
                 previousParent = null,
                 parents = [],
                 parentSizes = {},
-                colors = ['#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc',
+                colors = ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
+                    '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1',
+                    '#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc',
                     '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f',
-                    '#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
-                    '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745',
-                    '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1'
+                    '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
                 ],
                 maxWidth = 0,
                 maxHeight = 0,
