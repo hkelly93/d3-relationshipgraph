@@ -99,7 +99,8 @@ var RelationshipGraph = (function () {
             showTooltips: userConfig.showTooltips || true,  // Whether or not to show the tooltips on hover.
             maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row before wrapping.
             onClick: userConfig.onClick || noop,  // The callback function to call when a child is clicked. This function gets passed the JSON for the child.
-            showKeys: userConfig.showKeys || true  // Whether or not to show the keys in the tooltip.
+            showKeys: userConfig.showKeys || true,  // Whether or not to show the keys in the tooltip.
+            thresholds: userConfig.thresholds
         };
 
         /**
@@ -137,7 +138,7 @@ var RelationshipGraph = (function () {
                                 value = document.createElement('td');
 
                             if (self.graph.config.showKeys) {
-                                key.innerHTML = element;
+                                key.innerHTML = element.charAt(0).toUpperCase() + element.substring(1);
                                 row.appendChild(key);
                             }
 
@@ -218,7 +219,12 @@ var RelationshipGraph = (function () {
                 previousParent = null,
                 parents = [],
                 parentSizes = {},
-                colors = ['#abdda4', '#fdae61', '#d7191c', '#2b83ba'],
+                colors = ['#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc',
+                    '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f',
+                    '#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
+                    '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745',
+                    '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1'
+                ],
                 maxWidth = 0,
                 maxHeight = 0,
                 that = this;
@@ -285,6 +291,27 @@ var RelationshipGraph = (function () {
                     index++;
                 }
                 previousParent = parent;
+
+                // Figure out the color based on the threshold.
+                var value;
+
+                for (var thresholdIndex = 0; thresholdIndex < that.config.thresholds.length; thresholdIndex++) {
+                    if (typeof that.config.thresholds[0] === String) {
+                        value = element.value;
+
+                        if (value == that.config.thresholds[thresholdIndex]) {
+                            element.color = thresholdIndex;
+                            break;
+                        }
+                    } else {
+                        value = element.value.replace(/\D/g, '');
+
+                        if (value < that.config.thresholds[thresholdIndex]) {
+                            element.color = thresholdIndex;
+                            break;
+                        }
+                    }
+                }
             });
 
             this.svg.selectAll('.row')
@@ -314,7 +341,7 @@ var RelationshipGraph = (function () {
                 })
                 .style('text-anchor', 'start')
                 .style('fill', function (obj) {
-                    return colors[obj.parentColor] || colors[4];
+                    return '#000000'; //colors[obj.parentColor] || colors[4];
                 })
                 .attr('class', 'relationshipGraph-Text')
                 .attr('transform', 'translate(-6, ' + this.config.blockSize / 1.5 + ')');
@@ -341,7 +368,7 @@ var RelationshipGraph = (function () {
                 .attr('width', that.config.blockSize)
                 .attr('height', that.config.blockSize)
                 .style('fill', function (obj) {
-                    return colors[obj.color] || colors[0];
+                    return colors[obj.color % colors.length] || colors[0];
                 })
                 .on('mouseover', that.tip ? that.tip.show : noop)
                 .on('mouseout', that.tip ? that.tip.hide : noop)
