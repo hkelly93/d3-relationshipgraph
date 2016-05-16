@@ -34,17 +34,16 @@
 
     /**
      * Add relationshipGraph to d3.selection.
-     * @param showTooltips {boolean} Whether or not to show the tooltips on hover.
-     * @param maxChildCount {number} The maximum amount of children to show per row before wrapping.
-     * @param onClick {function} The callback function to call when a child s clicked. This function gets passed the JSON for the child.
+     * @param userConfig {Object} Configuration for graph.
      */
-    d3.selection.prototype.relationshipGraph = function (showTooltips, maxChildCount, onClick) {
-        return new RelationshipGraph(this, showTooltips, maxChildCount, onClick);
+    d3.selection.prototype.relationshipGraph = function (userConfig) {
+        return new RelationshipGraph(this, userConfig);
     };
 
     d3.selection.enter.prototype.relationshipGraph = function () {
         return this.graph;
     };
+
 })();
 
 
@@ -86,12 +85,10 @@ var RelationshipGraph = (function () {
     /**
      *
      * @param selection {d3.selection} The ID of the element containing the graph.
-     * @param showTooltips {boolean} Whether or not to show the tooltips on hover.
-     * @param maxChildCount {number} The maximum amount of children to show per row before wrapping.
-     * @param onClick {function} The callback function to call when a child is clicked. This function gets passed the JSON for the child.
+     * @param userConfig {Object} Configuration for graph.
      * @constructor
      */
-    function RelationshipGraph(selection, showTooltips, maxChildCount, onClick) {
+    function RelationshipGraph(selection, userConfig) {
         /**
          * Contains the configuration for the graph.
          * @type {{blockSize: number, selection: string, showTooltips: boolean, maxChildCount: number, onClick: (Function|noop), showKeys: boolean}}
@@ -99,10 +96,10 @@ var RelationshipGraph = (function () {
         this.config = {
             blockSize: 24,  // The block size for each child.
             selection: selection,  // The ID for the graph.
-            showTooltips: showTooltips || true,  // Whether or not to show the tooltips on hover.
-            maxChildCount: maxChildCount || 0,  // The maximum amount of children to show per row before wrapping.
-            onClick: onClick || noop,  // The callback function to call when a child is clicked. This function gets pased the JSON for the child.
-            showKeys: true  // Whether or not to show the keys in the tooltip.
+            showTooltips: userConfig.showTooltips || true,  // Whether or not to show the tooltips on hover.
+            maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row before wrapping.
+            onClick: userConfig.onClick || noop,  // The callback function to call when a child is clicked. This function gets passed the JSON for the child.
+            showKeys: userConfig.showKeys || true  // Whether or not to show the keys in the tooltip.
         };
 
         /**
@@ -178,14 +175,6 @@ var RelationshipGraph = (function () {
     }
 
     /**
-     * Set whether or not to show the keys on the tooltips.
-     * @param showKeys {Boolean} Whether or not to show the keys.
-     */
-    RelationshipGraph.prototype.showTooltipKeys = function (showKeys) {
-        this.config.showKeys = showKeys;
-    };
-
-    /**
      * Change the placement of the tooltip with respect to the child block.
      * @param position {string} The placement of the tooltip with respect to the child block. Available placements are: n, ne, e, se, s, sw, w, nw.
      */
@@ -222,7 +211,7 @@ var RelationshipGraph = (function () {
      * Generate the graph
      * @param json {Array} The array of JSON to feed to the graph.
      */
-    RelationshipGraph.prototype.generate = function (json) {
+    RelationshipGraph.prototype.data = function (json) {
         if (this.verifyJson(json)) {
             var row = 1,
                 index = 1,
@@ -367,12 +356,12 @@ var RelationshipGraph = (function () {
                 d3.select('.d3-tip').remove();
                 this.svg.call(this.tip);
             }
-            
+
             var parentNode = this.svg[0][0].parentNode;
 
             // Resize the SVG to fit the graph
-            parentNode.setAttribute('width', maxWidth);
-            parentNode.setAttribute('height', maxHeight);
+            parentNode.setAttribute('width', maxWidth + 15);
+            parentNode.setAttribute('height', maxHeight + 15);
         }
     };
 
