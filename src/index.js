@@ -86,6 +86,22 @@ var RelationshipGraph = (function () {
     };
 
     /**
+     * http://stackoverflow.com/a/7611054
+     * @param el
+     * @returns {{left: *, top: *}}
+     */
+    var getPageTopLeft = function (el) {
+        var rect = el.getBoundingClientRect();
+        var docEl = document.documentElement;
+        return {
+            top: rect.top + (window.pageYOffset || docEl.scrollTop || 0),
+            right: rect.right + (window.pageXOffset || 0),
+            bottom: rect.bottom + (window.pageYOffset || 0),
+            left: rect.left + (window.pageXOffset || docEl.scrollLeft || 0)
+        };
+    };
+
+    /**
      *
      * @param selection {d3.selection} The ID of the element containing the graph.
      * @param userConfig {Object} Configuration for graph.
@@ -134,49 +150,74 @@ var RelationshipGraph = (function () {
 
         /**
          * Function to create the tooltip.
-         * @param {RelationshipGraph} that The RelationshipGraph instance to allow this function to be private.
          * @returns {d3.tip} the tip object.
          */
-        var createTooltip = function (that) {
-            var self = that;
+        var createTooltip = function (self) {
+            var hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT'],
+                showKeys = self.config.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip')
                 .offset([-8, -10])
                 .html(function (obj) {
-                    var keys = Object.keys(obj),
+                    var tip = document.querySelector('.relationshipGraph-tip'),
+                        tipWidth = tip.clientWidth,
+                        tipHeight = tip.clientHeight,
+                        windowWidth = window.innerWidth,
+                        windowHeight = window.innerHeight,
+                        elementCoordinates = getPageTopLeft(this),
+                        keys = Object.keys(obj),
                         table = document.createElement('table'),
-                        hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT'];
+                        count = keys.length,
+                        rows = [];
+
+                    // Change the position if necessary.
+                    if (!containsKey(tip.classList, 's') && elementCoordinates.top - tipHeight < 0) {
+                        self.tip.direction('s');
+                    } else if (!containsKey(tip.classList, 'w') && elementCoordinates.right + tipWidth > windowWidth) {
+                        self.tip.direction('w');
+                    } else if (!containsKey(tip.classList, 'n') && elementCoordinates.bottom + tipWidth > windowHeight) {
+                        self.tip.direction('n');
+                    } else if (!containsKey(tip.classList, 'e') && elementCoordinates.left - tipHeight < 0) {
+                        self.tip.direction('e');
+                    }
 
                     // Loop through the keys in the object and only show values self are not in the hiddenKeys array.
-                    keys.forEach(function (element) {
-                        var upperCaseKey = element.toUpperCase();
+                    while (count--) {
+                        var element = keys[count],
+                            upperCaseKey = element.toUpperCase();
 
-                        if (!hiddenKeys.contains(upperCaseKey)) {
+                        if (!contains(hiddenKeys, upperCaseKey)) {
                             var row = document.createElement('tr'),
-                                key = self.graph.config.showKeys ? document.createElement('td') : null,
+                                key = showKeys ? document.createElement('td') : null,
                                 value = document.createElement('td');
 
-                            if (self.graph.config.showKeys) {
+                            if (showKeys) {
                                 key.innerHTML = element.charAt(0).toUpperCase() + element.substring(1);
                                 row.appendChild(key);
                             }
 
                             value.innerHTML = obj[element];
-
                             value.style.fontWeight = 'normal';
 
                             row.appendChild(value);
-                            table.appendChild(row);
+                            rows.push(row);
                         }
-                    });
 
+                    }
+
+                    var rowCount = rows.length;
+
+                    while (rowCount--) {
+                        table.appendChild(rows[rowCount]);
+                    }
+
+                    self.tip.direction('w');
                     return table.outerHTML;
                 });
         };
 
         if (this.config.showTooltips) {
             this.tip = createTooltip(this);
-            this.setTooltipPlacement('w');
         }
         else {
             this.tip = null;
