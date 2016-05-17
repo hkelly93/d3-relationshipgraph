@@ -1,0 +1,20 @@
+{
+  "name": "d3-relationshipgraph",
+  "description": "A D3 graph to show parent child relationships.",
+  "main": "d3.relationshipgraph.min.js",
+  "dependencies": {
+    "d3": "3",
+    "d3-tip": "0.6.7"
+  },
+  "keywords": [
+    "d3",
+    "relationship",
+    "graph",
+    "parent",
+    "child",
+    "relationshipgraph",
+    "d3.relationshipgraph"
+  ],
+  "authors": "Harrison Kelly <harrison.kelly@plexxi.com>",
+  "license": "MIT"
+}
