@@ -52,28 +52,31 @@ var RelationshipGraph = (function () {
 
     /**
      * Checks if the object contains the key.
+     * @param obj {object} The object to check in.
      * @param key {string} They key to check for.
      * @returns {boolean}
      */
-    Object.prototype.containsKey = function (key) {
-        return Object.keys(this).indexOf(key) > -1;
+    var containsKey = function (obj, key) {
+        return Object.keys(obj).indexOf(key) > -1;
     };
 
     /**
      * Checks whether or not the key is in the array.
-     * @param key
+     * @param obj {object} The object to check in.
+     * @param key {string} The key to check for.
      * @returns {boolean}
      */
-    Array.prototype.contains = function (key) {
-        return this.indexOf(key) > -1;
+    var contains = function (obj, key) {
+        return obj.indexOf(key) > -1;
     };
 
     /**
      * Abbreviate a string to 25 characters plus an ellipses.
+     * @param {string} str The string to abbreviate.
      * @returns {string}
      */
-    String.prototype.abbreviate = function () {
-        return (this.length >= 25) ? this.substring(0, 25) + '...' : this;
+    var abbreviate = function (str) {
+        return (str.length >= 25) ? str.substring(0, 25) + '...' : str;
     };
 
     /**
