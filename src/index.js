@@ -173,14 +173,19 @@ var RelationshipGraph = (function () {
             this.tip = null;
         }
 
-        // Create the svg element that will contain the graph.
-        this.svg = this.config.selection
-            .append('svg')
-            .attr('width', '500')
-            .attr('height', '500')
-            .attr('style', 'display: block')
-            .append('g')
-            .attr('transform', 'translate(10, 0)');
+        // Check if this selection already has a graph.
+        this.svg = this.config.selection.select('svg').select('g');
+
+        if (this.svg.empty()) {
+            // Create the svg element that will contain the graph.
+            this.svg = this.config.selection
+                .append('svg')
+                .attr('width', '500')
+                .attr('height', '500')
+                .attr('style', 'display: block')
+                .append('g')
+                .attr('transform', 'translate(10, 0)');
+        }
 
         this.graph = this;
     }
