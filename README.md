@@ -140,3 +140,11 @@ graph.data(json);  // Update the graph with new data.
 
 ## License
 This project is licensed under the MIT license -- see the [LICENSE.md](LICENSE.md) file for details.
+
+## Contributing
+If you would like to contribute please ensure that the following passes
+
+```
+$ grunt test -v
+```
+before putting up a pull request.

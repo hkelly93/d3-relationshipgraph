@@ -6,7 +6,7 @@
 * Determine the direction of the tooltip based on the location and updated the CSS.
 * Added bower.json and a README.
 
-# 1.3.0 (5/16/2016)
+# 1.3.0 (5/17/2016-)
 * Pulled d3-tip into the source code to make modifications to add a way to determine the direction of the tip so that the tip doesn't go off the screen.
 * Minified the CSS stylesheet.
 * Added a way to configure the truncate cap in the configuration object.
@@ -15,3 +15,10 @@
 * Fixed a bug that was causing the resize of the SVG to calculate the width and height incorrectly.
 * Made *data* return the RelationshipGraph object to keep d3's chaining functionality working.
 * Fixed a bug where if the value was a number, the threshold wouldn't work.
+* Used JSCS to enforce styling.
+* Added grunt tasks.
+* Added a TravisCI yaml file for tests.
+* Added CSSLint
+* Began adding in unit tests.
+* Updated algorithm for determining if the tooltip should be relocated.
+* Added sorting to the thresholds if it is made up of numbers.

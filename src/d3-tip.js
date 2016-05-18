@@ -93,21 +93,21 @@
                 breaksRight = (elementCoords.right + nodeHeight > windowWidth),
                 breaksBottom = (elementCoords.bottom + nodeHeight > windowHeight);
 
-            if (breaksTop && !breaksRight && !breaksBottom && breaksLeft) {
+            if (breaksTop && !breaksRight && !breaksBottom && breaksLeft) {  // Case 1: NW
                 dir = 'e';
-            } else if (breaksTop && !breaksRight && !breaksBottom && !breaksLeft) {
+            } else if (breaksTop && !breaksRight && !breaksBottom && !breaksLeft) {  // Case 2: N
                 dir = 's';
-            } else if (breaksTop && breaksRight && !breaksBottom && !breaksLeft) {
+            } else if (breaksTop && breaksRight && !breaksBottom && !breaksLeft) {  // Case 3: NE
                 dir = 'w';
-            } else if (!breaksTop && !breaksRight && !breaksBottom && breaksLeft) {
+            } else if (!breaksTop && !breaksRight && !breaksBottom && breaksLeft) {  // Case 4: W
                 dir = 'e';
-            } else if (!breaksTop && !breaksRight && breaksBottom && breaksLeft) {
+            } else if (!breaksTop && !breaksRight && breaksBottom && breaksLeft) {  // Case 5: SW
                 dir = 'e';
-            } else if (!breaksTop && !breaksRight && breaksBottom && !breaksLeft) {
+            } else if (!breaksTop && !breaksRight && breaksBottom && !breaksLeft) {  // Case 6: S
                 dir = 'e';
-            } else if (!breaksTop && breaksRight && breaksBottom && !breaksLeft) {
-                dir = 'w';
-            } else if (!breaksTop && breaksRight && !breaksBottom && !breaksLeft) {
+            } else if (!breaksTop && breaksRight && breaksBottom && !breaksLeft) {  // Case 7: SE
+                dir = 'n';
+            } else if (!breaksTop && breaksRight && !breaksBottom && !breaksLeft) {  // Case 8: E
                 dir = 'w';
             }
 
