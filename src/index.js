@@ -24,32 +24,19 @@
  * d3.relationshipgraph - 1.2.2
  */
 
-(function () {
+(function (root, factory) {
     'use strict';
 
-    /**
-     * Add a relationshipGraph function to d3 that returns a RelationshipGraph object.
-     */
-    d3.relationshipGraph = function () {
-        return RelationshipGraph.extend.apply(RelationshipGraph, arguments);
-    };
-
-    /**
-     * Add relationshipGraph to d3.selection.
-     * @param userConfig {Object} Configuration for graph.
-     */
-    d3.selection.prototype.relationshipGraph = function (userConfig) {
-        return new RelationshipGraph(this, userConfig);
-    };
-
-    d3.selection.enter.prototype.relationshipGraph = function () {
-        return this.graph;
-    };
-
-})();
-
-
-var RelationshipGraph = (function () {
+    if (typeof define === 'function' && define.amd) {
+        define('d3.relationshipGraph', ['d3'], factory);
+    } else if (typeof exports === 'object' && typeof module === 'object') {
+        module.exports = factory(require('d3'));
+    } else if (typeof exports === 'object') {
+        exports.d3.relationshipGraph = factory(require('d3'));
+    } else {
+        root.d3.relationshipGraph = factory(root.d3);
+    }
+})(this, function (d3) {
     'use strict';
 
     /**
@@ -93,19 +80,26 @@ var RelationshipGraph = (function () {
     };
 
     /**
-     * http://stackoverflow.com/a/7611054
-     * @param el
-     * @returns {{left: *, top: *}}
+     * Add a relationshipGraph function to d3 that returns a RelationshipGraph object.
      */
-    var getPageTopLeft = function (el) {
-        var rect = el.getBoundingClientRect();
-        var docEl = document.documentElement;
-        return {
-            top: rect.top + (window.pageYOffset || docEl.scrollTop || 0),
-            right: rect.right + (window.pageXOffset || 0),
-            bottom: rect.bottom + (window.pageYOffset || 0),
-            left: rect.left + (window.pageXOffset || docEl.scrollLeft || 0)
-        };
+    d3.relationshipGraph = function () {
+        return RelationshipGraph.extend.apply(RelationshipGraph, arguments);
+    };
+
+    /**
+     * Add relationshipGraph to d3.selection.
+     * @param userConfig {Object} Configuration for graph.
+     */
+    d3.selection.prototype.relationshipGraph = function (userConfig) {
+        return new RelationshipGraph(this, userConfig);
+    };
+
+    /**
+     * Add relationshipGraph to d3.selection.enter
+     * @returns {RelationshipGraph} RelationshipGraph object.
+     */
+    d3.selection.enter.prototype.relationshipGraph = function () {
+        return this.graph;
     };
 
     /**
@@ -114,7 +108,7 @@ var RelationshipGraph = (function () {
      * @param userConfig {Object} Configuration for graph.
      * @constructor
      */
-    function RelationshipGraph(selection, userConfig) {
+    var RelationshipGraph = function (selection, userConfig) {
         // Verify that the user config contains the thresholds.
         if (userConfig.thresholds === undefined || typeof userConfig.thresholds !== 'object') {
             throw 'Thresholds must be an Object.';
@@ -161,27 +155,10 @@ var RelationshipGraph = (function () {
             return d3.tip().attr('class', 'relationshipGraph-tip')
                 .offset([-8, -10])
                 .html(function (obj) {
-                    var tip = document.querySelector('.relationshipGraph-tip'),
-                        tipWidth = tip.clientWidth,
-                        tipHeight = tip.clientHeight,
-                        windowWidth = window.innerWidth,
-                        windowHeight = window.innerHeight,
-                        elementCoordinates = getPageTopLeft(this),
-                        keys = Object.keys(obj),
+                    var keys = Object.keys(obj),
                         table = document.createElement('table'),
                         count = keys.length,
                         rows = [];
-
-                    // Change the position if necessary.
-                    if (!containsKey(tip.classList, 's') && elementCoordinates.top - tipHeight < 0) {
-                        self.tip.direction('s');
-                    } else if (!containsKey(tip.classList, 'w') && elementCoordinates.right + tipWidth > windowWidth) {
-                        self.tip.direction('w');
-                    } else if (!containsKey(tip.classList, 'n') && elementCoordinates.bottom + tipWidth > windowHeight) {
-                        self.tip.direction('n');
-                    } else if (!containsKey(tip.classList, 'e') && elementCoordinates.left - tipHeight < 0) {
-                        self.tip.direction('e');
-                    }
 
                     // Loop through the keys in the object and only show values self are not in the hiddenKeys array.
                     while (count--) {
@@ -213,7 +190,7 @@ var RelationshipGraph = (function () {
                         table.appendChild(rows[rowCount]);
                     }
 
-                    self.tip.direction('w');
+                    self.tip.direction('n');
                     return table.outerHTML;
                 });
         };
@@ -240,7 +217,7 @@ var RelationshipGraph = (function () {
         }
 
         this.graph = this;
-    }
+    };
 
     /**
      * Verify that the JSON passed in is correct.
