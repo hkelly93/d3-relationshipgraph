@@ -3,9 +3,9 @@
   "description": "A D3 graph to show parent child relationships.",
   "main": "d3.relationshipgraph.min.js",
   "dependencies": {
-    "d3": "3",
-    "d3-tip": "0.6.7"
+    "d3": "3"
   },
+  "version": "1.3.0",
   "keywords": [
     "d3",
     "relationship",
