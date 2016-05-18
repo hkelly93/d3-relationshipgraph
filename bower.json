@@ -1,7 +1,7 @@
 {
   "name": "d3-relationshipgraph",
   "description": "A D3 graph to show parent child relationships.",
-  "main": "d3.relationshipgraph.min.js",
+  "main": "src/d3-tip.js, src/index.js",
   "dependencies": {
     "d3": "3"
   },
