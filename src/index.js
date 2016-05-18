@@ -350,7 +350,7 @@
                         return value == threshold;
                     };
                 } else {
-                    value = parseInt(element.value.replace(/\D/g, ''));
+                    value = (typeof element.value == 'number') ? element.value : parseInt(element.value.replace(/\D/g, ''));
                     compare = function (value, threshold) {
                         return value < threshold;
                     };

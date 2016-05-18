@@ -14,3 +14,4 @@
 * Added AMD and CommonJS support.
 * Fixed a bug that was causing the resize of the SVG to calculate the width and height incorrectly.
 * Made *data* return the RelationshipGraph object to keep d3's chaining functionality working.
+* Fixed a bug where if the value was a number, the threshold wouldn't work.
