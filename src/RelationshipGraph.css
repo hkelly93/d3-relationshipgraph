@@ -35,20 +35,7 @@
     content: "\25B6";
     position: absolute;
 }
-/*
-.relationshipGraph-tip .w:after {
-    display: inline-block;
-    font-size: 25px;
-    width: 100%;
-    top: 48% !important;
-    height: 5px;
-    color: #323232;
-    content: "\25B6";
-    position: absolute;
-    text-align: right;
-}*/
 
-/* Northward tooltips */
 .relationshipGraph-tip.n:after {
     content: "\25BC";
     margin: -1px 0 0 0;
@@ -60,6 +47,7 @@
 .relationshipGraph-tip.e {
     margin-left: 15px;
 }
+
 .relationshipGraph-tip.e:after {
     content: "\25C0";
     margin: -2px 0 0 0;
@@ -70,6 +58,7 @@
 .relationshipGraph-tip.s {
     margin-top: 15px;
 }
+
 .relationshipGraph-tip.s:after {
     content: "\25B2";
     margin: 0 0 1px 0;
@@ -78,7 +67,6 @@
     text-align: center;
 }
 
-/* Westward tooltips */
 .relationshipGraph-tip.w:after {
     content: "\25B6";
     margin: -4px 0 0 -1px;
