@@ -1,4 +1,4 @@
-# d3.relationshipgraph [![Build Status](https://travis-ci.org/hkelly93/d3-relationshipgraph.svg?branch=master)](https://travis-ci.org/hkelly93/d3-relationshipgraph)
+# d3-relationshipgraph [![Build Status](https://travis-ci.org/hkelly93/d3-relationshipgraph.svg?branch=master)](https://travis-ci.org/hkelly93/d3-relationshipgraph)
 A framework for creating parent-child relationships with [D3.js](http://www.d3js.org).
 
 View a working example [here](https://cdn.rawgit.com/hkelly93/d3-relationshipGraph/master/examples/index.html).
@@ -7,12 +7,12 @@ View a working example [here](https://cdn.rawgit.com/hkelly93/d3-relationshipGra
 You can install d3.relationshipgraph via [bower](http://bower.io)
 
 ```
-$ bower install d3.relationshipgraph
+$ bower install d3-relationshipgraph
 ```
 You can also use [npm](http://npmjs.org)
 
 ```
-$ npm install d3.relationshipgraph
+$ npm install d3-relationshipgraph
 ```
 
 ## Usage
