@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * d3.relationshipgraph - 1.2.2
+ * d3.relationshipgraph - 1.3.0
  */
 
 (function (root, factory) {
@@ -257,6 +257,7 @@
     /**
      * Generate the graph
      * @param json {Array} The array of JSON to feed to the graph.
+     * @return {RelationshipGraph} The RelationshipGraph object to keep d3's chaining functionality.
      */
     RelationshipGraph.prototype.data = function (json) {
         if (this.verifyJson(json)) {
@@ -476,7 +477,9 @@
                 .attr('width', maxWidth + 15)
                 .attr('height', maxHeight + 15);
         }
+
+        return this;
     };
 
     return RelationshipGraph;
-})();
+});
