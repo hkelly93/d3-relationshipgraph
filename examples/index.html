@@ -2,169 +2,637 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>ParentChildGraph D3 Example</title>
+    <title>d3.relationshipgraph Example</title>
 
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.6.7/d3-tip.js"></script>
-
     <script src="../d3.relationshipgraph.min.js"></script>
     <link type="text/css" rel="stylesheet" href="../src/RelationshipGraph.css">
 </head>
 <body>
-<div id="graph" style="margin: 10% 40%"></div>
-<div id="test"></div>
+<h1 style="text-align: center; font-family: Helvetica, sans-serif; color: #323232">
+    Highest Grossing Films by Studio
+</h1>
+<div id="graph" style="width: 300px; margin: 20px auto;">
+</div>
+<div style="width: 300px; margin:0 auto;">
+    <button onclick="data1()">Data Set 1</button>
+    <button onclick="data2()">Data Set 2</button>
+    <button onclick="random()">Random Data</button>
+</div>
+<br/>
+<div style="text-align: center; font-size: 10pt; font-family: Helvetica, sans-serif;">
+    Source: https://en.wikipedia.org/wiki/List_of_highest-grossing_films
+</div>
 <script>
-    var graph = d3.select('#graph').relationshipGraph();
-    var json = [
+    var json1 = [
         {
-            "Name": "A",
-            "parent": "A",
-            "color": 0,
-            "parentColor": 4
+            "Movie Title": "Avatar",
+            "parent": "20th Century Fox",
+            "value": "$2,787,965,087",
+            "Year": "2009"
         },
         {
-            "Name": "B",
-            "parent": "A",
-            "color": 1,
-            "parentColor": 4
+            "Movie Title": "Titanic",
+            "parent": "20th Century Fox",
+            "value": "$2,186,772,302",
+            "Year": "1997"
         },
         {
-            "Name": "C",
-            "parent": "A",
-            "color": 1,
-            "parentColor": 4
+            "Movie Title": "Star Wars: The Force Awakens",
+            "parent": "Walt Disney Studios",
+            "value": "$2,066,247,462",
+            "Year": "2015"
         },
         {
-            "Name": "D",
-            "parent": "A",
-            "color": 1,
-            "parentColor": 4
+            "Movie Title": "Jurassic World",
+            "parent": "Universal Pictures",
+            "value": "$1,670,400,637",
+            "Year": "2015"
         },
         {
-            "Name": "E",
-            "parent": "A",
-            "color": 0,
-            "parentColor": 4
+            "Movie Title": "The Avengers",
+            "parent": "Walt Disney Studios",
+            "value": "$1,519,557,910",
+            "Year": "2012"
         },
         {
-            "Name": "F",
-            "parent": "A",
-            "color": 2,
-            "parentColor": 4
+            "Movie Title": "Furious 7",
+            "parent": "Universal Pictures",
+            "value": "$1,516,045,911",
+            "Year": "2015"
         },
         {
-            "Name": "G",
-            "parent": "A",
-            "color": 3,
-            "parentColor": 4
+            "Movie Title": "Avengers: Age of Ultron",
+            "parent": "Walt Disney Studios",
+            "value": "$1,405,413,868",
+            "Year": "2015"
         },
         {
-            "Name": "H",
-            "parent": "A",
-            "color": 0,
-            "parentColor": 4
+            "Movie Title": "Harry Potter and the Deathly Hallows -- Part 2",
+            "parent": "Warner Bros. Pictures",
+            "value": "$1,341,511,219",
+            "Year": "2011"
         },
         {
-            "Name": "A",
-            "parent": "B",
-            "color": 0,
-            "parentColor": 4
+            "Movie Title": "Frozen",
+            "parent": "Walt Disney Studios",
+            "value": "$1,287,000,000",
+            "Year": "2013"
         },
         {
-            "Name": "B",
-            "parent": "B",
-            "color": 1,
-            "parentColor": 4
+            "Movie Title": "Iron Man 3",
+            "parent": "Walt Disney Studios",
+            "value": "$1,215,439,994",
+            "Year": "2013"
         },
         {
-            "Name": "C",
-            "parent": "B",
-            "color": 1,
-            "parentColor": 4
+            "Movie Title": "Minions",
+            "parent": "Universal Pictures",
+            "value": "$1,159,398,397",
+            "Year": "2015"
         },
         {
-            "Name": "D",
-            "parent": "B",
-            "color": 1,
-            "parentColor": 4
+            "Movie Title": "Transformers: Dark of the Moon",
+            "parent": "Paramount Pictures",
+            "value": "$1,123,794,079",
+            "Year": "2011"
         },
         {
-            "Name": "E",
-            "parent": "B",
-            "color": 0,
-            "parentColor": 4
+            "Movie Title": "The Lord of the Rings: The Return of the King",
+            "parent": "New Line Cinema",
+            "value": "$1,119,929,521",
+            "Year": "2003"
         },
         {
-            "Name": "F",
-            "parent": "B",
-            "color": 2,
-            "parentColor": 4
+            "Movie Title": "Skyfall",
+            "parent": "Columbia Pictures",
+            "value": "$1,108,561,013",
+            "Year": "2012"
         },
         {
-            "Name": "G",
-            "parent": "B",
-            "color": 3,
-            "parentColor": 4
+            "Movie Title": "Transformers: Age of Extinction",
+            "parent": "Universal Pictures",
+            "value": "$1,104,054,072",
+            "Year": "2014"
         },
         {
-            "Name": "H",
-            "parent": "B",
-            "color": 0,
-            "parentColor": 4
+            "Movie Title": "The Dark Knight Rises",
+            "parent": "Warner Bros. Pictures",
+            "value": "$1,084,939,099",
+            "Year": "2012"
         },
         {
-            "Name": "I",
-            "parent": "B",
-            "color": 0,
-            "parentColor": 4
+            "Movie Title": "Pirates of the Caribbean: Dead Man's Chest",
+            "parent": "Walt Disney Studios",
+            "value": "$1,066,179,725",
+            "Year": "2006"
         },
         {
-            "Name": "J",
-            "parent": "B",
-            "color": 1,
-            "parentColor": 4
+            "Movie Title": "Toy Story 3",
+            "parent": "Walt Disney Studios",
+            "value": "$1,063,171,911",
+            "Year": "2010"
         },
         {
-            "Name": "K",
-            "parent": "B",
-            "color": 1,
-            "parentColor": 4
+            "Movie Title": "Pirates of the Caribbean: On Stranger Ties",
+            "parent": "Walt Disney Studios",
+            "value": "$1,045,713,802",
+            "Year": "2011"
         },
         {
-            "Name": "L",
-            "parent": "B",
-            "color": 1,
-            "parentColor": 4
+            "Movie Title": "Jurassic Park",
+            "parent": "Universal Pictures",
+            "value": "$1,029,939,903",
+            "Year": "1993"
         },
         {
-            "Name": "M",
-            "parent": "B",
-            "color": 0,
-            "parentColor": 4
+            "Movie Title": "Star Wars: Episode I -- The Phantom Menace",
+            "parent": "20th Century Fox",
+            "value": "$1,027,044,677",
+            "Year": "1999"
         },
         {
-            "Name": "N",
-            "parent": "B",
-            "color": 2,
-            "parentColor": 4
+            "Movie Title": "Alice in Wonderland",
+            "parent": "Walt Disney Studios",
+            "value": "$1,025,467,110",
+            "Year": "2010"
         },
         {
-            "Name": "O",
-            "parent": "B",
-            "color": 3,
-            "parentColor": 4
+            "Movie Title": "The Hobbit: An Unexpected Journey",
+            "parent": "Warner Bros. Pictures",
+            "value": "$1,021,103,568",
+            "Year": "2012"
         },
         {
-            "Name": "P",
-            "parent": "B",
-            "color": 0,
-            "parentColor": 4
+            "Movie Title": "The Dark Knight",
+            "parent": "Warner Bros. Pictures",
+            "value": "$1,004,558,444",
+            "Year": "2008"
+        },
+        {
+            "Movie Title": "The Lion King",
+            "parent": "Walt Disney Studios",
+            "value": "$987,483,777",
+            "Year": "1994"
+        },
+        {
+            "Movie Title": "Harry Potter and the Philosopher's Stone",
+            "parent": "Warner Bros. Pictures",
+            "value": "$974,755,371",
+            "Year": "2001"
+        },
+        {
+            "Movie Title": "Despicable Me 2",
+            "parent": "Universal Pictures",
+            "value": "$970,761,885",
+            "Year": "2013"
+        },
+        {
+            "Movie Title": "Zootopia",
+            "parent": "Walt Disney Studios",
+            "value": "$969,831,439",
+            "Year": "2016"
+        },
+        {
+            "Movie Title": "Pirates of the Caribbean: At World's End",
+            "parent": "Walt Disney Studios",
+            "value": "$963,420,425",
+            "Year": "2007"
+        },
+        {
+            "Movie Title": "Harry Potter and the Deathly Hallows -- Part 1",
+            "parent": "Warner Bros. Pictures",
+            "value": "$960,283,305",
+            "Year": "2010"
+        },
+        {
+            "Movie Title": "The Hobbit: The Desolation of Smaug",
+            "parent": "Warner Bros. Pictures",
+            "value": "$958,366,855",
+            "Year": "2013"
+        }
+        ,
+        {
+            "Movie Title": "The Hobbit: The Battle of the Five Armies",
+            "parent": "Warner Bros. Pictures",
+            "value": "$956,892,078",
+            "Year": "2014"
+        },
+        {
+            "Movie Title": "Captain America: Civil War",
+            "parent": "Walt Disney Studios",
+            "value": "$940,892,078",
+            "Year": "2016"
+        },
+        {
+            "Movie Title": "Harry Potter and the Order of the Phoenix",
+            "parent": "Warner Bros. Pictures",
+            "value": "$939,885,929",
+            "Year": "2007"
+        },
+        {
+            "Movie Title": "Finding Nemo",
+            "parent": "Walt Disney Studios",
+            "value": "$936,743,261",
+            "Year": "2003"
+        },
+        {
+            "Movie Title": "Harry Potter and the Half-Blood Prince",
+            "parent": "Warner Bros. Pictures",
+            "value": "$934,416,487",
+            "Year": "2009"
+        },
+        {
+            "Movie Title": "The Lord of the Rings: The Two Towers",
+            "parent": "New Line Cinema",
+            "value": "$926,047,111",
+            "Year": "2002"
+        },
+        {
+            "Movie Title": "Shrek 2",
+            "parent": "Walt Disney Studios",
+            "value": "$919,838,758",
+            "Year": "2004"
+        },
+        {
+            "Movie Title": "Harry Potter and the Goblet of Fire",
+            "parent": "Warner Bros. Pictures",
+            "value": "$896,911,078",
+            "Year": "2005"
+        },
+        {
+            "Movie Title": "Spider-Man 3",
+            "parent": "Columbia Pictures",
+            "value": "$890,871,626",
+            "Year": "2007"
+        },
+        {
+            "Movie Title": "Ice Age: dawn of the Dinosaurs",
+            "parent": "20th Century Fox",
+            "value": "$886,686,817",
+            "Year": "2009"
+        },
+        {
+            "Movie Title": "Spectre",
+            "parent": "Columbia Pictures",
+            "value": "$880,674,609",
+            "Year": "2015"
+        },
+        {
+            "Movie Title": "Harry Potter and the Chamber of Secrets",
+            "parent": "Warner Bros. Pictures",
+            "value": "$878,979,634",
+            "Year": "2002"
+        },
+        {
+            "Movie Title": "Ice Age: Continental Drift",
+            "parent": "20th Century Fox",
+            "value": "$877,244,782",
+            "Year": "2012"
+        },
+        {
+            "Movie Title": "The Lord of the Rings: The Fellowship of the Rings",
+            "parent": "New Line Cinema",
+            "value": "$871,530,324",
+            "Year": "2001"
+        },
+        {
+            "Movie Title": "Batman v Superman: Dawn of Justice",
+            "parent": "Warner Bros. Pictures",
+            "value": "$868,814,243",
+            "Year": "2016"
+        },
+        {
+            "Movie Title": "The Hunger Games: Catching Fire",
+            "parent": "Lionsgate Films",
+            "value": "$865,011,746",
+            "Year": "2013"
+        },
+        {
+            "Movie Title": "Inside Out",
+            "parent": "Walt Disney Studios",
+            "value": "$857,427,711",
+            "Year": "2015"
+        },
+        {
+            "Movie Title": "Star Wars: Episode III -- Revenge of the Sith",
+            "parent": "20th Century Fox",
+            "value": "$848,754,768",
+            "Year": "2005"
+        },
+        {
+            "Movie Title": "Transformers: Revenge of the Fallen",
+            "parent": "Universal Pictures",
+            "value": "$836,303,693",
+            "Year": "2009"
         }
     ];
 
-    graph.showTooltipKeys(false);
-    graph.setTooltipPlacement('w');
-    graph.generate(json);
+
+    var json2 = [
+        {
+            "Movie Title": "Avatar",
+            "Company": "20th Century Fox",
+            "value": "$2,787,965,087",
+            "parent": "2009"
+        }, {
+            "Movie Title": "Titanic",
+            "Company": "20th Century Fox",
+            "value": "$2,186,772,302",
+            "parent": "1997"
+        }, {
+            "Movie Title": "Star Wars: The Force Awakens",
+            "Company": "Walt Disney Studios",
+            "value": "$2,066,247,462",
+            "parent": "2015"
+        }, {
+            "Movie Title": "Jurassic World",
+            "Company": "Universal Pictures",
+            "value": "$1,670,400,637",
+            "parent": "2015"
+        }, {
+            "Movie Title": "The Avengers",
+            "Company": "Walt Disney Studios",
+            "value": "$1,519,557,910",
+            "parent": "2012"
+        }, {
+            "Movie Title": "Furious 7",
+            "Company": "Universal Pictures",
+            "value": "$1,516,045,911",
+            "parent": "2015"
+        }, {
+            "Movie Title": "Avengers: Age of Ultron",
+            "Company": "Walt Disney Studios",
+            "value": "$1,405,413,868",
+            "parent": "2015"
+        }, {
+            "Movie Title": "Harry Potter and the Deathly Hallows -- Part 2",
+            "Company": "Warner Bros. Pictures",
+            "value": "$1,341,511,219",
+            "parent": "2011"
+        }, {
+            "Movie Title": "Frozen",
+            "Company": "Walt Disney Studios",
+            "value": "$1,287,000,000",
+            "parent": "2013"
+        }, {
+            "Movie Title": "Iron Man 3",
+            "Company": "Walt Disney Studios",
+            "value": "$1,215,439,994",
+            "parent": "2013"
+        }, {
+            "Movie Title": "Minions",
+            "Company": "Universal Pictures",
+            "value": "$1,159,398,397",
+            "parent": "2015"
+        }, {
+            "Movie Title": "Transformers: Dark of the Moon",
+            "Company": "Paramount Pictures",
+            "value": "$1,123,794,079",
+            "parent": "2011"
+        }, {
+            "Movie Title": "The Lord of the Rings: The Return of the King",
+            "Company": "New Line Cinema",
+            "value": "$1,119,929,521",
+            "parent": "2003"
+        }, {
+            "Movie Title": "Skyfall",
+            "Company": "Columbia Pictures",
+            "value": "$1,108,561,013",
+            "parent": "2012"
+        }, {
+            "Movie Title": "Transformers: Age of Extinction",
+            "Company": "Universal Pictures",
+            "value": "$1,104,054,072",
+            "parent": "2014"
+        }, {
+            "Movie Title": "The Dark Knight Rises",
+            "Company": "Warner Bros. Pictures",
+            "value": "$1,084,939,099",
+            "parent": "2012"
+        }, {
+            "Movie Title": "Pirates of the Caribbean: Dead Man's Chest",
+            "Company": "Walt Disney Studios",
+            "value": "$1,066,179,725",
+            "parent": "2006"
+        }, {
+            "Movie Title": "Toy Story 3",
+            "Company": "Walt Disney Studios",
+            "value": "$1,063,171,911",
+            "parent": "2010"
+        }, {
+            "Movie Title": "Pirates of the Caribbean: On Stranger Ties",
+            "Company": "Walt Disney Studios",
+            "value": "$1,045,713,802",
+            "parent": "2011"
+        }, {
+            "Movie Title": "Jurassic Park",
+            "Company": "Universal Pictures",
+            "value": "$1,029,939,903",
+            "parent": "1993"
+        }, {
+            "Movie Title": "Star Wars: Episode I -- The Phantom Menace",
+            "Company": "20th Century Fox",
+            "value": "$1,027,044,677",
+            "parent": "1999"
+        }, {
+            "Movie Title": "Alice in Wonderland",
+            "Company": "Walt Disney Studios",
+            "value": "$1,025,467,110",
+            "parent": "2010"
+        }, {
+            "Movie Title": "The Hobbit: An Unexpected Journey",
+            "Company": "Warner Bros. Pictures",
+            "value": "$1,021,103,568",
+            "parent": "2012"
+        }, {
+            "Movie Title": "The Dark Knight",
+            "Company": "Warner Bros. Pictures",
+            "value": "$1,004,558,444",
+            "parent": "2008"
+        }, {
+            "Movie Title": "The Lion King",
+            "Company": "Walt Disney Studios",
+            "value": "$987,483,777",
+            "parent": "1994"
+        }, {
+            "Movie Title": "Harry Potter and the Philosopher's Stone",
+            "Company": "Warner Bros. Pictures",
+            "value": "$974,755,371",
+            "parent": "2001"
+        }, {
+            "Movie Title": "Despicable Me 2",
+            "Company": "Universal Pictures",
+            "value": "$970,761,885",
+            "parent": "2013"
+        }, {
+            "Movie Title": "Zootopia",
+            "Company": "Walt Disney Studios",
+            "value": "$969,831,439",
+            "parent": "2016"
+        }, {
+            "Movie Title": "Pirates of the Caribbean: At World's End",
+            "Company": "Walt Disney Studios",
+            "value": "$963,420,425",
+            "parent": "2007"
+        }, {
+            "Movie Title": "Harry Potter and the Deathly Hallows -- Part 1",
+            "Company": "Warner Bros. Pictures",
+            "value": "$960,283,305",
+            "parent": "2010"
+        }, {
+            "Movie Title": "The Hobbit: The Desolation of Smaug",
+            "Company": "Warner Bros. Pictures",
+            "value": "$958,366,855",
+            "parent": "2013"
+        }, {
+            "Movie Title": "The Hobbit: The Battle of the Five Armies",
+            "Company": "Warner Bros. Pictures",
+            "value": "$956,892,078",
+            "parent": "2014"
+        }, {
+            "Movie Title": "Captain America: Civil War",
+            "Company": "Walt Disney Studios",
+            "value": "$940,892,078",
+            "parent": "2016"
+        }, {
+            "Movie Title": "Harry Potter and the Order of the Phoenix",
+            "Company": "Warner Bros. Pictures",
+            "value": "$939,885,929",
+            "parent": "2007"
+        }, {
+            "Movie Title": "Finding Nemo",
+            "Company": "Walt Disney Studios",
+            "value": "$936,743,261",
+            "parent": "2003"
+        }, {
+            "Movie Title": "Harry Potter and the Half-Blood Prince",
+            "Company": "Warner Bros. Pictures",
+            "value": "$934,416,487",
+            "parent": "2009"
+        }, {
+            "Movie Title": "The Lord of the Rings: The Two Towers",
+            "Company": "New Line Cinema",
+            "value": "$926,047,111",
+            "parent": "2002"
+        }, {
+            "Movie Title": "Shrek 2",
+            "Company": "Walt Disney Studios",
+            "value": "$919,838,758",
+            "parent": "2004"
+        }, {
+            "Movie Title": "Harry Potter and the Goblet of Fire",
+            "Company": "Warner Bros. Pictures",
+            "value": "$896,911,078",
+            "parent": "2005"
+        }, {
+            "Movie Title": "Spider-Man 3",
+            "Company": "Columbia Pictures",
+            "value": "$890,871,626",
+            "parent": "2007"
+        }, {
+            "Movie Title": "Ice Age: dawn of the Dinosaurs",
+            "Company": "20th Century Fox",
+            "value": "$886,686,817",
+            "parent": "2009"
+        }, {
+            "Movie Title": "Spectre",
+            "Company": "Columbia Pictures",
+            "value": "$880,674,609",
+            "parent": "2015"
+        }, {
+            "Movie Title": "Harry Potter and the Chamber of Secrets",
+            "Company": "Warner Bros. Pictures",
+            "value": "$878,979,634",
+            "parent": "2002"
+        }, {
+            "Movie Title": "Ice Age: Continental Drift",
+            "Company": "20th Century Fox",
+            "value": "$877,244,782",
+            "parent": "2012"
+        }, {
+            "Movie Title": "The Lord of the Rings: The Fellowship of the Rings",
+            "Company": "New Line Cinema",
+            "value": "$871,530,324",
+            "parent": "2001"
+        }, {
+            "Movie Title": "Batman v Superman: Dawn of Justice",
+            "Company": "Warner Bros. Pictures",
+            "value": "$868,814,243",
+            "parent": "2016"
+        }, {
+            "Movie Title": "The Hunger Games: Catching Fire",
+            "Company": "Lionsgate Films",
+            "value": "$865,011,746",
+            "parent": "2013"
+        }, {
+            "Movie Title": "Inside Out",
+            "Company": "Walt Disney Studios",
+            "value": "$857,427,711",
+            "parent": "2015"
+        }, {
+            "Movie Title": "Star Wars: Episode III -- Revenge of the Sith",
+            "Company": "20th Century Fox",
+            "value": "$848,754,768",
+            "parent": "2005"
+        }, {
+            "Movie Title": "Transformers: Revenge of the Fallen",
+            "Company": "Universal Pictures",
+            "value": "$836,303,693",
+            "parent": "2009"
+        }];
+
+
+    var graph = d3.select('#graph').relationshipGraph({
+        'showTooltips': true,
+        'maxChildCount': 10,
+        'showKeys': false,
+        'thresholds': [1000000000, 2000000000, 3000000000]
+    });
+
+    graph.data(json1);
+
+    var interval = null;
+
+    function data1() {
+        if (interval != null) {
+            clearInterval(interval);
+        }
+        graph.data(json1);
+        document.querySelector('h1').innerHTML = 'Highest Grossing Films by Studio';
+    }
+
+    function data2() {
+        if (interval != null) {
+            clearInterval(interval);
+        }
+        graph.data(json2);
+        document.querySelector('h1').innerHTML = 'Highest Grossing Films by Year';
+    }
+
+    function random() {
+        var getData = function () {
+            var json = [];
+
+            for (var j = 0; j < 35; j++) {
+                var obj = {
+                    'parent': 'parent' + Math.floor(Math.random() * 6),
+                    'value': 1000000000 * Math.floor(Math.random() * 3)
+                };
+
+                json.push(obj);
+            }
+
+            graph.data(json);
+        };
+
+        getData();
+
+        interval = setInterval(getData, 1000);
+
+        document.querySelector('h1').innerHTML = 'Random Data';
+    }
+
 </script>
 </body>
 </html>
