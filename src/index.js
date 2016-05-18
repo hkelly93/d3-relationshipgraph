@@ -122,8 +122,6 @@
          */
         this.config = {
             blockSize: 24,  // The block size for each child.
-            maxWidth: 0,  // Max width of the svg element.
-            maxHeight: 0, // Max height of the svg element.
             selection: selection,  // The ID for the graph.
             showTooltips: userConfig.showTooltips || true,  // Whether or not to show the tooltips on hover.
             maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row before wrapping.
@@ -270,7 +268,9 @@
                 previousParentSizes = 0,
                 that = this,
                 parent,
-                i;
+                i,
+                maxWidth,
+                maxHeight;
 
             // Ensure that the JSON is sorted by parent.
             json.sort(function (child1, child2) {
@@ -363,6 +363,10 @@
                 }
             }
 
+            // Set the max width and height.
+            maxHeight = row * this.config.blockSize;
+            maxWidth = longestWidth + (calculatedMaxChildren * this.config.blockSize);
+
             // Select all of the parent nodes.
             var parentNodes = this.svg.selectAll('.relationshipGraph-Text')
                 .data(parents);
@@ -381,8 +385,6 @@
                     // Determine the Y coordinate by determining the Y coordinate of all of the parents before.
                     var y = Math.ceil(previousParentSizes / calculatedMaxChildren) * that.config.blockSize;
                     previousParentSizes += y;
-
-                    that.config.maxHeight = (y > that.config.maxHeight) ? y : that.config.maxHeight;
 
                     return y;
                 })
@@ -413,11 +415,7 @@
                         i--;
                     }
 
-                    var y = Math.ceil(previousParentSize / calculatedMaxChildren) * that.config.blockSize;
-
-                    that.config.maxHeight = (y > that.config.maxHeight) ? y : that.config.maxHeight;
-
-                    return y;
+                    return Math.ceil(previousParentSize / calculatedMaxChildren) * that.config.blockSize;
                 })
                 .style('fill', function (obj) {
                     return (obj.parentColor !== undefined) ? that.config.colors[obj.parentColor] : '#000000';
@@ -434,14 +432,10 @@
             childrenNodes.enter()
                 .append('rect')
                 .attr('x', function (obj) {
-                    var x = longestWidth + ((obj.index - 1) * that.config.blockSize);
-                    that.config.maxWidth += ((x + that.config.blockSize) > that.config.maxWidth) ? (x + that.config.blockSize) : 0;
-                    return x;
+                    return longestWidth + ((obj.index - 1) * that.config.blockSize);
                 })
                 .attr('y', function (obj) {
-                    var y = (obj.row - 1) * that.config.blockSize;
-                    that.config.maxHeight += ((y + that.config.blockSize) > that.config.maxHeight) ? (y + that.config.blockSize) : 0;
-                    return y;
+                    return (obj.row - 1) * that.config.blockSize;
                 })
                 .attr('rx', 4)
                 .attr('ry', 4)
@@ -461,14 +455,10 @@
             // Update existing child nodes.
             childrenNodes.transition(that.config.transitionTime)
                 .attr('x', function (obj) {
-                    var x = longestWidth + ((obj.index - 1) * that.config.blockSize);
-                    that.config.maxWidth += ((x + that.config.blockSize) > that.config.maxWidth) ? (x + that.config.blockSize) : 0;
-                    return x;
+                    return longestWidth + ((obj.index - 1) * that.config.blockSize);
                 })
                 .attr('y', function (obj) {
-                    var y = (obj.row - 1) * that.config.blockSize;
-                    that.config.maxHeight += ((y + that.config.blockSize) > that.config.maxHeight) ? (y + that.config.blockSize) : 0;
-                    return y;
+                    return (obj.row - 1) * that.config.blockSize;
                 })
                 .style('fill', function (obj) {
                     return that.config.colors[obj.color % that.config.colors.length] || that.config.colors[0];
@@ -483,8 +473,8 @@
             }
 
             this.config.selection.select('svg')
-                .attr('width', that.config.maxWidth + 15)
-                .attr('height', that.config.maxHeight + 15);
+                .attr('width', maxWidth + 15)
+                .attr('height', maxHeight + 15);
         }
     };
 

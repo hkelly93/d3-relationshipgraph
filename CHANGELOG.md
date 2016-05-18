@@ -12,3 +12,4 @@
 * Added a way to configure the truncate cap in the configuration object.
 * Removed d3-tip from the dependencies.
 * Added AMD and CommonJS support.
+* Fixed a bug that was causing the resize of the SVG to calculate the width and height incorrectly.
