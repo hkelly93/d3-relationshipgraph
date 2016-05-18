@@ -73,12 +73,17 @@ var RelationshipGraph = (function () {
     };
 
     /**
-     * Abbreviate a string to 25 characters plus an ellipses.
-     * @param {string} str The string to abbreviate.
+     * Truncate a string to 25 characters plus an ellipses.
+     * @param {string} str The string to truncate.
+     * @param cap {number} The number to cap the string at before it gets truncated.
      * @returns {string}
      */
-    var abbreviate = function (str) {
-        return (str.length >= 25) ? str.substring(0, 25) + '...' : str;
+    var truncate = function (str, cap) {
+        if (cap === 0) {
+            return str;
+        }
+
+        return (str.length >= cap) ? str.substring(0, cap) + '...' : str;
     };
 
     /**
@@ -137,14 +142,9 @@ var RelationshipGraph = (function () {
                 '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f',
                 '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
             ],  // Colors to use for blocks.
-            transitionTime: userConfig.transitionTime || 1500
+            transitionTime: userConfig.transitionTime || 1500,  // Time for a transition to start and complete (in milliseconds).
+            truncate: userConfig.truncate || 25  // Maximum length of a parent label before it gets truncated. Use 0 to turn off truncation.
         };
-
-        /**
-         * The allowed directions for the tooltip.
-         * @type {string[]}
-         */
-        this.allowedDirections = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw'];
 
         // Create a canvas to measure the pixel width of the parent labels.
         this.ctx = document.createElement('canvas').getContext('2d');
@@ -315,7 +315,7 @@ var RelationshipGraph = (function () {
                     parentSizes[parent]++;
                 } else {
                     parentSizes[parent] = 1;
-                    parents.push(abbreviate(parent));
+                    parents.push(truncate(parent, this.config.truncate));
                 }
             }
 

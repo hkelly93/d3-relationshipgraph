@@ -9,3 +9,4 @@
 # 1.3.0 (5/16/2016)
 * Pulled d3-tip into the source code to make modifications to add a way to determine the direction of the tip so that the tip doesn't go off the screen.
 * Minified the CSS stylesheet.
+* Added a way to configure the truncate cap in the configuration object.
