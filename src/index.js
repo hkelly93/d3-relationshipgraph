@@ -137,10 +137,10 @@
         this.config = {
             blockSize: 24,  // The block size for each child.
             selection: selection,  // The ID for the graph.
-            showTooltips: userConfig.showTooltips || true,  // Whether or not to show the tooltips on hover.
+            showTooltips: userConfig.showTooltips,  // Whether or not to show the tooltips on hover.
             maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row before wrapping.
             onClick: userConfig.onClick || noop,  // The callback function to call when a child is clicked. This function gets passed the JSON for the child.
-            showKeys: userConfig.showKeys || true,  // Whether or not to show the keys in the tooltip.
+            showKeys: userConfig.showKeys,  // Whether or not to show the keys in the tooltip.
             thresholds: userConfig.thresholds,  // Thresholds to determine the colors of the child blocks with.
             colors: userConfig.colors || ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
                 '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1',
@@ -152,6 +152,14 @@
             truncate: userConfig.truncate || 25  // Maximum length of a parent label before it gets truncated. Use 0 to turn off truncation.
         };
 
+        if (this.config.showTooltips === undefined) {
+            this.config.showTooltips = false;
+        }
+
+        if (this.config.showKeys === undefined) {
+            this.config.showKeys = false;
+        }
+
         // If the threshold array is made up of numbers, make sure that it is sorted.
         if (this.config.thresholds.length > 0 && (typeof this.config.thresholds[0]) == 'number') {
             this.config.thresholds.sort();
@@ -159,7 +167,7 @@
 
         // Create a canvas to measure the pixel width of the parent labels.
         this.ctx = document.createElement('canvas').getContext('2d');
-        this.ctx.font = '10pt Helvetica';
+        this.ctx.font = '13px Helvetica';
 
         /**
          * Function to create the tooltip.
@@ -243,7 +251,7 @@
      * @param json {Array} The array of JSON objects to verify.
      */
     RelationshipGraph.prototype.verifyJson = function(json) {
-        if (json === undefined || typeof JSON !== 'object' || json.length === 0) {
+        if (!(json instanceof Object)) {
             throw 'JSON has to be a JavaScript object that is not empty.';
         }
 

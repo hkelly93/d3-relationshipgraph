@@ -37,4 +37,77 @@ describe('RelationshipGraph', function() {
             }
         });
     });
+
+    describe('#ValidateIncorrectThresholds()', function() {
+        it('Should throw an exception', function() {
+            // Test undefined.
+            chai.expect(d3.select('#test').relationshipGraph).to.throw('undefined is not an object');
+            // Test string.
+            chai.expect(d3.select('#test').relationshipGraph.bind(
+                d3.select('#test').relationshipGraph, {'thresholds': '15'})).to.throw('Thresholds must be an Object.');
+            // Test number.
+            chai.expect(d3.select('#test').relationshipGraph.bind(
+                d3.select('#test').relationshipGraph, {'thresholds': 15})).to.throw('Thresholds must be an Object.');
+            // Test null.
+            chai.expect(d3.select('#test').relationshipGraph.bind(
+                d3.select('#test').relationshipGraph, {'thresholds': null})).to.throw('null is not an object');
+        });
+    });
+    
+    describe('#ValidateContext()', function() {
+        it('Should exist', function() {
+            var graph = d3.select('#test2').relationshipGraph({
+                'thresholds': [200]
+            });
+            
+            chai.expect(typeof graph.ctx).to.equal('object');
+
+            chai.expect(graph.ctx.font).to.equal('13px Helvetica');
+        });
+    });
+
+    describe('#ValidateShowTooltips()', function() {
+        it('Should be null', function() {
+            var graph = d3.select('#test3').relationshipGraph({
+                'thresholds': [200],
+                'showTooltips': false
+            });
+
+            chai.expect(graph.config.showTooltips).to.equal(false);
+            chai.expect(graph.tip).to.equal(null);
+
+            graph = d3.select('#test3').relationshipGraph({
+                'thresholds': [200],
+                'showTooltips': true
+            });
+
+            chai.expect(graph.config.showTooltips).to.equal(true);
+            chai.expect(typeof graph.tip).to.equal('function');
+        });
+    });
+
+    describe('#VerifyJSON()' , function() {
+        it('Should be verified correctly', function() {
+            var graph = d3.select('#test2').relationshipGraph({
+                'thresholds': [200]
+            });
+
+            // Test undefined
+            chai.expect(graph.verifyJson.bind(graph.verifyJson, undefined)).to.throw('JSON has to be a JavaScript object that is not empty.');
+            // Test number
+            chai.expect(graph.verifyJson.bind(graph.verifyJson, 5)).to.throw('JSON has to be a JavaScript object that is not empty.');
+            // Test string
+            chai.expect(graph.verifyJson.bind(graph.verifyJson, '5')).to.throw('JSON has to be a JavaScript object that is not empty.');
+            // Test null
+            chai.expect(graph.verifyJson.bind(graph.verifyJson, null)).to.throw('JSON has to be a JavaScript object that is not empty.');
+
+            // Test no parent
+            var json = [{
+                'test': 15
+            }];
+
+            chai.expect(graph.verifyJson.bind(graph.verifyJson, json)).to.throw('Child does not have a parent.');
+        })
+    })
+
 });
