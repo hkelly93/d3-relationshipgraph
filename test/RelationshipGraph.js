@@ -1,10 +1,4 @@
 /* global describe, it, d3, chai */
-
-/*
-    TODO: Test that only numeric thresholds are sorted.
-    TODO: Test that after the constructor is completed, an svg with a group exists.
-    TODO: Test that a parent color greater than 4 and less than 0 doesn't work.
- */
 describe('RelationshipGraph', function() {
     'use strict';
 
@@ -39,6 +33,18 @@ describe('RelationshipGraph', function() {
 
             for (var i = 0; i < expected.length; i++) {
                 chai.expect(graph.config.thresholds[i]).to.equal(expected[i]);
+            }
+        });
+
+        it('Should be the same', function() {
+            var thresholds = ['test1', 'test2', 'test'];
+
+            var graph = d3.select('#test1').relationshipGraph({
+                'thresholds': thresholds
+            });
+
+            for (var i = 0; i < thresholds.length; i++) {
+                chai.expect(graph.config.thresholds[i]).to.equal(thresholds[i]);
             }
         });
     });
@@ -249,6 +255,23 @@ describe('RelationshipGraph', function() {
                 {'test': 22},
                 {'test': 45}
             ])).to.equal(true);
+        });
+    });
+
+    describe('#ValidateCreation()', function() {
+        var graph = d3.select('#graph').relationshipGraph({
+            'showTooltips': true,
+            'maxChildCount': 10,
+            'showKeys': false,
+            'thresholds': [1000000000, 2000000000, 3000000000]
+        });
+
+        it('Should exist', function() {
+            var graph = document.getElementById('graph'),
+                svg = graph.children[0];
+
+            chai.expect(graph.tagName.toUpperCase()).to.equal('DIV');
+            chai.expect(svg.tagName.toUpperCase()).to.equal('SVG');
         });
     });
 });
