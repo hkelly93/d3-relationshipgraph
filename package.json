@@ -30,7 +30,7 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "d3": "3"
+    "d3": "^3.5.17"
   },
   "devDependencies": {
     "chai": "~3.5.0",

@@ -81,7 +81,17 @@
             return str;
         }
 
-        return (str.length >= cap) ? str.substring(0, cap) + '...' : str;
+        return (str.length > cap) ? str.substring(0, cap) + '...' : str;
+    };
+
+    /**
+     * Determines if the array passed in is an Array object.
+     *
+     * @param arr {Array} The array object to check.
+     * @returns {boolean} Whether or not the array is actually an array object.
+     */
+    var isArray = function(arr) {
+        return Object.prototype.toString.call(arr) == '[object Array]';
     };
 
     /**
@@ -153,11 +163,11 @@
         };
 
         if (this.config.showTooltips === undefined) {
-            this.config.showTooltips = false;
+            this.config.showTooltips = true;
         }
 
         if (this.config.showKeys === undefined) {
-            this.config.showKeys = false;
+            this.config.showKeys = true;
         }
 
         // If the threshold array is made up of numbers, make sure that it is sorted.
@@ -251,8 +261,8 @@
      * @param json {Array} The array of JSON objects to verify.
      */
     RelationshipGraph.prototype.verifyJson = function(json) {
-        if (!(json instanceof Object)) {
-            throw 'JSON has to be a JavaScript object that is not empty.';
+        if (!(isArray(json)) || (json.length < 0) || (typeof json[0] !== 'object')) {
+            throw 'JSON has to be an Array of JavaScript objects that is not empty.';
         }
 
         var length = json.length;

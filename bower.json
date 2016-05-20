@@ -3,7 +3,7 @@
   "description": "A D3 graph to show parent child relationships.",
   "main": "src/d3-tip.js, src/index.js",
   "dependencies": {
-    "d3": "3"
+    "d3": "^3.5.17"
   },
   "devDependencies": {
     "chai": "~3.5.0",
