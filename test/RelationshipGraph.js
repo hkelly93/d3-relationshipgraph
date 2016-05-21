@@ -642,10 +642,10 @@ describe('RelationshipGraph', function() {
             rects = [].slice.call(rects);
 
             rects.sort(function(rect1, rect2) {
-                var x1 = rect1.x,
-                    x2 = rect2.x,
-                    y1 = rect1.y,
-                    y2 = rect2.y,
+                var x1 = parseInt(rect1.getAttribute('x')),
+                    x2 = parseInt(rect2.getAttribute('x')),
+                    y1 = parseInt(rect1.getAttribute('y')),
+                    y2 = parseInt(rect2.getAttribute('y')),
                     r = ((y1 > y2) ? 1 : (y1 < y2) ? -1 : 0);
 
                 if (r === 0) {
@@ -654,10 +654,6 @@ describe('RelationshipGraph', function() {
 
                 return r;
             });
-
-            rects.forEach(element) {
-                console.log(element.x + ' ' + element.y);
-            }
 
             chai.expect(rects.length).to.equal(expectedX.length);
 
