@@ -585,9 +585,6 @@ describe('RelationshipGraph', function() {
                 svg = graphElement.children[0],
                 text = document.getElementsByClassName('relationshipGraph-Text');
 
-            chai.expect(Math.floor(parseInt(svg.getAttribute('width')))).to.equal(415);
-            chai.expect(parseInt(svg.getAttribute('height'))).to.equal(255);
-
             var expectedText = ['20th Century Fox (6)', 'Columbia Pictures (3)', 'Lionsgate Films (1)', 'New Line Cinema (3)',
                 'Paramount Pictures (1)', 'Universal Pictures (7)', 'Walt Disney Studios (16)', 'Warner Bros. Pictures (13)'],
                 expectedY = [0, 24, 48, 72, 96, 120, 144, 192];
