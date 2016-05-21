@@ -23,6 +23,9 @@
 * Updated algorithm for determining if the tooltip should be relocated.
 * Added sorting to the thresholds if it is made up of numbers.
 
-# 1.3.1 (5/19/2016-)
+# 1.4.1 (5/19/2016 - 5/21/2016)
 * Added additional tests and fixed the bugs that came with that.
 * Updated d3 to 3.5.17
+* Finished the test suite.
+
+# 1.5.0 (5/21/16-)
