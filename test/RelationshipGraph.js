@@ -638,14 +638,27 @@ describe('RelationshipGraph', function() {
                 144, 144, 144, 144, 144, 144, 144, 144, 144, 168, 168, 168, 168, 168, 168, 192, 192, 192, 192, 192,
                 192, 192, 192, 192, 192, 216, 216, 216, 216];
 
+            // Sort it by Y and X.
+            rects = [].slice.call(rects);
+
+            rects.sort(function(rect1, rect2) {
+                var x1 = rect1.x,
+                    x2 = rect2.x,
+                    y1 = rect1.y,
+                    y2 = rect2.y,
+                    r = ((y1 > y2) ? 1 : (y1 < y2) ? -1 : 0);
+
+                if (r === 0) {
+                    return ((x1 > x2) ? 1 : (x1 < x2) ? -1 : 0);
+                }
+
+                return r;
+            });
+
             chai.expect(rects.length).to.equal(expectedX.length);
 
             for (var j = 0; j < rects.length; j++) {
                 var block = rects[j];
-
-                console.log(j);
-                console.log(block.getAttribute('x'));
-                console.log(block.getAttribute('y'));
 
                 chai.expect(parseInt(block.getAttribute('x'))).to.equal(expectedX[j]);
                 chai.expect(parseInt(block.getAttribute('y'))).to.equal(expectedY[j]);
