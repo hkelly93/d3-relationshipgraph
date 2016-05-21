@@ -314,13 +314,30 @@
 
             // Ensure that the JSON is sorted by parent.
             json.sort(function(child1, child2) {
-                if (child1.parent < child2.parent) {
-                    return -1;
-                } else if (child1.parent > child2.parent) {
-                    return 1;
-                } else {
-                    return 0;
+                var parent1 = child1.parent.toLowerCase(),
+                    parent2 = child2.parent.toLowerCase(),
+                    r = ((parent1 > parent2) ? 1 : (parent1 < parent2) ? -1 : 0);
+
+                if (r === 0) {
+                    var keys = Object.keys(child1);
+
+                    for (var i = 0; i < keys.length; i++) {
+                        if (keys[i] == 'parent') {
+                            continue;
+                        }
+
+                        var val1 = child1[keys[i]],
+                            val2 = child2[keys[i]];
+
+                        r = ((val1 > val2) ? 1 : (val1 < val2) ? -1 : 0);
+
+                        if (r !== 0) {
+                            return r;
+                        }
+                    }
                 }
+
+                return r;
             });
 
             // Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per parent. This will also
