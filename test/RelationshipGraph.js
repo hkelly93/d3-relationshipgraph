@@ -636,14 +636,14 @@ describe('RelationshipGraph', function() {
 
             expectedY = [0, 0, 0, 0, 0, 0, 24, 24, 24, 48, 72, 72, 72, 96, 120, 120, 120, 120, 120, 120, 120, 144,
                 144, 144, 144, 144, 144, 144, 144, 144, 144, 168, 168, 168, 168, 168, 168, 192, 192, 192, 192, 192,
-                192, 192, 192, 192, 192, 216, 216, 216, 216],
+                192, 192, 192, 192, 192, 216, 216, 216, 216];
 
             chai.expect(rects.length).to.equal(expectedX.length);
 
             for (var j = 0; j < rects.length; j++) {
                 var block = rects[j];
 
-                //chai.expect(parseInt(block.getAttribute('x'))).to.equal(expectedX[j]);
+                chai.expect(parseInt(block.getAttribute('x'))).to.equal(expectedX[j]);
                 chai.expect(parseInt(block.getAttribute('y'))).to.equal(expectedY[j]);
                 chai.expect(parseInt(block.getAttribute('rx'))).to.equal(4);
                 chai.expect(parseInt(block.getAttribute('ry'))).to.equal(4);
