@@ -43,6 +43,10 @@ module.exports = function(grunt) {
         mocha: {
             test: {
                 src: ['test/**/*.html']
+            },
+            options: {
+                log: true,
+                logErrors: true
             }
         }
     });
