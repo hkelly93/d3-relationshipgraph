@@ -644,6 +644,8 @@ describe('RelationshipGraph', function() {
                 var block = rects[j];
 
                 console.log(j);
+                console.log(block.getAttribute('x'));
+                console.log(block.getAttribute('y'));
 
                 chai.expect(parseInt(block.getAttribute('x'))).to.equal(expectedX[j]);
                 chai.expect(parseInt(block.getAttribute('y'))).to.equal(expectedY[j]);
