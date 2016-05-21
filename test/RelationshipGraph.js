@@ -655,6 +655,8 @@ describe('RelationshipGraph', function() {
                 return r;
             });
 
+            console.log(rects);
+
             chai.expect(rects.length).to.equal(expectedX.length);
 
             for (var j = 0; j < rects.length; j++) {
