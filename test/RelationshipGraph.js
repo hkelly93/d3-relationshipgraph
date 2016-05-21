@@ -655,6 +655,10 @@ describe('RelationshipGraph', function() {
                 return r;
             });
 
+            for (var i = 0; i < rects.length; i++) {
+                console.log(rects[i].getAttribute('x') + ' ' + rects[i].getAttribute('y'));
+            }
+
             chai.expect(rects.length).to.equal(expectedX.length);
 
             for (var j = 0; j < rects.length; j++) {
