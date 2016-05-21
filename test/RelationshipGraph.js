@@ -570,6 +570,16 @@ describe('RelationshipGraph', function() {
             }
         ];
 
+        json.sort(function(child1, child2) {
+            if (child1.parent < child2.parent) {
+                return -1;
+            } else if (child1.parent > child2.parent) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
         it('Should exist', function() {
             var graphElement = document.getElementById('graph'),
                 svg = graphElement.children[0];
