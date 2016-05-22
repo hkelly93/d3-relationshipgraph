@@ -9,8 +9,10 @@ View a working example [here](https://cdn.rawgit.com/hkelly93/d3-relationshipGra
 
 This gif shows how the simulated Plexxi Switch's health changes during a reboot. Initially, the switches start off as disconnected (red) and then they become disconnected from the fabric, causing them to have a parent of *Unattached*. Right after the switches reboot, the health is unknown (blue) until they rejoin the fabric and then the status changes to healthy (green).
 
+If you have used d3-relationshipgraph, feel free to edit this readme and put a link and image for your example.
+
 ## Installation
-You can install d3.relationshipgraph via [bower](http://bower.io)
+You can install d3-relationshipgraph via [bower](http://bower.io)
 
 ```
 $ bower install d3-relationshipgraph
@@ -31,12 +33,12 @@ in the directory.
 Since d3.relationshipgraph extends the D3.js framework, it can be easily added to an existing project by adding the following
 
 ```html
-<!-- Add D3.js and d3-tip.js -->
+<!-- Add D3.js -->
 <script src="https://d3js.org/d3.v3.min.js"></script>
 
 <!-- Add d3.relationshipgraph.min.js -->
 <script src="path/to/scripts/d3.relationshipgraph.min.js"></script>
-<link type="text/css" rel="stylesheet" href="path/to/css/RelationshipGraph.css">
+<link type="text/css" rel="stylesheet" href="path/to/css/d3.relationshipgraph.min.css">
 ````
 
 Once the framework is added to the HTML file, graphs can be created using familiar D3 selections
