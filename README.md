@@ -20,6 +20,11 @@ You can also use [npm](http://npmjs.org)
 ```
 $ npm install d3-relationshipgraph
 ```
+Or by downloading the repository and running
+```
+$ npm install
+```
+in the directory.
 
 ## Usage
 ### Setup
