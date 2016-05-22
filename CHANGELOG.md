@@ -29,4 +29,5 @@
 * Fixed a bug that made the sorting different each time.
 * Finished the test suite.
 
-# 1.5.0 (5/21/16-)
+# 1.4.2 (5/21/16-)
+* Updated dev dependencies.
