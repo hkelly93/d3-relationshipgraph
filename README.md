@@ -1,4 +1,4 @@
-# d3-relationshipgraph [![Build Status](https://travis-ci.org/hkelly93/d3-relationshipgraph.svg?branch=master)](https://travis-ci.org/hkelly93/d3-relationshipgraph)
+# d3-relationshipgraph [![Build Status](https://travis-ci.org/hkelly93/d3-relationshipgraph.svg?branch=master)](https://travis-ci.org/hkelly93/d3-relationshipgraph) [![Dependencies Status](https://david-dm.org/hkelly93/d3-relationshipgraph.svg)](https://david-dm.org/hkelly93/d3-relationshipgraph.svg) [![devDependency Status](https://david-dm.org/hkelly93/d3-relationshipgraph/dev-status.svg)](https://david-dm.org/hkelly93/d3-relationshipgraph#info=devDependencies)
 A framework for creating parent-child relationships with [D3.js](http://www.d3js.org).
 
 ## Examples
