@@ -4,7 +4,7 @@ A framework for creating parent-child relationships with [D3.js](http://www.d3js
 ## Examples
 View a working example [here](https://cdn.rawgit.com/hkelly93/d3-relationshipGraph/master/examples/index.html).
 
-### Visualizing Simulated [Plexxi Switches](http://www.plexxi.com) Health During A Reboot
+### Visualizing Simulated [Plexxi Switches](http://www.plexxi.com) Health Changes During A Reboot
 ![Switches Rebooting](plexxi.gif)
 
 This gif shows how the simulated Plexxi Switch's health changes during a reboot. Initially, the switches start off as disconnected (red) and then they become disconnected from the fabric, causing them to have a parent of *Unattached*. Right after the switches reboot, the health is unknown (blue) until they rejoin the fabric and then the status changes to healthy (green).
