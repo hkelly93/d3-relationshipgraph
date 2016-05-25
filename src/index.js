@@ -256,6 +256,145 @@
     };
 
     /**
+     * Returns a sorted Array.
+     *
+     * @param json {Array} The Array to be sorted.
+     */
+    var sortJson = function(json) {
+        json.sort(function(child1, child2) {
+            var parent1 = child1.parent.toLowerCase(),
+                parent2 = child2.parent.toLowerCase(),
+                r = ((parent1 > parent2) ? 1 : (parent1 < parent2) ? -1 : 0);
+
+            if (r === 0) {
+                var keys = Object.keys(child1);
+
+                for (var i = 0; i < keys.length; i++) {
+                    if (keys[i] == 'parent') {
+                        continue;
+                    }
+
+                    var val1 = child1[keys[i]],
+                        val2 = child2[keys[i]];
+
+                    r = ((val1 > val2) ? 1 : (val1 < val2) ? -1 : 0);
+
+                    if (r !== 0) {
+                        return r;
+                    }
+                }
+            }
+
+            return r;
+        });
+    };
+
+    /**
+     * Assign the index and row to each of the children in the Array of Objects.
+     *
+     * @param that {RelationshipGraph} The relationship graph object.
+     * @param json {Array} The array of Objects to loop through.
+     * @param parentSizes {Object} The parent sizes determined.
+     * @param parents {Array} The parent label names.
+     * @returns {Object} Object containing the longest width, the calculated max children per row, and the maximum amount
+     *  of rows.
+     */
+    var assignIndexAndRow = function(that, json, parentSizes, parents) {
+        // Determine the longest parent name to calculate how far from the left the child blocks should start.
+        var longest = '',
+            parentNames = Object.keys(parentSizes),
+            i,
+            index = 0,
+            row = 0,
+            previousParent = '';
+
+        for (i = 0; i < parents.length; i++) {
+            var current = parents[i] + ' ( ' + parentSizes[parentNames[i]] + ') ';
+
+            if (current.length > longest.length) {
+                longest = current;
+            }
+        }
+
+        // Calculate the row and column for each child block.
+        var longestWidth = that.ctx.measureText(longest).width,
+            parentDiv = that.config.selection[0][0],
+            calculatedMaxChildren = (that.config.maxChildCount === 0) ?
+                Math.floor((parentDiv.parentElement.clientWidth - 15 - longestWidth) / that.config.blockSize) :
+                that.config.maxChildCount;
+
+        for (i = 0; i < json.length; i++) {
+            var element = json[i],
+                parent = element.parent;
+
+            if (previousParent !== null && previousParent !== parent) {
+                element.row = row + 1;
+                element.index = 1;
+
+                index = 2;
+                row++;
+            } else {
+                if (index === calculatedMaxChildren + 1) {
+                    index = 1;
+                    row++;
+                }
+
+                element.row = row;
+                element.index = index;
+
+                index++;
+            }
+
+            previousParent = parent;
+
+            // Figure out the color based on the threshold.
+            var value,
+                compare;
+
+            if (typeof that.config.thresholds[0] === 'string') {
+                value = element.value;
+
+                /**
+                 * Compare the values to see if they're equal.
+                 *
+                 * @param value {String} The value from the JSON.
+                 * @param threshold {String} The threshold from the JSON.
+                 * @returns {boolean} Whether or not the two are equal.
+                 */
+                compare = function(value, threshold) {
+                    return value == threshold;
+                };
+            } else {
+                value = (typeof element.value == 'number') ? element.value : parseInt(element.value.replace(/\D/g, ''));
+
+                /**
+                 * Compare the values to see if the value is less than the threshold.
+                 *
+                 * @param value {number} The value from the JSON.
+                 * @param threshold {number} The threshold from the JSON.
+                 * @returns {boolean} Whether or not the value is less than the threshold.
+                 */
+                compare = function(value, threshold) {
+                    return value < threshold;
+                };
+            }
+
+            for (var thresholdIndex = 0; thresholdIndex < that.config.thresholds.length; thresholdIndex++) {
+                if (compare(value, that.config.thresholds[thresholdIndex])) {
+                    element.color = thresholdIndex;
+                    break;
+                }
+            }
+        }
+
+        return {
+            'longestWidth': longestWidth,
+            'calculatedMaxChildren': calculatedMaxChildren,
+            'maxRow': row
+        };
+    };
+
+    /**
      * Verify that the JSON passed in is correct.
      *
      * @param json {Array} The array of JSON objects to verify.
@@ -300,9 +439,7 @@
      */
     RelationshipGraph.prototype.data = function(json) {
         if (this.verifyJson(json)) {
-            var row = 1,
-                index = 1,
-                previousParent = null,
+            var row,
                 parents = [],
                 parentSizes = {},
                 previousParentSizes = 0,
@@ -310,35 +447,12 @@
                 parent,
                 i,
                 maxWidth,
-                maxHeight;
+                maxHeight,
+                calculatedMaxChildren,
+                longestWidth;
 
             // Ensure that the JSON is sorted by parent.
-            json.sort(function(child1, child2) {
-                var parent1 = child1.parent.toLowerCase(),
-                    parent2 = child2.parent.toLowerCase(),
-                    r = ((parent1 > parent2) ? 1 : (parent1 < parent2) ? -1 : 0);
-
-                if (r === 0) {
-                    var keys = Object.keys(child1);
-
-                    for (var i = 0; i < keys.length; i++) {
-                        if (keys[i] == 'parent') {
-                            continue;
-                        }
-
-                        var val1 = child1[keys[i]],
-                            val2 = child2[keys[i]];
-
-                        r = ((val1 > val2) ? 1 : (val1 < val2) ? -1 : 0);
-
-                        if (r !== 0) {
-                            return r;
-                        }
-                    }
-                }
-
-                return r;
-            });
+            sortJson(json);
 
             // Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per parent. This will also
             // calculate the row and index for each block and truncate the parent names to 25 characters.
@@ -353,88 +467,13 @@
                 }
             }
 
-            // Determine the longest parent name to calculate how far from the left the child blocks should start.
-            var longest = '',
-                parentNames = Object.keys(parentSizes);
+            // Assign the indexes and rows to each child. This method also calculates the maximum amount of children per row, the longest
+            // row width, and how many rows there are.
+            var calculatedResults = assignIndexAndRow(this, json, parentSizes, parents);
 
-            for (i = 0; i < parents.length; i++) {
-                var current = parents[i] + ' ( ' + parentSizes[parentNames[i]] + ') ';
-
-                if (current.length > longest.length) {
-                    longest = current;
-                }
-            }
-
-            // Calculate the row and column for each child block.
-            var longestWidth = this.ctx.measureText(longest).width,
-                parentDiv = this.config.selection[0][0],
-                calculatedMaxChildren = (this.config.maxChildCount === 0) ?
-                    Math.floor((parentDiv.parentElement.clientWidth - 15 - longestWidth) / this.config.blockSize) :
-                    this.config.maxChildCount;
-
-            for (i = 0; i < json.length; i++) {
-                var element = json[i];
-                parent = element.parent;
-
-                if (previousParent !== null && previousParent !== parent) {
-                    element.row = row + 1;
-                    element.index = 1;
-
-                    index = 2;
-                    row++;
-                } else {
-                    if (index === calculatedMaxChildren + 1) {
-                        index = 1;
-                        row++;
-                    }
-
-                    element.row = row;
-                    element.index = index;
-
-                    index++;
-                }
-
-                previousParent = parent;
-
-                // Figure out the color based on the threshold.
-                var value,
-                    compare;
-
-                if (typeof _this.config.thresholds[0] === 'string') {
-                    value = element.value;
-
-                    /**
-                     * Compare the values to see if they're equal.
-                     *
-                     * @param value {String} The value from the JSON.
-                     * @param threshold {String} The threshold from the JSON.
-                     * @returns {boolean} Whether or not the two are equal.
-                     */
-                    compare = function(value, threshold) {
-                        return value == threshold;
-                    };
-                } else {
-                    value = (typeof element.value == 'number') ? element.value : parseInt(element.value.replace(/\D/g, ''));
-
-                    /**
-                     * Compare the values to see if the value is less than the threshold.
-                     *
-                     * @param value {number} The value from the JSON.
-                     * @param threshold {number} The threshold from the JSON.
-                     * @returns {boolean} Whether or not the value is less than the threshold.
-                     */
-                    compare = function(value, threshold) {
-                        return value < threshold;
-                    };
-                }
-
-                for (var thresholdIndex = 0; thresholdIndex < _this.config.thresholds.length; thresholdIndex++) {
-                    if (compare(value, _this.config.thresholds[thresholdIndex])) {
-                        element.color = thresholdIndex;
-                        break;
-                    }
-                }
-            }
+            calculatedMaxChildren = calculatedResults.calculatedMaxChildren;
+            longestWidth = calculatedResults.longestWidth;
+            row = calculatedResults.maxRow;
 
             // Set the max width and height.
             maxHeight = row * this.config.blockSize;
