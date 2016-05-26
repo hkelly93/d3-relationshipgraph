@@ -48,59 +48,6 @@
     'use strict';
 
     /**
-     * Checks if the object contains the key.
-     *
-     * @param {object} obj The object to check in.
-     * @param {string} key They key to check for.
-     * @returns {boolean} Whether or not the object contains the key.
-     */
-    var containsKey = function(obj, key) {
-        return Object.keys(obj).indexOf(key) > -1;
-    };
-
-    /**
-     * Checks whether or not the key is in the array.
-     *
-     * @param {*[]} arr The array to check in.
-     * @param {string} key The key to check for.
-     * @returns {boolean} Whether or not the key exists in the array.
-     */
-    var contains = function(arr, key) {
-        return arr.indexOf(key) > -1;
-    };
-
-    /**
-     * Truncate a string to 25 characters plus an ellipses.
-     *
-     * @param {string} str The string to truncate.
-     * @param {number} cap The number to cap the string at before it gets truncated.
-     * @returns {string} The string truncated (if necessary).
-     */
-    var truncate = function(str, cap) {
-        if (cap === 0) {
-            return str;
-        }
-
-        return (str.length > cap) ? str.substring(0, cap) + '...' : str;
-    };
-
-    /**
-     * Determines if the array passed in is an Array object.
-     *
-     * @param arr {Array} The array object to check.
-     * @returns {boolean} Whether or not the array is actually an array object.
-     */
-    var isArray = function(arr) {
-        return Object.prototype.toString.call(arr) == '[object Array]';
-    };
-
-    /**
-     * Noop function.
-     */
-    var noop = function() {
-    };
-
-    /**
      * Add a relationshipGraph function to d3 that returns a RelationshipGraph object.
      */
     d3.relationshipGraph = function() {
@@ -253,6 +200,59 @@
         }
 
         this.graph = this;
+    };
+
+    /**
+     * Checks if the object contains the key.
+     *
+     * @param {object} obj The object to check in.
+     * @param {string} key They key to check for.
+     * @returns {boolean} Whether or not the object contains the key.
+     */
+    var containsKey = function(obj, key) {
+        return Object.keys(obj).indexOf(key) > -1;
+    };
+
+    /**
+     * Checks whether or not the key is in the array.
+     *
+     * @param {*[]} arr The array to check in.
+     * @param {string} key The key to check for.
+     * @returns {boolean} Whether or not the key exists in the array.
+     */
+    var contains = function(arr, key) {
+        return arr.indexOf(key) > -1;
+    };
+
+    /**
+     * Truncate a string to 25 characters plus an ellipses.
+     *
+     * @param {string} str The string to truncate.
+     * @param {number} cap The number to cap the string at before it gets truncated.
+     * @returns {string} The string truncated (if necessary).
+     */
+    var truncate = function(str, cap) {
+        if (cap === 0) {
+            return str;
+        }
+
+        return (str.length > cap) ? str.substring(0, cap) + '...' : str;
+    };
+
+    /**
+     * Determines if the array passed in is an Array object.
+     *
+     * @param arr {Array} The array object to check.
+     * @returns {boolean} Whether or not the array is actually an array object.
+     */
+    var isArray = function(arr) {
+        return Object.prototype.toString.call(arr) == '[object Array]';
+    };
+
+    /**
+     * Noop function.
+     */
+    var noop = function() {
     };
 
     /**
