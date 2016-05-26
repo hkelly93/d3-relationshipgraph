@@ -32,3 +32,4 @@
 # 1.4.2 (5/21/16-)
 * Updated dev dependencies.
 * Reduced the complexity of the *data* method by splitting it up into separate private methods.
+* Moved the all private methods into one area.
