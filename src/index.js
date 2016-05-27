@@ -80,9 +80,20 @@
      * @constructor
      */
     var RelationshipGraph = function(selection, userConfig) {
-        // Verify that the user config contains the thresholds.
-        if (userConfig.thresholds === undefined || typeof userConfig.thresholds !== 'object') {
-            throw 'Thresholds must be an Object.';
+        if (userConfig === undefined) {
+            userConfig = {
+                'showTooltips': true,
+                'maxChildCount': 0,
+                'onClick': noop,
+                thresholds: []
+            };
+        } else {
+            // Verify that the user config contains the thresholds.
+            if (userConfig.thresholds === undefined) {
+                userConfig.thresholds = [];
+            } else if (typeof userConfig.thresholds !== 'object') {
+                throw 'Thresholds must be an Object.';
+            }
         }
 
         /**
@@ -327,42 +338,46 @@
 
             previousParent = parent;
 
-            // Figure out the color based on the threshold.
-            var value,
-                compare;
-
-            if (typeof that.config.thresholds[0] === 'string') {
-                value = element.value;
-
-                /**
-                 * Compare the values to see if they're equal.
-                 *
-                 * @param value {String} The value from the JSON.
-                 * @param threshold {String} The threshold from the JSON.
-                 * @returns {boolean} Whether or not the two are equal.
-                 */
-                compare = function(value, threshold) {
-                    return value == threshold;
-                };
+            if (that.config.thresholds.length === 0) {
+                element.color = 0;
             } else {
-                value = (typeof element.value == 'number') ? element.value : parseInt(element.value.replace(/\D/g, ''));
+                // Figure out the color based on the threshold.
+                var value,
+                    compare;
 
-                /**
-                 * Compare the values to see if the value is less than the threshold.
-                 *
-                 * @param value {number} The value from the JSON.
-                 * @param threshold {number} The threshold from the JSON.
-                 * @returns {boolean} Whether or not the value is less than the threshold.
-                 */
-                compare = function(value, threshold) {
-                    return value < threshold;
-                };
-            }
+                if (typeof that.config.thresholds[0] === 'string') {
+                    value = element.value;
 
-            for (var thresholdIndex = 0; thresholdIndex < that.config.thresholds.length; thresholdIndex++) {
-                if (compare(value, that.config.thresholds[thresholdIndex])) {
-                    element.color = thresholdIndex;
-                    break;
+                    /**
+                     * Compare the values to see if they're equal.
+                     *
+                     * @param value {String} The value from the JSON.
+                     * @param threshold {String} The threshold from the JSON.
+                     * @returns {boolean} Whether or not the two are equal.
+                     */
+                    compare = function (value, threshold) {
+                        return value == threshold;
+                    };
+                } else {
+                    value = (typeof element.value == 'number') ? element.value : parseInt(element.value.replace(/\D/g, ''));
+
+                    /**
+                     * Compare the values to see if the value is less than the threshold.
+                     *
+                     * @param value {number} The value from the JSON.
+                     * @param threshold {number} The threshold from the JSON.
+                     * @returns {boolean} Whether or not the value is less than the threshold.
+                     */
+                    compare = function (value, threshold) {
+                        return value < threshold;
+                    };
+                }
+
+                for (var thresholdIndex = 0; thresholdIndex < that.config.thresholds.length; thresholdIndex++) {
+                    if (compare(value, that.config.thresholds[thresholdIndex])) {
+                        element.color = thresholdIndex;
+                        break;
+                    }
                 }
             }
         }
