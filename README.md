@@ -86,7 +86,7 @@ config = {
 }
 ```
 
-The only required configuration property is *thresholds*, all of the other properties have default values
+None of the configurations are required and they all have default values
 
 ```Javascript
 config = {
@@ -94,6 +94,7 @@ config = {
     maxChildCount: 0, // When the value is 0, the max count is determined by the width of the parent element.
     onClick: function () { }, // no-op
     showKeys: true,
+    thresholds: [], // All chiild blocks will be the same color.
     transitionTime: 1500,
     truncate: 0
 }

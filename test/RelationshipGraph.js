@@ -51,8 +51,6 @@ describe('RelationshipGraph', function() {
 
     describe('#ValidateIncorrectThresholds()', function() {
         it('Should throw an exception', function() {
-            // Test undefined.
-            chai.expect(d3.select('#test').relationshipGraph).to.throw('undefined is not an object');
             // Test string.
             chai.expect(d3.select('#test').relationshipGraph.bind(
                 d3.select('#test').relationshipGraph, {'thresholds': '15'})).to.throw('Thresholds must be an Object.');
@@ -62,6 +60,8 @@ describe('RelationshipGraph', function() {
             // Test null.
             chai.expect(d3.select('#test').relationshipGraph.bind(
                 d3.select('#test').relationshipGraph, {'thresholds': null})).to.throw('null is not an object');
+
+            var graph = d3.select('#test2').relationshipGraph();
         });
     });
     
