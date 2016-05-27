@@ -33,3 +33,4 @@
 * Updated dev dependencies.
 * Reduced the complexity of the *data* method by splitting it up into separate private methods.
 * Moved the all private methods into one area.
+* Added the ability to not pass in thresholds and all the blocks be the same color.
