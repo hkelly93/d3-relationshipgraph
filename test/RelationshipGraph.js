@@ -615,7 +615,8 @@ describe('RelationshipGraph', function() {
 
             var expectedText = ['20th Century Fox (6)', 'Columbia Pictures (3)', 'Lionsgate Films (1)', 'New Line Cinema (3)',
                 'Paramount Pictures (1)', 'Universal Pictures (7)', 'Walt Disney Studios (16)', 'Warner Bros. Pictures (13)'],
-                expectedY = [0, 24, 48, 72, 96, 120, 144, 192];
+                expectedY = [0, 24, 48, 72, 96, 120, 144, 192],
+                expectedX = [41, 35, 50, 38, 26, 36, 18, 7];
 
             chai.expect(text.length).to.equal(expectedText.length);
 
@@ -624,15 +625,16 @@ describe('RelationshipGraph', function() {
                     elementText = element.firstChild.textContent;
 
                 chai.expect(element).to.not.equal(undefined);
-                chai.expect(parseInt(element.getAttribute('x'))).to.equal(0);
+                chai.expect(parseInt(element.getAttribute('x'))).to.equal(expectedX[i]);
                 chai.expect(parseInt(element.getAttribute('y'))).to.equal(expectedY[i]);
                 chai.expect(elementText).to.equal(expectedText[i]);
             }
 
-            var expectedX = [160, 184, 208, 232, 256, 280, 160, 184, 208, 160, 160, 184, 208, 160, 160, 184, 208, 232,
-                    256, 280, 304, 160, 184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208, 232, 256, 280, 160,
-                    184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208],
-                rects = document.getElementsByClassName('relationshipGraph-block');
+            var rects = document.getElementsByClassName('relationshipGraph-block');
+
+            expectedX = [160, 184, 208, 232, 256, 280, 160, 184, 208, 160, 160, 184, 208, 160, 160, 184, 208, 232,
+                256, 280, 304, 160, 184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208, 232, 256, 280, 160,
+                184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208];
 
             expectedY = [0, 0, 0, 0, 0, 0, 24, 24, 24, 48, 72, 72, 72, 96, 120, 120, 120, 120, 120, 120, 120, 144,
                 144, 144, 144, 144, 144, 144, 144, 144, 144, 168, 168, 168, 168, 168, 168, 192, 192, 192, 192, 192,

@@ -483,7 +483,10 @@
                 .text(function(obj, index) {
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
                 })
-                .attr('x', 0)
+                .attr('x', function(obj, index) {
+                    var width = _this.ctx.measureText(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    return longestWidth - width.width;
+                })
                 .attr('y', function(obj, index) {
                     if (index === 0) {
                         return 0;
@@ -506,6 +509,10 @@
             parentNodes
                 .text(function(obj, index) {
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
+                })
+                .attr('x', function(obj, index) {
+                    var width = _this.ctx.measureText(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    return longestWidth - width.width;
                 })
                 .attr('y', function(obj, index) {
                     if (index === 0) {
