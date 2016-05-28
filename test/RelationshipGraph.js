@@ -633,11 +633,10 @@ describe('RelationshipGraph', function() {
                 chai.expect(elementText).to.equal(expectedText[i]);
             }
 
-            var rects = document.getElementsByClassName('relationshipGraph-block');
-
-            expectedX = [160, 184, 208, 232, 256, 280, 160, 184, 208, 160, 160, 184, 208, 160, 160, 184, 208, 232,
-                256, 280, 304, 160, 184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208, 232, 256, 280, 160,
-                184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208];
+            var rects = document.getElementsByClassName('relationshipGraph-block'),
+                expectedX = [160, 184, 208, 232, 256, 280, 160, 184, 208, 160, 160, 184, 208, 160, 160, 184, 208, 232,
+                    256, 280, 304, 160, 184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208, 232, 256, 280, 160,
+                    184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208];
 
             expectedY = [0, 0, 0, 0, 0, 0, 24, 24, 24, 48, 72, 72, 72, 96, 120, 120, 120, 120, 120, 120, 120, 144,
                 144, 144, 144, 144, 144, 144, 144, 144, 144, 168, 168, 168, 168, 168, 168, 192, 192, 192, 192, 192,
@@ -646,7 +645,7 @@ describe('RelationshipGraph', function() {
             chai.expect(rects.length).to.equal(expectedX.length);
 
             // TODO: Fix this.
-            addition = parseInt(rects[0].getAttribute('x')) === expectedX[0] ? 0 : 24;
+            var addition = parseInt(rects[0].getAttribute('x')) === expectedX[0] ? 0 : 24;
 
             for (var j = 0; j < rects.length; j++) {
                 var block = rects[j];
