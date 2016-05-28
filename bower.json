@@ -8,6 +8,7 @@
   "devDependencies": {
     "chai": "~3.5.0",
     "grunt": "^1.0.1",
+    "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-csslint": "^1.0.0",
     "grunt-contrib-cssmin": "^1.0.1",
     "grunt-contrib-jshint": "^1.0.0",
