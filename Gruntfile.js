@@ -3,13 +3,22 @@ module.exports = function(grunt) {
     'use strict';
 
     grunt.initConfig({
+        concat: {
+            options: {
+                separator: ' '
+            },
+            dist: {
+                src: ['src/d3-tip.js', 'src/index.js'],
+                dest: 'dest/d3.relationshipgraph.js'
+            }
+        },
         uglify: {
             options: {
                 mangle: false
             },
             target: {
                 files: {
-                    'dest/d3.relationshipgraph.min.js': 'src/*.js'
+                    'dest/d3.relationshipgraph.min.js': 'dest/d3.relationshipgraph.js'
                 }
             }
         },
@@ -51,6 +60,7 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-jscs');
@@ -58,7 +68,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-csslint');
     grunt.loadNpmTasks('grunt-mocha');
 
-    grunt.registerTask('default', ['jshint', 'jscs', 'uglify', 'csslint', 'cssmin']);
-    grunt.registerTask('test', ['jshint', 'jscs', 'uglify', 'csslint', 'cssmin', 'mocha']);
+    grunt.registerTask('default', ['jshint', 'jscs', 'concat', 'uglify', 'csslint', 'cssmin']);
+    grunt.registerTask('test', ['jshint', 'jscs', 'concat', 'uglify', 'csslint', 'cssmin', 'mocha']);
 
 };

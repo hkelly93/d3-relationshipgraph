@@ -35,3 +35,6 @@
 * Moved the all private methods into one area.
 * Added the ability to not pass in thresholds and all the blocks be the same color.
 * Right aligned the parent labels.
+
+# 1.5.0 (5/26/2016-)
+* Created a non-minified js file in dest using grunt-contrib-concat.
