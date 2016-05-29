@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         concat: {
             options: {
-                separator: ';'
+                separator: ' '
             },
             dist: {
                 src: ['src/d3-tip.js', 'src/index.js'],
@@ -81,5 +81,4 @@ module.exports = function(grunt) {
 
     grunt.registerTask('default', ['jshint', 'jscs', 'concat', 'babel', 'uglify', 'csslint', 'cssmin']);
     grunt.registerTask('test', ['jshint', 'jscs', 'concat', 'babel', 'uglify', 'csslint', 'cssmin', 'mocha']);
-
 };
