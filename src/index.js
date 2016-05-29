@@ -24,12 +24,6 @@
  * D3-relationshipgraph - 1.5.0
  */
 
-/**
- * Determine if AMD or CommonJS are being used.
- *
- * @param {object} root The window object.
- * @param {object} factory The factory object.
- */
 class RelationshipGraph {
 
     /**
@@ -38,21 +32,12 @@ class RelationshipGraph {
      * @param {Object} userConfig Configuration for graph.
      * @constructor
      */
-    constructor(selection, userConfig) {
-        if (userConfig === undefined) {
-            userConfig = {
-                showTooltips: true,
-                maxChildCount: 0,
-                onClick: RelationshipGraph.noop,
-                thresholds: []
-            };
-        } else {
-            // Verify that the user config contains the thresholds.
-            if (userConfig.thresholds === undefined || userConfig.thresholds === null) {
-                userConfig.thresholds = [];
-            } else if (typeof userConfig.thresholds !== 'object') {
-                throw 'Thresholds must be an Object.';
-            }
+    constructor(selection, userConfig = {showTooltips: true, maxChildCount: 0, onClick: RelationshipGraph.noop, thresholds: []}) {
+        // Verify that the user config contains the thresholds.
+        if (userConfig.thresholds === undefined || userConfig.thresholds === null) {
+            userConfig.thresholds = [];
+        } else if (typeof userConfig.thresholds !== 'object') {
+            throw 'Thresholds must be an Object.';
         }
 
         /**
@@ -69,12 +54,7 @@ class RelationshipGraph {
             onClick: userConfig.onClick || RelationshipGraph.noop,  // The callback function to call when a child is clicked. This function gets passed the JSON for the child.
             showKeys: userConfig.showKeys,  // Whether or not to show the keys in the tooltip.
             thresholds: userConfig.thresholds,  // Thresholds to determine the colors of the child blocks with.
-            colors: userConfig.colors || ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
-                '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1',
-                '#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc',
-                '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f',
-                '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
-            ],  // Colors to use for blocks.
+            colors: userConfig.colors || RelationshipGraph.getColors(),  // Colors to use for blocks.
             transitionTime: userConfig.transitionTime || 1500,  // Time for a transition to start and complete (in milliseconds).
             truncate: userConfig.truncate || 25  // Maximum length of a parent label before it gets truncated. Use 0 to turn off truncation.
         };
@@ -149,11 +129,7 @@ class RelationshipGraph {
                 });
         };
 
-        if (this.configuration.showTooltips) {
-            this.tooltip = createTooltip(this);
-        } else {
-            this.tooltip = null;
-        }
+        this.tooltip = this.configuration.showTooltips ? createTooltip(this) : null;
 
         // Check if this selection already has a graph.
         this.svg = this.configuration.selection.select('svg').select('g');
@@ -170,6 +146,18 @@ class RelationshipGraph {
         }
 
         this.graph = this;
+    }
+
+    /**
+     * Generate the basic set of colors.
+     *
+     * @returns {string[]} List of HEX colors.
+     */
+    static getColors() {
+        return ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50', '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1',
+            '#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc', '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f',
+            '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
+        ];
     }
 
     /**
@@ -276,11 +264,9 @@ class RelationshipGraph {
                 parent = element.parent;
 
             if (previousParent !== null && previousParent !== parent) {
-                element.row = row + 1;
+                element.row = ++row;
                 element.index = 1;
-
                 index = 2;
-                row++;
             } else {
                 if (index === calculatedMaxChildren + 1) {
                     index = 1;
@@ -312,7 +298,7 @@ class RelationshipGraph {
                      * @param threshold {String} The threshold from the JSON.
                      * @returns {boolean} Whether or not the two are equal.
                      */
-                    compare = function (value, threshold) {
+                    compare = (value, threshold) => {
                         return value == threshold;
                     };
                 } else {
@@ -325,7 +311,7 @@ class RelationshipGraph {
                      * @param threshold {number} The threshold from the JSON.
                      * @returns {boolean} Whether or not the value is less than the threshold.
                      */
-                    compare = function (value, threshold) {
+                    compare = (value, threshold) => {
                         return value < threshold;
                     };
                 }

@@ -444,13 +444,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 * D3-relationshipgraph - 1.5.0
 */
 
-/**
- * Determine if AMD or CommonJS are being used.
- *
- * @param {object} root The window object.
- * @param {object} factory The factory object.
- */
-
 var RelationshipGraph = function () {
 
     /**
@@ -460,23 +453,16 @@ var RelationshipGraph = function () {
      * @constructor
      */
 
-    function RelationshipGraph(selection, userConfig) {
+    function RelationshipGraph(selection) {
+        var userConfig = arguments.length <= 1 || arguments[1] === undefined ? { showTooltips: true, maxChildCount: 0, onClick: RelationshipGraph.noop, thresholds: [] } : arguments[1];
+
         _classCallCheck(this, RelationshipGraph);
 
-        if (userConfig === undefined) {
-            userConfig = {
-                showTooltips: true,
-                maxChildCount: 0,
-                onClick: RelationshipGraph.noop,
-                thresholds: []
-            };
-        } else {
-            // Verify that the user config contains the thresholds.
-            if (userConfig.thresholds === undefined || userConfig.thresholds === null) {
-                userConfig.thresholds = [];
-            } else if (_typeof(userConfig.thresholds) !== 'object') {
-                throw 'Thresholds must be an Object.';
-            }
+        // Verify that the user config contains the thresholds.
+        if (userConfig.thresholds === undefined || userConfig.thresholds === null) {
+            userConfig.thresholds = [];
+        } else if (_typeof(userConfig.thresholds) !== 'object') {
+            throw 'Thresholds must be an Object.';
         }
 
         /**
@@ -493,7 +479,7 @@ var RelationshipGraph = function () {
             onClick: userConfig.onClick || RelationshipGraph.noop, // The callback function to call when a child is clicked. This function gets passed the JSON for the child.
             showKeys: userConfig.showKeys, // Whether or not to show the keys in the tooltip.
             thresholds: userConfig.thresholds, // Thresholds to determine the colors of the child blocks with.
-            colors: userConfig.colors || ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50', '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1', '#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc', '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f', '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'], // Colors to use for blocks.
+            colors: userConfig.colors || RelationshipGraph.getColors(), // Colors to use for blocks.
             transitionTime: userConfig.transitionTime || 1500, // Time for a transition to start and complete (in milliseconds).
             truncate: userConfig.truncate || 25 // Maximum length of a parent label before it gets truncated. Use 0 to turn off truncation.
         };
@@ -565,11 +551,7 @@ var RelationshipGraph = function () {
             });
         };
 
-        if (this.configuration.showTooltips) {
-            this.tooltip = createTooltip(this);
-        } else {
-            this.tooltip = null;
-        }
+        this.tooltip = this.configuration.showTooltips ? createTooltip(this) : null;
 
         // Check if this selection already has a graph.
         this.svg = this.configuration.selection.select('svg').select('g');
@@ -583,11 +565,9 @@ var RelationshipGraph = function () {
     }
 
     /**
-     * Checks if the object contains the key.
+     * Generate the basic set of colors.
      *
-     * @param {object} obj The object to check in.
-     * @param {string} key They key to check for.
-     * @returns {boolean} Whether or not the object contains the key.
+     * @returns {string[]} List of HEX colors.
      */
 
 
@@ -631,11 +611,9 @@ var RelationshipGraph = function () {
                     parent = element.parent;
 
                 if (previousParent !== null && previousParent !== parent) {
-                    element.row = row + 1;
+                    element.row = ++row;
                     element.index = 1;
-
                     index = 2;
-                    row++;
                 } else {
                     if (index === calculatedMaxChildren + 1) {
                         index = 1;
@@ -853,6 +831,20 @@ var RelationshipGraph = function () {
             return this;
         }
     }], [{
+        key: 'getColors',
+        value: function getColors() {
+            return ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50', '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1', '#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc', '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f', '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'];
+        }
+
+        /**
+         * Checks if the object contains the key.
+         *
+         * @param {object} obj The object to check in.
+         * @param {string} key They key to check for.
+         * @returns {boolean} Whether or not the object contains the key.
+         */
+
+    }, {
         key: 'containsKey',
         value: function containsKey(obj, key) {
             return Object.keys(obj).indexOf(key) > -1;
