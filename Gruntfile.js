@@ -12,6 +12,16 @@ module.exports = function(grunt) {
                 dest: 'dest/d3.relationshipgraph.js'
             }
         },
+        babel: {
+            options: {
+                presets: ['es2015']
+            },
+            dist: {
+                files: {
+                    'dest/d3.relationshipgraph.js': 'dest/d3.relationshipgraph.js'
+                }
+            }
+        },
         uglify: {
             options: {
                 mangle: false
@@ -60,6 +70,7 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -68,7 +79,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-csslint');
     grunt.loadNpmTasks('grunt-mocha');
 
-    grunt.registerTask('default', ['jshint', 'jscs', 'concat', 'uglify', 'csslint', 'cssmin']);
-    grunt.registerTask('test', ['jshint', 'jscs', 'concat', 'uglify', 'csslint', 'cssmin', 'mocha']);
-
+    grunt.registerTask('default', ['jshint', 'jscs', 'concat', 'babel', 'uglify', 'csslint', 'cssmin']);
+    grunt.registerTask('test', ['jshint', 'jscs', 'concat', 'babel', 'uglify', 'csslint', 'cssmin', 'mocha']);
 };

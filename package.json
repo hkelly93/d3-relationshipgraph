@@ -21,7 +21,7 @@
     "url": "https://github.com/hkelly93/d3-relationshipgraph"
   },
   "main": "d3.relationshipgraph.min.js",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "files": [
     "src",
     "d3.relationshipgraph.min.js"
@@ -33,8 +33,10 @@
     "d3": "^3.5.17"
   },
   "devDependencies": {
+    "babel-preset-es2015": "^6.9.0",
     "chai": "~3.5.0",
     "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-csslint": "^1.0.0",
     "grunt-contrib-cssmin": "^1.0.1",

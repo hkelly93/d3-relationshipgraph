@@ -37,5 +37,7 @@
 * Right aligned the parent labels.
 
 # 1.5.0 (5/26/2016-)
+* Updated .travis.yml to also build with node 6.
 * Created a non-minified js file in dest using grunt-contrib-concat.
 * Added a test to check the colors of the blocks to make sure they're correct.
+* Rewrote source in es6 and added Babel to convert it back to es5 until es6 is supported more.
