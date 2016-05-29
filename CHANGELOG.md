@@ -38,3 +38,4 @@
 
 # 1.5.0 (5/26/2016-)
 * Created a non-minified js file in dest using grunt-contrib-concat.
+* Added a test to check the colors of the blocks to make sure they're correct.
