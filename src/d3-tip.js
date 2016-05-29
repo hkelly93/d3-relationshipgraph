@@ -20,7 +20,7 @@
         };
     } else {
         // Browser global.
-        root.d3.tip = factory(root.d3);
+        window.d3.tip = factory(d3);
     }
 }(this, function (d3) {
     'use strict';
