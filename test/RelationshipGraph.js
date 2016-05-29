@@ -159,8 +159,8 @@ describe('RelationshipGraph', function() {
             var config = {
                 showTooltips: true,
                 maxChildCount: 10,
-                showKeys: true,
                 onClick: function() {},
+                showKeys: true,
                 thresholds: [100, 200, 300],
                 colors: ['red', 'green', 'blue'],
                 transitionTime: 1000,
@@ -602,7 +602,20 @@ describe('RelationshipGraph', function() {
             var rects = document.getElementsByClassName('relationshipGraph-block'),
                 expectedX = [160, 184, 208, 232, 256, 280, 160, 184, 208, 160, 160, 184, 208, 160, 160, 184, 208, 232,
                     256, 280, 304, 160, 184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208, 232, 256, 280, 160,
-                    184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208];
+                    184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208],
+                expectedColors = ['#869d96', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#869d96', '#a2c3a4', '#c4f1be',
+                    '#c4f1be', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4',
+                    '#a2c3a4', '#a2c3a4', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4', '#c4f1be', '#c4f1be', '#a2c3a4',
+                    '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4', '#c4f1be', '#869d96', '#a2c3a4', '#c4f1be',
+                    '#a2c3a4', '#c4f1be', '#c4f1be', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#c4f1be', '#c4f1be',
+                    '#c4f1be', '#a2c3a4', '#a2c3a4', '#a2c3a4', '#c4f1be', '#c4f1be', '#869d96', '#c4f1be', '#c4f1be',
+                    '#a2c3a4', '#c4f1be', '#869d96', '#a2c3a4', '#c4f1be', '#c4f1be', '#c4f1be', '#c4f1be', '#a2c3a4',
+                    '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4', '#a2c3a4', '#a2c3a4', '#a2c3a4', '#c4f1be',
+                    '#a2c3a4', '#a2c3a4', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4',
+                    '#a2c3a4', '#c4f1be', '#869d96', '#a2c3a4', '#c4f1be', '#a2c3a4', '#c4f1be', '#c4f1be', '#c4f1be',
+                    '#c4f1be', '#a2c3a4', '#c4f1be', '#c4f1be', '#c4f1be', '#c4f1be', '#a2c3a4', '#a2c3a4', '#a2c3a4',
+                    '#c4f1be', '#c4f1be'
+                ];
 
             expectedY = [0, 0, 0, 0, 0, 0, 24, 24, 24, 48, 72, 72, 72, 96, 120, 120, 120, 120, 120, 120, 120, 144,
                 144, 144, 144, 144, 144, 144, 144, 144, 144, 168, 168, 168, 168, 168, 168, 192, 192, 192, 192, 192,
@@ -622,7 +635,9 @@ describe('RelationshipGraph', function() {
                 chai.expect(parseInt(block.getAttribute('ry'))).to.equal(4);
                 chai.expect(parseInt(block.getAttribute('width'))).to.equal(graph.configuration.blockSize);
                 chai.expect(parseInt(block.getAttribute('height'))).to.equal(graph.configuration.blockSize);
+                chai.expect(block.style.fill).to.equal(expectedColors[j]);
             }
+
         });
     });
 });
