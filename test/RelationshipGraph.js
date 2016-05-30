@@ -146,7 +146,7 @@ describe('RelationshipGraph', function() {
         });
     });
 
-    describe('#ValidateVerifyJSON()' , function() {
+    describe('#ValidateVerifyJSON()', function() {
         var graph = d3.select('#test2').relationshipGraph({
             'thresholds': [200]
         });
@@ -463,8 +463,7 @@ describe('RelationshipGraph', function() {
                 'parent': 'Warner Bros. Pictures',
                 'value': '$958,366,855',
                 'Year': '2013'
-            }
-            ,
+            },
             {
                 'Movie Title': 'The Hobbit: The Battle of the Five Armies',
                 'parent': 'Warner Bros. Pictures',
@@ -627,7 +626,7 @@ describe('RelationshipGraph', function() {
             var expectedText = ['20th Century Fox (6)', 'Columbia Pictures (3)', 'Lionsgate Films (1)', 'New Line Cinema (3)',
                 'Paramount Pictures (1)', 'Universal Pictures (7)', 'Walt Disney Studios (16)', 'Warner Bros. Pictures (13)'],
                 expectedY = [0, 24, 48, 72, 96, 120, 144, 192]//,
-                //expectedX = [41, 35, 50, 38, 26, 36, 18, 7];
+            //expectedX = [41, 35, 50, 38, 26, 36, 18, 7];
 
             chai.expect(text.length).to.equal(expectedText.length);
 
@@ -683,6 +682,78 @@ describe('RelationshipGraph', function() {
                 chai.expect(block.style.fill).to.equal(expectedColors[j]);
             }
 
+        });
+    });
+
+    describe('#VerifySortJson', function() {
+        it('Should be sorted.', function() {
+            var json = [
+                {
+                    'Movie Title': 'Avatar',
+                    'parent': '20th Century Fox',
+                    'value': '$2,787,965,087',
+                    'Year': '2009'
+                },
+                {
+                    'Movie Title': 'Star Wars: The Force Awakens',
+                    'parent': 'Walt Disney Studios',
+                    'value': '$2,066,247,462',
+                    'Year': '2015'
+                },
+                {
+                    'Movie Title': 'Titanic',
+                    'parent': '20th Century Fox',
+                    'value': '$2,186,772,302',
+                    'Year': '1997'
+                }
+            ], expected = [
+                {
+                    'Movie Title': 'Avatar',
+                    'parent': '20th Century Fox',
+                    'value': '$2,787,965,087',
+                    'Year': '2009'
+                },
+                {
+                    'Movie Title': 'Titanic',
+                    'parent': '20th Century Fox',
+                    'value': '$2,186,772,302',
+                    'Year': '1997'
+                },
+                {
+                    'Movie Title': 'Star Wars: The Force Awakens',
+                    'parent': 'Walt Disney Studios',
+                    'value': '$2,066,247,462',
+                    'Year': '2015'
+                }
+            ];
+
+            json.sort(function(child1, child2) {
+                var parent1 = child1.parent.toLowerCase(),
+                    parent2 = child2.parent.toLowerCase();
+
+                return (parent1 > parent2) ? 1 : (parent1 < parent2) ? -1 : 0;
+            });
+
+            for (var i = 0; i < json.length; i++) {
+                chai.expect(json[i]['Movie Title']).to.equal(expected[i]['Movie Title']);
+                chai.expect(json[i].parent).to.equal(expected[i].parent);
+                chai.expect(json[i].value).to.equal(expected[i].value);
+                chai.expect(json[i].year).to.equal(expected[i].year);
+            }
+        });
+    });
+
+    describe('#VerifyCustomColors', function() {
+        it('Should have the custom color set.', function() {
+            var custom = ['red', 'green', 'blue'];
+
+            var graph = d3.select('#graph').relationshipGraph({
+                colors: custom
+            });
+
+            for (var i = 0; i < custom.length; i++) {
+                chai.expect(graph.graph.config.colors[i]).to.equal(custom[i]);
+            }
         });
     });
 });
