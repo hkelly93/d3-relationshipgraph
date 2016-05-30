@@ -82,9 +82,9 @@
     var RelationshipGraph = function(selection, userConfig) {
         if (userConfig === undefined) {
             userConfig = {
-                'showTooltips': true,
-                'maxChildCount': 0,
-                'onClick': noop,
+                showTooltips: true,
+                maxChildCount: 0,
+                onClick: noop,
                 thresholds: []
             };
         } else {
