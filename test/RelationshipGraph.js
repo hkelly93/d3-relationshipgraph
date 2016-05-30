@@ -22,6 +22,20 @@ describe('RelationshipGraph', function() {
         });
     });
 
+    describe('#ValidateDefaultConfig()', function() {
+        it('Should return the default config.', function() {
+            var graph = d3.select('#graph').relationshipGraph();
+
+            var config = graph.graph.config;
+
+            chai.expect(config.showTooltips).to.equal(true);
+            chai.expect(config.maxChildCount).to.equal(0);
+            chai.expect(typeof config.onClick).to.equal('function');
+            chai.expect(typeof config.thresholds).to.equal('object');
+            chai.expect(config.thresholds.length).to.equal(0);
+        });
+    });
+
     describe('#ValidateThresholdSorting()', function() {
         it('Should be sorted.', function() {
             var thresholds = [500, 400, 300, 200, 100],
