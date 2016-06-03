@@ -570,7 +570,7 @@
                                 value = document.createElement('td');
 
                             if (showKeys) {
-                                key.innerHTML = element.charAt(0).toUpperCase() + element.substring(1);
+                                key.innerHTML = element.charAt(0).toUpperCase() + element.substring(1).toLowerCase();
                                 row.appendChild(key);
                             }
 
@@ -760,7 +760,11 @@
                      * @returns {boolean} Whether or not the two are equal.
                      */
                     compare = function (value, threshold) {
-                        return value == threshold;
+                        if (typeof value !== 'string') {
+                            throw 'Cannot make value comparison between a string and a ' + (typeof value) + '.';
+                        }
+
+                        return value.toLowerCase() == threshold.toLowerCase();
                     };
                 } else {
                     value = (typeof element.value == 'number') ? element.value : parseInt(element.value.replace(/\D/g, ''));
@@ -773,6 +777,10 @@
                      * @returns {boolean} Whether or not the value is less than the threshold.
                      */
                     compare = function (value, threshold) {
+                        if (typeof value !== 'number') {
+                            throw 'Cannot make value comparison between a number and a ' + (typeof value) + '.';
+                        }
+
                         return value < threshold;
                     };
                 }
