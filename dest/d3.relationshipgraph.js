@@ -425,7 +425,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * D3-relationshipgraph - 1.3.0
+ * D3-relationshipgraph - 1.4.2
  */
 
 /**
