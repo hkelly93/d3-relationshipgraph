@@ -795,9 +795,9 @@
         }
 
         return {
-            'longestWidth': longestWidth,
-            'calculatedMaxChildren': calculatedMaxChildren,
-            'maxRow': row
+            longestWidth: longestWidth,
+            calculatedMaxChildren: calculatedMaxChildren,
+            maxRow: row
         };
     };
 
