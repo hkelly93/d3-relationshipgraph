@@ -40,3 +40,4 @@
 * Created a non-minified js file in dest using grunt-contrib-concat.
 * Added a test to check the colors of the blocks to make sure they're correct.
 * Made the comparison between the value and the threshold case insensitive, added type checking for the threshold comparisons, and made sure that the key appears in title case when the tooltip comes up.
+* Fixed a bug where clicking `Random` twice (or more) on example page causes the demo to keep cycling.
