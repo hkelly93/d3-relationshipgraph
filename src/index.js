@@ -297,7 +297,8 @@
             i,
             index = 0,
             row = 0,
-            previousParent = '';
+            previousParent = '',
+            blockSize = that.config.blockSize;
 
         for (i = 0; i < parents.length; i++) {
             var current = parents[i] + ' ( ' + parentSizes[parentNames[i]] + ') ';
@@ -311,7 +312,7 @@
         var longestWidth = that.ctx.measureText(longest).width,
             parentDiv = that.config.selection[0][0],
             calculatedMaxChildren = (that.config.maxChildCount === 0) ?
-                Math.floor((parentDiv.parentElement.clientWidth - 15 - longestWidth) / that.config.blockSize) :
+                Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
                 that.config.maxChildCount;
 
         for (i = 0; i < json.length; i++) {
@@ -554,7 +555,7 @@
             childrenNodes.enter()
                 .append('rect')
                 .attr('x', function(obj) {
-                    return longestWidth + ((obj.index - 1) * _this.config.blockSize);
+                    return longestWidth + ((obj.index - 1) * _this.config.blockSize) + 5;
                 })
                 .attr('y', function(obj) {
                     return (obj.row - 1) * _this.config.blockSize;
@@ -577,7 +578,7 @@
             // Update existing child nodes.
             childrenNodes.transition(_this.config.transitionTime)
                 .attr('x', function(obj) {
-                    return longestWidth + ((obj.index - 1) * _this.config.blockSize);
+                    return longestWidth + ((obj.index - 1) * _this.config.blockSize) + 5;
                 })
                 .attr('y', function(obj) {
                     return (obj.row - 1) * _this.config.blockSize;
