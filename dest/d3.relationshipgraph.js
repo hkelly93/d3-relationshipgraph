@@ -425,7 +425,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * D3-relationshipgraph - 1.3.0
+ * D3-relationshipgraph - 1.4.2
  */
 
 /**
@@ -570,7 +570,7 @@
                                 value = document.createElement('td');
 
                             if (showKeys) {
-                                key.innerHTML = element.charAt(0).toUpperCase() + element.substring(1);
+                                key.innerHTML = element.charAt(0).toUpperCase() + element.substring(1).toLowerCase();
                                 row.appendChild(key);
                             }
 
@@ -589,13 +589,13 @@
                         table.appendChild(rows[rowCount]);
                     }
 
-                    self.tip.direction('n');
                     return table.outerHTML;
                 });
         };
 
         if (this.config.showTooltips) {
             this.tip = createTooltip(this);
+            this.tip.direction('n');
         } else {
             this.tip = null;
         }
@@ -667,8 +667,7 @@
     /**
      * Noop function.
      */
-    var noop = function() {
-    };
+    var noop = function() { };
 
     /**
      * Returns a sorted Array.
@@ -682,6 +681,36 @@
 
             return (parent1 > parent2) ? 1 : (parent1 < parent2) ? -1 : 0;
         });
+    };
+
+    /**
+     * Compare the values to see if they're equal.
+     *
+     * @param value {String} The value from the JSON.
+     * @param threshold {String} The threshold from the JSON.
+     * @returns {boolean} Whether or not the two are equal.
+     */
+    var stringCompare = function (value, threshold) {
+        if (typeof value !== 'string') {
+            throw 'Cannot make value comparison between a string and a ' + (typeof value) + '.';
+        }
+
+        return value.toLowerCase() == threshold.toLowerCase();
+    };
+
+    /**
+     * Compare the values to see if the value is less than the threshold.
+     *
+     * @param value {number} The value from the JSON.
+     * @param threshold {number} The threshold from the JSON.
+     * @returns {boolean} Whether or not the value is less than the threshold.
+     */
+    var numericCompare = function (value, threshold) {
+        if (typeof value !== 'number') {
+            throw 'Cannot make value comparison between a number and a ' + (typeof value) + '.';
+        }
+
+        return value < threshold;
     };
 
     /**
@@ -701,9 +730,12 @@
             i,
             index = 0,
             row = 0,
-            previousParent = '';
+            previousParent = '',
+            parentLength = parents.length,
+            config = that.config,
+            blockSize = config.blockSize;
 
-        for (i = 0; i < parents.length; i++) {
+        for (i = 0; i < parentLength; i++) {
             var current = parents[i] + ' ( ' + parentSizes[parentNames[i]] + ') ';
 
             if (current.length > longest.length) {
@@ -712,13 +744,16 @@
         }
 
         // Calculate the row and column for each child block.
-        var longestWidth = that.ctx.measureText(longest).width,
-            parentDiv = that.config.selection[0][0],
-            calculatedMaxChildren = (that.config.maxChildCount === 0) ?
-                Math.floor((parentDiv.parentElement.clientWidth - 15 - longestWidth) / that.config.blockSize) :
-                that.config.maxChildCount;
+        var longestWidth = that.getPixelength(longest),
+            parentDiv = config.selection[0][0],
+            calculatedMaxChildren = (config.maxChildCount === 0) ?
+                Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
+                config.maxChildCount,
+            jsonLength = json.length,
+            thresholds = config.thresholds,
+            thresholdsLength = thresholds.length;
 
-        for (i = 0; i < json.length; i++) {
+        for (i = 0; i < jsonLength; i++) {
             var element = json[i],
                 parent = element.parent;
 
@@ -742,43 +777,24 @@
 
             previousParent = parent;
 
-            if (that.config.thresholds.length === 0) {
+            if (thresholds.length === 0) {
                 element.color = 0;
             } else {
                 // Figure out the color based on the threshold.
                 var value,
                     compare;
 
-                if (typeof that.config.thresholds[0] === 'string') {
+                if (typeof thresholds[0] === 'string') {
                     value = element.value;
-
-                    /**
-                     * Compare the values to see if they're equal.
-                     *
-                     * @param value {String} The value from the JSON.
-                     * @param threshold {String} The threshold from the JSON.
-                     * @returns {boolean} Whether or not the two are equal.
-                     */
-                    compare = function (value, threshold) {
-                        return value == threshold;
-                    };
+                    compare = stringCompare;
                 } else {
-                    value = (typeof element.value == 'number') ? element.value : parseInt(element.value.replace(/\D/g, ''));
-
-                    /**
-                     * Compare the values to see if the value is less than the threshold.
-                     *
-                     * @param value {number} The value from the JSON.
-                     * @param threshold {number} The threshold from the JSON.
-                     * @returns {boolean} Whether or not the value is less than the threshold.
-                     */
-                    compare = function (value, threshold) {
-                        return value < threshold;
-                    };
+                    var elementValue = element.value;
+                    value = (typeof elementValue == 'number') ? elementValue : parseInt(elementValue.replace(/\D/g, ''));
+                    compare = numericCompare;
                 }
 
-                for (var thresholdIndex = 0; thresholdIndex < that.config.thresholds.length; thresholdIndex++) {
-                    if (compare(value, that.config.thresholds[thresholdIndex])) {
+                for (var thresholdIndex = 0; thresholdIndex < thresholdsLength; thresholdIndex++) {
+                    if (compare(value, thresholds[thresholdIndex])) {
                         element.color = thresholdIndex;
                         break;
                     }
@@ -787,10 +803,20 @@
         }
 
         return {
-            'longestWidth': longestWidth,
-            'calculatedMaxChildren': calculatedMaxChildren,
-            'maxRow': row
+            longestWidth: longestWidth,
+            calculatedMaxChildren: calculatedMaxChildren,
+            maxRow: row
         };
+    };
+
+    /**
+     * Returns the pixel length of the string based on the font size.
+     *
+     * @param str {string} The string to get the length of.
+     * @returns {Number} The pixel length of the string.
+     */
+    RelationshipGraph.prototype.getPixelength = function(str) {
+        return this.ctx.measureText(str).width;
     };
 
     /**
@@ -808,19 +834,22 @@
         while (length--) {
             var element = json[length],
                 keys = Object.keys(element),
-                keyLength = keys.length;
+                keyLength = keys.length,
+                parentColor = element.parentColor;
 
             if (element.parent === undefined) {
                 throw 'Child does not have a parent.';
-            } else if (element.parentColor !== undefined && (element.parentColor > 4 || element.parentColor < 0)) {
+            } else if (parentColor !== undefined && (parentColor > 4 || parentColor < 0)) {
                 throw 'Parent color is unsupported.';
             }
 
             while (keyLength--) {
+                var currentObj = json[length];
+
                 if (keys[keyLength].toUpperCase() == 'VALUE') {
                     if (keys[keyLength] != 'value') {
-                        json[length].value = json[length][keys[keyLength]];
-                        delete json[length][keys[keyLength]];
+                        currentObj.value = currentObj[keys[keyLength]];
+                        delete currentObj[keys[keyLength]];
                     }
                     break;
                 }
@@ -848,21 +877,24 @@
                 maxWidth,
                 maxHeight,
                 calculatedMaxChildren,
-                longestWidth;
+                longestWidth,
+                config = this.config;
 
             // Ensure that the JSON is sorted by parent.
             sortJson(json);
 
             // Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per parent. This will also
             // calculate the row and index for each block and truncate the parent names to 25 characters.
-            for (i = 0; i < json.length; i++) {
+            var jsonLength = json.length;
+
+            for (i = 0; i < jsonLength; i++) {
                 parent = json[i].parent;
 
                 if (containsKey(parentSizes, parent)) {
                     parentSizes[parent]++;
                 } else {
                     parentSizes[parent] = 1;
-                    parents.push(truncate(parent, this.config.truncate));
+                    parents.push(truncate(parent, config.truncate));
                 }
             }
 
@@ -875,8 +907,8 @@
             row = calculatedResults.maxRow;
 
             // Set the max width and height.
-            maxHeight = row * this.config.blockSize;
-            maxWidth = longestWidth + (calculatedMaxChildren * this.config.blockSize);
+            maxHeight = row * config.blockSize;
+            maxWidth = longestWidth + (calculatedMaxChildren * config.blockSize);
 
             // Select all of the parent nodes.
             var parentNodes = this.svg.selectAll('.relationshipGraph-Text')
@@ -888,8 +920,8 @@
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.ctx.measureText(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
-                    return longestWidth - width.width;
+                    var width = _this.getPixelength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
                     if (index === 0) {
@@ -915,8 +947,8 @@
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.ctx.measureText(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
-                    return longestWidth - width.width;
+                    var width = _this.getPixelength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
                     if (index === 0) {
@@ -950,7 +982,7 @@
             childrenNodes.enter()
                 .append('rect')
                 .attr('x', function(obj) {
-                    return longestWidth + ((obj.index - 1) * _this.config.blockSize);
+                    return longestWidth + ((obj.index - 1) * _this.config.blockSize) + 5;
                 })
                 .attr('y', function(obj) {
                     return (obj.row - 1) * _this.config.blockSize;
@@ -973,7 +1005,7 @@
             // Update existing child nodes.
             childrenNodes.transition(_this.config.transitionTime)
                 .attr('x', function(obj) {
-                    return longestWidth + ((obj.index - 1) * _this.config.blockSize);
+                    return longestWidth + ((obj.index - 1) * _this.config.blockSize) + 5;
                 })
                 .attr('y', function(obj) {
                     return (obj.row - 1) * _this.config.blockSize;

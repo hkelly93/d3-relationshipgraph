@@ -628,7 +628,9 @@
 
         getData();
 
-        interval = setInterval(getData, 1000);
+        if (interval === null) {
+            interval = setInterval(getData, 1000);
+        }
 
         document.querySelector('h1').innerHTML = 'Random Data';
     }

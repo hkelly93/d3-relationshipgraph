@@ -2,9 +2,11 @@
   "maxErrors": 1000000,
   "disallowMixedSpacesAndTabs": true,
   "disallowMultipleLineBreaks": true,
+  "disallowQuotedKeysInObjects": true,
   "disallowTabs": true,
   "disallowSpaceBeforeComma": true,
   "disallowSpaceBeforeSemicolon": true,
+  "disallowUnusedParams": true,
   "disallowSpaceAfterObjectKeys": true,
   "disallowSpaceAfterPrefixUnaryOperators": true,
   "disallowSpaceBeforePostfixUnaryOperators": true,
@@ -14,6 +16,9 @@
   "disallowTrailingWhitespace": true,
   "disallowTrailingComma": true,
   "disallowYodaConditions": true,
+  "disallowKeywordsOnNewLine": [
+    "else"
+  ],
   "disallowKeywords": [
     "with"
   ],
@@ -58,8 +63,10 @@
     "typeof"
   ],
   "safeContextKeyword": "_this",
+  "requireSemicolons": true,
   "validateLineBreaks": "LF",
   "validateQuoteMarks": "'",
+  "requireAnonymousFunctions": true,
   "validateIndentation": 4,
   "jsDoc": {
     "checkAnnotations": true,
