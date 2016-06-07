@@ -45,3 +45,4 @@
 * Optimized the code by using local variables instead of accessing object properties multiple times and made static functions instead of recreating them in loops.
 * Fixed a bug where the number thresholds had to be exact instead of between two thresholds.
 * Fixed a bug where only the first word in the tooltip key was capitalized instead of the key being in title case.
+* Fixed the regex for numeric comparisions so that it would take negative numbers into account.
