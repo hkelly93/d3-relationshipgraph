@@ -41,3 +41,5 @@
 * Added a test to check the colors of the blocks to make sure they're correct.
 * Made the comparison between the value and the threshold case insensitive, added type checking for the threshold comparisons, and made sure that the key appears in title case when the tooltip comes up.
 * Fixed a bug where clicking `Random` twice (or more) on example page causes the demo to keep cycling.
+* Moved the child nodes five pixels away from the parent labels to make the space larger.
+* Optimized the code by using local variables instead of accessing object properties multiple times and made static functions instead of recreating them in loops.
