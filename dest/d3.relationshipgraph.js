@@ -542,6 +542,18 @@
         this.ctx.font = '13px Helvetica';
 
         /**
+         * Function that turns a string into title case.
+         *
+         * @param str {string} The string to convert.
+         * @returns {string} A title cased string.
+         */
+        var toTitleCase = function(str) {
+            return str.toLowerCase().split(' ').map(function(part) {
+                return part.charAt(0).toUpperCase() + part.substring(1).toLowerCase();
+            }).join(' ');
+        };
+
+        /**
          * Function to create the tooltip.
          *
          * @param {RelationshipGraph} self The RelationshipGraph instance.
@@ -570,7 +582,7 @@
                                 value = document.createElement('td');
 
                             if (showKeys) {
-                                key.innerHTML = element.charAt(0).toUpperCase() + element.substring(1).toLowerCase();
+                                key.innerHTML = toTitleCase(element);
                                 row.appendChild(key);
                             }
 
@@ -684,33 +696,52 @@
     };
 
     /**
-     * Compare the values to see if they're equal.
+     * Go through all of the thresholds and find the one that is equal to the value.
      *
      * @param value {String} The value from the JSON.
-     * @param threshold {String} The threshold from the JSON.
-     * @returns {boolean} Whether or not the two are equal.
+     * @param thresholds {Array} The thresholds from the JSON.
+     * @returns {number} The index of the threshold that is equal to the value or -1 if the value doesn't equal any thresholds.
      */
-    var stringCompare = function (value, threshold) {
+    var stringCompare = function (value, thresholds) {
         if (typeof value !== 'string') {
             throw 'Cannot make value comparison between a string and a ' + (typeof value) + '.';
         }
 
-        return value.toLowerCase() == threshold.toLowerCase();
+        var thresholdsLength = thresholds.length;
+
+        for (var i = 0; i < thresholdsLength; i++) {
+            if (value == thresholds[i]) {
+                return i;
+            }
+        }
+
+        return -1;
     };
 
     /**
-     * Compare the values to see if the value is less than the threshold.
+     * Go through all of the thresholds and find the smallest number that is greater than the value.
      *
      * @param value {number} The value from the JSON.
-     * @param threshold {number} The threshold from the JSON.
-     * @returns {boolean} Whether or not the value is less than the threshold.
+     * @param thresholds {Array} The thresholds from the JSON.
+     * @returns {number} The index of the threshold that is the smallest number that is greater than the value or -1 if the value isn't
+     *      between any thresholds.
      */
-    var numericCompare = function (value, threshold) {
+    var numericCompare = function (value, thresholds) {
         if (typeof value !== 'number') {
             throw 'Cannot make value comparison between a number and a ' + (typeof value) + '.';
         }
 
-        return value < threshold;
+        thresholds.sort();
+
+        var length = thresholds.length;
+
+        for (var i = 0; i < length; i++) {
+            if (value < thresholds[i]) {
+                return i;
+            }
+        }
+
+        return -1;
     };
 
     /**
@@ -750,8 +781,7 @@
                 Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
                 config.maxChildCount,
             jsonLength = json.length,
-            thresholds = config.thresholds,
-            thresholdsLength = thresholds.length;
+            thresholds = config.thresholds;
 
         for (i = 0; i < jsonLength; i++) {
             var element = json[i],
@@ -793,12 +823,9 @@
                     compare = numericCompare;
                 }
 
-                for (var thresholdIndex = 0; thresholdIndex < thresholdsLength; thresholdIndex++) {
-                    if (compare(value, thresholds[thresholdIndex])) {
-                        element.color = thresholdIndex;
-                        break;
-                    }
-                }
+                var thresholdIndex = compare(value, thresholds);
+
+                element.color = (thresholdIndex === -1) ? 0 : thresholdIndex;
             }
         }
 
