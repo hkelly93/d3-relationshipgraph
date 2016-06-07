@@ -415,7 +415,7 @@
                     compare = stringCompare;
                 } else {
                     var elementValue = element.value;
-                    value = (typeof elementValue == 'number') ? elementValue : parseInt(elementValue.replace(/\D/g, ''));
+                    value = (typeof elementValue == 'number') ? elementValue : parseFloat(elementValue.replace(/[^0-9\.]+/g, ''));
                     compare = numericCompare;
                 }
 
