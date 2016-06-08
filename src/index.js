@@ -133,9 +133,32 @@
             this.config.thresholds.sort();
         }
 
-        // Create a canvas to measure the pixel width of the parent labels.
-        this.ctx = document.createElement('canvas').getContext('2d');
-        this.ctx.font = '13px Helvetica';
+        // Used for measuring text widths.
+        this.measurementDiv = document.createElement('div');
+        this.measuredCache = {};
+
+        var measurementStyle = this.measurementDiv.style;
+        measurementStyle.fontFamily = 'Helvetica';
+        measurementStyle.fontSize = '13px';
+        measurementStyle.position = 'absolute';
+        measurementStyle.width = 'auto';
+        measurementStyle.height = 'auto';
+        measurementStyle.left = '-100%';
+        measurementStyle.top = '-100%';
+
+        document.body.appendChild(this.measurementDiv);
+
+        /**
+         * Function that turns a string into title case.
+         *
+         * @param str {string} The string to convert.
+         * @returns {string} A title cased string.
+         */
+        var toTitleCase = function(str) {
+            return str.toLowerCase().split(' ').map(function(part) {
+                return part.charAt(0).toUpperCase() + part.substring(1).toLowerCase();
+            }).join(' ');
+        };
 
         /**
          * Function to create the tooltip.
@@ -166,7 +189,7 @@
                                 value = document.createElement('td');
 
                             if (showKeys) {
-                                key.innerHTML = element.charAt(0).toUpperCase() + element.substring(1).toLowerCase();
+                                key.innerHTML = toTitleCase(element);
                                 row.appendChild(key);
                             }
 
@@ -280,33 +303,50 @@
     };
 
     /**
-     * Compare the values to see if they're equal.
+     * Go through all of the thresholds and find the one that is equal to the value.
      *
      * @param value {String} The value from the JSON.
-     * @param threshold {String} The threshold from the JSON.
-     * @returns {boolean} Whether or not the two are equal.
+     * @param thresholds {Array} The thresholds from the JSON.
+     * @returns {number} The index of the threshold that is equal to the value or -1 if the value doesn't equal any thresholds.
      */
-    var stringCompare = function (value, threshold) {
+    var stringCompare = function (value, thresholds) {
         if (typeof value !== 'string') {
             throw 'Cannot make value comparison between a string and a ' + (typeof value) + '.';
         }
 
-        return value.toLowerCase() == threshold.toLowerCase();
+        var thresholdsLength = thresholds.length;
+
+        for (var i = 0; i < thresholdsLength; i++) {
+            if (value == thresholds[i]) {
+                return i;
+            }
+        }
+
+        return -1;
     };
 
     /**
-     * Compare the values to see if the value is less than the threshold.
+     * Go through all of the thresholds and find the smallest number that is greater than the value.
      *
      * @param value {number} The value from the JSON.
-     * @param threshold {number} The threshold from the JSON.
-     * @returns {boolean} Whether or not the value is less than the threshold.
+     * @param thresholds {Array} The thresholds from the JSON.
+     * @returns {number} The index of the threshold that is the smallest number that is greater than the value or -1 if the value isn't
+     *      between any thresholds.
      */
-    var numericCompare = function (value, threshold) {
+    var numericCompare = function (value, thresholds) {
         if (typeof value !== 'number') {
             throw 'Cannot make value comparison between a number and a ' + (typeof value) + '.';
         }
 
-        return value < threshold;
+        var length = thresholds.length;
+
+        for (var i = 0; i < length; i++) {
+            if (value < thresholds[i]) {
+                return i;
+            }
+        }
+
+        return -1;
     };
 
     /**
@@ -340,14 +380,13 @@
         }
 
         // Calculate the row and column for each child block.
-        var longestWidth = that.getPixelength(longest),
+        var longestWidth = that.getPixelLength(longest),
             parentDiv = config.selection[0][0],
             calculatedMaxChildren = (config.maxChildCount === 0) ?
                 Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
                 config.maxChildCount,
             jsonLength = json.length,
-            thresholds = config.thresholds,
-            thresholdsLength = thresholds.length;
+            thresholds = config.thresholds;
 
         for (i = 0; i < jsonLength; i++) {
             var element = json[i],
@@ -385,16 +424,13 @@
                     compare = stringCompare;
                 } else {
                     var elementValue = element.value;
-                    value = (typeof elementValue == 'number') ? elementValue : parseInt(elementValue.replace(/\D/g, ''));
+                    value = (typeof elementValue == 'number') ? elementValue : parseFloat(elementValue.replace(/[^0-9-\.]+/g, ''));
                     compare = numericCompare;
                 }
 
-                for (var thresholdIndex = 0; thresholdIndex < thresholdsLength; thresholdIndex++) {
-                    if (compare(value, thresholds[thresholdIndex])) {
-                        element.color = thresholdIndex;
-                        break;
-                    }
-                }
+                var thresholdIndex = compare(value, thresholds);
+
+                element.color = (thresholdIndex === -1) ? 0 : thresholdIndex;
             }
         }
 
@@ -411,8 +447,20 @@
      * @param str {string} The string to get the length of.
      * @returns {Number} The pixel length of the string.
      */
-    RelationshipGraph.prototype.getPixelength = function(str) {
-        return this.ctx.measureText(str).width;
+    RelationshipGraph.prototype.getPixelLength = function(str) {
+        if (containsKey(this.measuredCache, str)) {
+            return this.measuredCache[str];
+        }
+
+        var text = document.createTextNode(str);
+        this.measurementDiv.appendChild(text);
+
+        var width = this.measurementDiv.offsetWidth;
+        this.measurementDiv.removeChild(text);
+
+        this.measuredCache[str] = width;
+
+        return width;
     };
 
     /**
@@ -516,7 +564,7 @@
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.getPixelength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    var width = _this.getPixelLength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
                     return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
@@ -543,7 +591,7 @@
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.getPixelength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    var width = _this.getPixelLength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
                     return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
