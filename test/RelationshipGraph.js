@@ -77,18 +77,6 @@ describe('RelationshipGraph', function() {
         });
     });
 
-    describe('#ValidateContext()', function() {
-        it('Should exist', function() {
-            var graph = d3.select('#test').relationshipGraph({
-                thresholds: [200]
-            });
-
-            chai.expect(typeof graph.ctx).to.equal('object');
-
-            chai.expect(graph.ctx.font).to.equal('13px Helvetica');
-        });
-    });
-
     describe('#ValidateShowTooltips()', function() {
         it('Should be false', function() {
             var graph = d3.select('#test').relationshipGraph({
@@ -625,28 +613,23 @@ describe('RelationshipGraph', function() {
 
             var expectedText = ['20th Century Fox (6)', 'Columbia Pictures (3)', 'Lionsgate Films (1)', 'New Line Cinema (3)',
                 'Paramount Pictures (1)', 'Universal Pictures (7)', 'Walt Disney Studios (16)', 'Warner Bros. Pictures (13)'],
-                expectedY = [0, 24, 48, 72, 96, 120, 144, 192]//,
-            //expectedX = [41, 35, 50, 38, 26, 36, 18, 7];
+                expectedY = [0, 24, 48, 72, 96, 120, 144, 192];
 
             chai.expect(text.length).to.equal(expectedText.length);
-
-            // TODO: Fix this.
-            //var addition = parseInt(text[0].getAttribute('x')) === expectedX[0] ? 0 : 5;
 
             for (var i = 0; i < text.length; i++) {
                 var element = text[i],
                     elementText = element.firstChild.textContent;
 
                 chai.expect(element).to.not.equal(undefined);
-                //chai.expect(parseInt(element.getAttribute('x'))).to.equal(expectedX[i] + addition);
                 chai.expect(parseInt(element.getAttribute('y'))).to.equal(expectedY[i]);
                 chai.expect(elementText).to.equal(expectedText[i]);
             }
 
             var rects = document.getElementsByClassName('relationshipGraph-block'),
-                expectedX = [165, 189, 213, 237, 261, 285, 165, 189, 213, 165, 165, 189, 213, 165, 165, 189, 213, 237,
-                    261, 285, 309, 165, 189, 213, 237, 261, 285, 309, 333, 357, 381, 165, 189, 213, 237, 261, 285, 165,
-                    189, 213, 237, 261, 285, 309, 333, 357, 381, 165, 189, 213],
+                expectedX = [162, 186, 210, 234, 258, 282, 162, 186, 210, 162, 162, 186, 210, 162, 162, 186, 210, 234,
+                    258, 282, 306, 162, 186, 210, 234, 258, 282, 306, 330, 354, 378, 162, 186, 210, 234, 258, 282, 162,
+                    186, 210, 234, 258, 282, 306, 330, 354, 378, 162, 186, 210],
                 expectedColors = ['#869d96', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#869d96', '#a2c3a4', '#c4f1be',
                     '#c4f1be', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4',
                     '#a2c3a4', '#a2c3a4', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4', '#c4f1be', '#c4f1be', '#a2c3a4',
@@ -667,13 +650,10 @@ describe('RelationshipGraph', function() {
 
             chai.expect(rects.length).to.equal(expectedX.length);
 
-            // TODO: Fix this.
-            var addition = parseInt(rects[0].getAttribute('x')) === expectedX[0] ? 0 : 24;
-
             for (var j = 0; j < rects.length; j++) {
                 var block = rects[j];
 
-                chai.expect(parseInt(block.getAttribute('x'))).to.equal(expectedX[j] + addition);
+                chai.expect(parseInt(block.getAttribute('x'))).to.equal(expectedX[j]);
                 chai.expect(parseInt(block.getAttribute('y'))).to.equal(expectedY[j]);
                 chai.expect(parseInt(block.getAttribute('rx'))).to.equal(4);
                 chai.expect(parseInt(block.getAttribute('ry'))).to.equal(4);
@@ -834,7 +814,7 @@ describe('RelationshipGraph', function() {
 
     describe('#VerifyGetPixelLength', function() {
         var strings = ['Test', 'LongerTest', 'Test123', 'Test   ', '   Test'],
-            expected = [23.828125, 64.25, 45.484375, 34.65625 , 34.65625],
+            expected = [25, 66, 47, 25, 25],
             graph = d3.select('#test').relationshipGraph();
 
         it('Should be the same.', function() {

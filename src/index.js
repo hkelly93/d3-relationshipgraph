@@ -133,9 +133,21 @@
             this.config.thresholds.sort();
         }
 
-        // Create a canvas to measure the pixel width of the parent labels.
-        this.ctx = document.createElement('canvas').getContext('2d');
-        this.ctx.font = '13px Helvetica';
+        // Used for measuring text widths.
+        this.measurementDiv = document.createElement('div');
+        this.measuredCache = {};
+
+        var measurementStyle = this.measurementDiv.style;
+        measurementStyle.fontFamily = 'Helvetica';
+        measurementStyle.fontSize = '13px';
+        measurementStyle.position = 'absolute';
+        measurementStyle.visibility = 'none';
+        measurementStyle.width = 'auto';
+        measurementStyle.height = 'auto';
+        measurementStyle.left = '-100%';
+        measurementStyle.top = '-100%';
+
+        document.body.appendChild(this.measurementDiv);
 
         /**
          * Function that turns a string into title case.
@@ -437,7 +449,19 @@
      * @returns {Number} The pixel length of the string.
      */
     RelationshipGraph.prototype.getPixelLength = function(str) {
-        return this.ctx.measureText(str).width;
+        if (containsKey(this.measuredCache, str)) {
+            return this.measuredCache[str];
+        }
+
+        var text = document.createTextNode(str);
+        this.measurementDiv.appendChild(text);
+
+        var width = this.measurementDiv.offsetWidth;
+        this.measurementDiv.removeChild(text);
+
+        this.measuredCache[str] = width;
+
+        return width;
     };
 
     /**
