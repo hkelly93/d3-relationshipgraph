@@ -545,7 +545,6 @@
         measurementStyle.fontFamily = 'Helvetica';
         measurementStyle.fontSize = '13px';
         measurementStyle.position = 'absolute';
-        measurementStyle.visibility = 'none';
         measurementStyle.width = 'auto';
         measurementStyle.height = 'auto';
         measurementStyle.left = '-100%';
