@@ -133,9 +133,20 @@
             this.config.thresholds.sort();
         }
 
-        // Create a canvas to measure the pixel width of the parent labels.
-        this.ctx = document.createElement('canvas').getContext('2d');
-        this.ctx.font = '13px Helvetica';
+        // Used for measuring text widths.
+        this.measurementDiv = document.createElement('div');
+        this.measuredCache = {};
+
+        var measurementStyle = this.measurementDiv.style;
+        measurementStyle.fontFamily = 'Helvetica';
+        measurementStyle.fontSize = '13px';
+        measurementStyle.position = 'absolute';
+        measurementStyle.width = 'auto';
+        measurementStyle.height = 'auto';
+        measurementStyle.left = '-100%';
+        measurementStyle.top = '-100%';
+
+        document.body.appendChild(this.measurementDiv);
 
         /**
          * Function that turns a string into title case.
@@ -327,8 +338,6 @@
             throw 'Cannot make value comparison between a number and a ' + (typeof value) + '.';
         }
 
-        thresholds.sort();
-
         var length = thresholds.length;
 
         for (var i = 0; i < length; i++) {
@@ -371,7 +380,7 @@
         }
 
         // Calculate the row and column for each child block.
-        var longestWidth = that.getPixelength(longest),
+        var longestWidth = that.getPixelLength(longest),
             parentDiv = config.selection[0][0],
             calculatedMaxChildren = (config.maxChildCount === 0) ?
                 Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
@@ -438,8 +447,20 @@
      * @param str {string} The string to get the length of.
      * @returns {Number} The pixel length of the string.
      */
-    RelationshipGraph.prototype.getPixelength = function(str) {
-        return this.ctx.measureText(str).width;
+    RelationshipGraph.prototype.getPixelLength = function(str) {
+        if (containsKey(this.measuredCache, str)) {
+            return this.measuredCache[str];
+        }
+
+        var text = document.createTextNode(str);
+        this.measurementDiv.appendChild(text);
+
+        var width = this.measurementDiv.offsetWidth;
+        this.measurementDiv.removeChild(text);
+
+        this.measuredCache[str] = width;
+
+        return width;
     };
 
     /**
@@ -543,7 +564,7 @@
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.getPixelength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    var width = _this.getPixelLength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
                     return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
@@ -570,7 +591,7 @@
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.getPixelength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    var width = _this.getPixelLength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
                     return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
