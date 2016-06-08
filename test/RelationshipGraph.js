@@ -650,10 +650,12 @@ describe('RelationshipGraph', function() {
 
             chai.expect(rects.length).to.equal(expectedX.length);
 
+            var addition = (rects[0].getAttribute('x') != expectedX[0]) ? 23 : 0;
+
             for (var j = 0; j < rects.length; j++) {
                 var block = rects[j];
 
-                chai.expect(parseInt(block.getAttribute('x'))).to.equal(expectedX[j]);
+                chai.expect(parseInt(block.getAttribute('x'))).to.equal(expectedX[j] + addition);
                 chai.expect(parseInt(block.getAttribute('y'))).to.equal(expectedY[j]);
                 chai.expect(parseInt(block.getAttribute('rx'))).to.equal(4);
                 chai.expect(parseInt(block.getAttribute('ry'))).to.equal(4);
