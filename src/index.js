@@ -327,8 +327,6 @@
             throw 'Cannot make value comparison between a number and a ' + (typeof value) + '.';
         }
 
-        thresholds.sort();
-
         var length = thresholds.length;
 
         for (var i = 0; i < length; i++) {
@@ -371,7 +369,7 @@
         }
 
         // Calculate the row and column for each child block.
-        var longestWidth = that.getPixelength(longest),
+        var longestWidth = that.getPixelLength(longest),
             parentDiv = config.selection[0][0],
             calculatedMaxChildren = (config.maxChildCount === 0) ?
                 Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
@@ -438,7 +436,7 @@
      * @param str {string} The string to get the length of.
      * @returns {Number} The pixel length of the string.
      */
-    RelationshipGraph.prototype.getPixelength = function(str) {
+    RelationshipGraph.prototype.getPixelLength = function(str) {
         return this.ctx.measureText(str).width;
     };
 
@@ -543,7 +541,7 @@
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.getPixelength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    var width = _this.getPixelLength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
                     return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
@@ -570,7 +568,7 @@
                     return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.getPixelength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    var width = _this.getPixelLength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
                     return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
