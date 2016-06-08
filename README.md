@@ -97,7 +97,8 @@ config = {
     thresholds: [100, 200, 300], // The thresholds for the color changes. If the values are strings, the colors are determined by the value of the child being equal to the threshold. If the thresholds are numbers, the color is determined by the value being less than the threshold.
     colors: ['red', 'green', 'blue'], // The custom color set to use for the child blocks. These can be color names, HEX values, or RGBA values.
     transitionTime: 1000, // The time in milliseconds for the transitions. Set to 0 to disable.
-    truncate: 25 // The maximum length for the parent labels before they get truncated. Set to 0 to disable.
+    truncate: 25, // The maximum length for the parent labels before they get truncated. Set to 0 to disable.
+    sortFunction: sortJson  // A custom sort function. The parent value must be sorted first.
 }
 ```
 
@@ -111,9 +112,12 @@ config = {
     showKeys: true,
     thresholds: [], // All chiild blocks will be the same color.
     transitionTime: 1500,
-    truncate: 0
+    truncate: 0,
+    sortFunction: sortJson
 }
 ```
+
+If a custom sorting is used, the `parent` value MUST be sorted first.
 
 ### Updating with New Data
 To update the relationship graph with new data, store the RelationshipGraph object and call the `data` function with the updated JSON

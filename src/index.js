@@ -98,9 +98,10 @@
 
         /**
          * Contains the configuration for the graph.
-         * @type {{blockSize: number, maxWidth: number, maxHeight: number, selection: d3.selection, showTooltips: (*|boolean),
-         * maxChildCount: (*|number), onClick: (*|noop), showKeys: (*|boolean), thresholds: (*|Array), colors: (*|Array|string[]),
-         * transitionTime: (*|number)}}
+         *
+         * @type {{blockSize: number, selection: d3.selection, showTooltips: boolean, maxChildCount: number, onClick: noop, showKeys: (*|boolean|*|boolean),
+         * thresholds: Array, colors: (*|Array|*|Array|string[]|boolean|string[]), transitionTime: (*|number|*|number), truncate: (*|number),
+         * sortFunction: (*|sortJson)}}
          */
         this.config = {
             blockSize: 24,  // The block size for each child.
@@ -117,7 +118,8 @@
                 '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
             ],  // Colors to use for blocks.
             transitionTime: userConfig.transitionTime || 1500,  // Time for a transition to start and complete (in milliseconds).
-            truncate: userConfig.truncate || 25  // Maximum length of a parent label before it gets truncated. Use 0 to turn off truncation.
+            truncate: userConfig.truncate || 25,  // Maximum length of a parent label before it gets truncated. Use 0 to turn off truncation.
+            sortFunction: userConfig.sortFunction || sortJson  // A custom sort function. The parent value must be sorted first.
         };
 
         if (this.config.showTooltips === undefined) {
@@ -525,7 +527,7 @@
                 config = this.config;
 
             // Ensure that the JSON is sorted by parent.
-            sortJson(json);
+            config.sortFunction(json);
 
             // Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per parent. This will also
             // calculate the row and index for each block and truncate the parent names to 25 characters.
