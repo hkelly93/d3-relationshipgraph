@@ -48,3 +48,4 @@
 * Fixed the regex for numeric comparisions so that it would take negative numbers into account.
 * Added additional tests.
 * Fixed the way that the width of the parent labels was determined and added a cache.
+* Optimized parent labels by storing the keys instead of generating it each time.

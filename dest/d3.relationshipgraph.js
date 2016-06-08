@@ -948,7 +948,8 @@
 
             // Assign the indexes and rows to each child. This method also calculates the maximum amount of children per row, the longest
             // row width, and how many rows there are.
-            var calculatedResults = assignIndexAndRow(this, json, parentSizes, parents);
+            var calculatedResults = assignIndexAndRow(this, json, parentSizes, parents),
+                parentSizesKeys = Object.keys(parentSizes);
 
             calculatedMaxChildren = calculatedResults.calculatedMaxChildren;
             longestWidth = calculatedResults.longestWidth;
@@ -965,10 +966,10 @@
             // Add new parent nodes.
             parentNodes.enter().append('text')
                 .text(function(obj, index) {
-                    return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
+                    return obj + ' (' + parentSizes[parentSizesKeys[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.getPixelLength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    var width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
                     return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
@@ -992,10 +993,10 @@
             // Update existing parent nodes.
             parentNodes
                 .text(function(obj, index) {
-                    return obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')';
+                    return obj + ' (' + parentSizes[parentSizesKeys[index]] + ')';
                 })
                 .attr('x', function(obj, index) {
-                    var width = _this.getPixelLength(obj + ' (' + parentSizes[Object.keys(parentSizes)[index]] + ')');
+                    var width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
                     return longestWidth - width;
                 })
                 .attr('y', function(obj, index) {
@@ -1009,7 +1010,7 @@
                         i = index - 1;
 
                     while (i > -1) {
-                        previousParentSize += Math.ceil(parentSizes[Object.keys(parentSizes)[i]] / calculatedMaxChildren) * calculatedMaxChildren;
+                        previousParentSize += Math.ceil(parentSizes[parentSizesKeys[i]] / calculatedMaxChildren) * calculatedMaxChildren;
                         i--;
                     }
 
