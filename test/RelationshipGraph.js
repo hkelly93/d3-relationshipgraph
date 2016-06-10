@@ -845,4 +845,14 @@ describe('RelationshipGraph', function() {
             }
         });
     });
+
+    describe('#VerifyValueKeyName', function() {
+        it('Should be "cool value".', function() {
+            var graph = d3.select('#test').relationshipGraph({
+                valueKeyName: 'cool value'
+            });
+
+            chai.expect(graph.config.valueKeyName).to.equal('cool value');
+        });
+    });
 });
