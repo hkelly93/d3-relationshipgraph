@@ -98,7 +98,8 @@ config = {
     colors: ['red', 'green', 'blue'], // The custom color set to use for the child blocks. These can be color names, HEX values, or RGBA values.
     transitionTime: 1000, // The time in milliseconds for the transitions. Set to 0 to disable.
     truncate: 25, // The maximum length for the parent labels before they get truncated. Set to 0 to disable.
-    sortFunction: sortJson  // A custom sort function. The parent value must be sorted first.
+    sortFunction: sortJson,  // A custom sort function. The parent value must be sorted first.
+    valueKeyName: 'Worldwide Gross'  // Set a custom key value in the tooltip instead of showing 'value'.
 }
 ```
 
@@ -113,7 +114,8 @@ config = {
     thresholds: [], // All chiild blocks will be the same color.
     transitionTime: 1500,
     truncate: 0,
-    sortFunction: sortJson
+    sortFunction: sortJson,
+    valueKeyName: 'value'
 }
 ```
 

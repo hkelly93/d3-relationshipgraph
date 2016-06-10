@@ -5,7 +5,8 @@
     <title>d3.relationshipgraph Example</title>
 
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="../dest/d3.relationshipgraph.min.js"></script>
+    <script src="../src/d3-tip.js"></script>
+    <script src="../src/index.js"></script>
     <link type="text/css" rel="stylesheet" href="../dest/d3.relationshipgraph.min.css">
 </head>
 <body>
@@ -585,6 +586,7 @@
 
     var graph = d3.select('#graph').relationshipGraph({
         'maxChildCount': 10,
+        'valueKeyName': 'Worldwide Gross',
         'thresholds': [1000000000, 2000000000, 3000000000]
     });
 

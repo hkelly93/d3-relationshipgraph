@@ -523,7 +523,8 @@
             ],  // Colors to use for blocks.
             transitionTime: userConfig.transitionTime || 1500,  // Time for a transition to start and complete (in milliseconds).
             truncate: userConfig.truncate || 25,  // Maximum length of a parent label before it gets truncated. Use 0 to turn off truncation.
-            sortFunction: userConfig.sortFunction || sortJson  // A custom sort function. The parent value must be sorted first.
+            sortFunction: userConfig.sortFunction || sortJson,  // A custom sort function. The parent value must be sorted first.
+            valueKeyName: userConfig.valueKeyName || 'value'  // Set a custom key value in the tooltip instead of showing 'value'.
         };
 
         if (this.config.showTooltips === undefined) {
@@ -595,7 +596,7 @@
                                 value = document.createElement('td');
 
                             if (showKeys) {
-                                key.innerHTML = toTitleCase(element);
+                                key.innerHTML = (upperCaseKey == 'VALUE') ? toTitleCase(self.config.valueKeyName) : toTitleCase(element);
                                 row.appendChild(key);
                             }
 
