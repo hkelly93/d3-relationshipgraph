@@ -85,6 +85,22 @@ and thresholds such as:
 var thresholds = [25, 50, 75, 100];
 ````
 
+### Private Data
+Private data can be added to the JSON data by using the `_private_` key. This allows you to pass private data into the onClick function that isn't shown in the tooltip.
+
+To use private data, structure your JSON data so that it looks similar to
+
+```javascript
+var myData = {
+    parent: 'parentA',
+    name: 'child1',
+    _private_: {
+        private1: 'Hidden from the tooltip.',
+        private2: 'Also hidden from the tooltip.'
+    }
+}
+```
+
 ### Configuration
 d3.relationshipgraph is configured by passing in a JavaScript object into the constructor. The object can have the following properties
 
