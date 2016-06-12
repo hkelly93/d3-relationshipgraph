@@ -574,7 +574,7 @@
          * @returns {d3.tip} the tip object.
          */
         var createTooltip = function(self) {
-            var hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT'],
+            var hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_'],
                 showKeys = self.config.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip')
