@@ -769,7 +769,7 @@
         var length = thresholds.length;
 
         for (var i = 0; i < length; i++) {
-            if (value < thresholds[i]) {
+            if (value <= thresholds[i]) {
                 return i;
             }
         }
