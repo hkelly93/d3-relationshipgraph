@@ -36,7 +36,7 @@
 * Added the ability to not pass in thresholds and all the blocks be the same color.
 * Right aligned the parent labels.
 
-# 1.5.0 (5/26/2016-)
+# 1.5.0 (5/26/2016 - 6/12/2016)
 * Created a non-minified js file in dest using grunt-contrib-concat.
 * Added a test to check the colors of the blocks to make sure they're correct.
 * Made the comparison between the value and the threshold case insensitive, added type checking for the threshold comparisons, and made sure that the key appears in title case when the tooltip comes up.
@@ -51,3 +51,6 @@
 * Optimized parent labels by storing the keys instead of generating it each time.
 * Added a way to add a custom sort function.
 * Added a way to set a custom string for the `value` key instead of having it always say 'value' on the tooltip.`
+* Added support for private data by using the `_private_` key in the JSON data.
+
+# 1.5.1 (6/12/2016-)

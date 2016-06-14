@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * D3-relationshipgraph - 1.4.2
+ * D3-relationshipgraph - 1.5.0
  */
 
 /**
@@ -99,16 +99,16 @@
         /**
          * Contains the configuration for the graph.
          *
-         * @type {{blockSize: number, selection: d3.selection, showTooltips: boolean, maxChildCount: number, onClick: noop, showKeys: (*|boolean|*|boolean),
-         * thresholds: Array, colors: (*|Array|*|Array|string[]|boolean|string[]), transitionTime: (*|number|*|number), truncate: (*|number),
-         * sortFunction: (*|sortJson)}}
+         * @type {{blockSize: number, selection: d3.selection, showTooltips: boolean, maxChildCount: number,
+         * onClick: function, showKeys: (*|boolean|*|boolean), thresholds: Array, colors: Array, transitionTime: number,
+         * truncate: (*|number), sortFunction: (*|sortJson)}}
          */
         this.config = {
             blockSize: 24,  // The block size for each child.
             selection: selection,  // The ID for the graph.
             showTooltips: userConfig.showTooltips,  // Whether or not to show the tooltips on hover.
-            maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row before wrapping.
-            onClick: userConfig.onClick || noop,  // The callback function to call when a child is clicked. This function gets passed the JSON for the child.
+            maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show before wrapping.
+            onClick: userConfig.onClick || noop,  // The callback function to call when a child is clicked.
             showKeys: userConfig.showKeys,  // Whether or not to show the keys in the tooltip.
             thresholds: userConfig.thresholds,  // Thresholds to determine the colors of the child blocks with.
             colors: userConfig.colors || ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
@@ -117,10 +117,10 @@
                 '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f',
                 '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
             ],  // Colors to use for blocks.
-            transitionTime: userConfig.transitionTime || 1500,  // Time for a transition to start and complete (in milliseconds).
-            truncate: userConfig.truncate || 25,  // Maximum length of a parent label before it gets truncated. Use 0 to turn off truncation.
-            sortFunction: userConfig.sortFunction || sortJson,  // A custom sort function. The parent value must be sorted first.
-            valueKeyName: userConfig.valueKeyName || 'value'  // Set a custom key value in the tooltip instead of showing 'value'.
+            transitionTime: userConfig.transitionTime || 1500,  // Time for a transition to start and complete.
+            truncate: userConfig.truncate || 25,  // Maximum length of a parent label before it gets truncated.
+            sortFunction: userConfig.sortFunction || sortJson,  // A custom sort function.
+            valueKeyName: userConfig.valueKeyName || 'value'  // Set a custom key value in the tooltip.
         };
 
         if (this.config.showTooltips === undefined) {
@@ -136,8 +136,16 @@
             this.config.thresholds.sort();
         }
 
-        // Used for measuring text widths.
+        /**
+         * Used for measuring text widths.
+         * @type {Element}
+         */
         this.measurementDiv = document.createElement('div');
+
+        /**
+         * Used for caching measurements.
+         * @type {{}}
+         */
         this.measuredCache = {};
 
         var measurementStyle = this.measurementDiv.style;
@@ -154,8 +162,9 @@
         /**
          * Function that turns a string into title case.
          *
-         * @param str {string} The string to convert.
+         * @param {string} str The string to convert.
          * @returns {string} A title cased string.
+         * @private
          */
         var toTitleCase = function(str) {
             return str.toLowerCase().split(' ').map(function(part) {
@@ -168,9 +177,10 @@
          *
          * @param {RelationshipGraph} self The RelationshipGraph instance.
          * @returns {d3.tip} the tip object.
+         * @private
          */
         var createTooltip = function(self) {
-            var hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT'],
+            var hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_'],
                 showKeys = self.config.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip')
@@ -192,7 +202,8 @@
                                 value = document.createElement('td');
 
                             if (showKeys) {
-                                key.innerHTML = (upperCaseKey == 'VALUE') ? toTitleCase(self.config.valueKeyName) : toTitleCase(element);
+                                key.innerHTML = (upperCaseKey == 'VALUE') ?
+                                    toTitleCase(self.config.valueKeyName) : toTitleCase(element);
                                 row.appendChild(key);
                             }
 
@@ -245,6 +256,7 @@
      * @param {object} obj The object to check in.
      * @param {string} key They key to check for.
      * @returns {boolean} Whether or not the object contains the key.
+     * @private
      */
     var containsKey = function(obj, key) {
         return Object.keys(obj).indexOf(key) > -1;
@@ -256,6 +268,7 @@
      * @param {*[]} arr The array to check in.
      * @param {string} key The key to check for.
      * @returns {boolean} Whether or not the key exists in the array.
+     * @private
      */
     var contains = function(arr, key) {
         return arr.indexOf(key) > -1;
@@ -267,6 +280,7 @@
      * @param {string} str The string to truncate.
      * @param {number} cap The number to cap the string at before it gets truncated.
      * @returns {string} The string truncated (if necessary).
+     * @private
      */
     var truncate = function(str, cap) {
         if (cap === 0) {
@@ -279,8 +293,9 @@
     /**
      * Determines if the array passed in is an Array object.
      *
-     * @param arr {Array} The array object to check.
+     * @param {Array} arr The array object to check.
      * @returns {boolean} Whether or not the array is actually an array object.
+     * @private
      */
     var isArray = function(arr) {
         return Object.prototype.toString.call(arr) == '[object Array]';
@@ -288,13 +303,16 @@
 
     /**
      * Noop function.
+     *
+     * @private
      */
     var noop = function() { };
 
     /**
      * Returns a sorted Array.
      *
-     * @param json {Array} The Array to be sorted.
+     * @param {Array} json The Array to be sorted.
+     * @private
      */
     var sortJson = function(json) {
         json.sort(function(child1, child2) {
@@ -308,9 +326,11 @@
     /**
      * Go through all of the thresholds and find the one that is equal to the value.
      *
-     * @param value {String} The value from the JSON.
-     * @param thresholds {Array} The thresholds from the JSON.
-     * @returns {number} The index of the threshold that is equal to the value or -1 if the value doesn't equal any thresholds.
+     * @param {String} value The value from the JSON.
+     * @param {Array} thresholds The thresholds from the JSON.
+     * @returns {number} The index of the threshold that is equal to the value or -1 if the value doesn't equal any
+     *  thresholds.
+     * @private
      */
     var stringCompare = function (value, thresholds) {
         if (typeof value !== 'string') {
@@ -331,10 +351,11 @@
     /**
      * Go through all of the thresholds and find the smallest number that is greater than the value.
      *
-     * @param value {number} The value from the JSON.
-     * @param thresholds {Array} The thresholds from the JSON.
-     * @returns {number} The index of the threshold that is the smallest number that is greater than the value or -1 if the value isn't
-     *      between any thresholds.
+     * @param {number} value The value from the JSON.
+     * @param {Array} thresholds The thresholds from the JSON.
+     * @returns {number} The index of the threshold that is the smallest number that is greater than the value or -1 if
+     *  the value isn't between any thresholds.
+     * @private
      */
     var numericCompare = function (value, thresholds) {
         if (typeof value !== 'number') {
@@ -355,12 +376,13 @@
     /**
      * Assign the index and row to each of the children in the Array of Objects.
      *
-     * @param that {RelationshipGraph} The relationship graph object.
-     * @param json {Array} The array of Objects to loop through.
-     * @param parentSizes {Object} The parent sizes determined.
-     * @param parents {Array} The parent label names.
-     * @returns {Object} Object containing the longest width, the calculated max children per row, and the maximum amount
-     *  of rows.
+     * @param {RelationshipGraph} that The relationship graph object.
+     * @param {Array} json The array of Objects to loop through.
+     * @param {Object} parentSizes The parent sizes determined.
+     * @param {Array} parents The parent label names.
+     * @returns {Object} Object containing the longest width, the calculated max children per row, and the maximum
+     *  amount of rows.
+     * @private
      */
     var assignIndexAndRow = function(that, json, parentSizes, parents) {
         // Determine the longest parent name to calculate how far from the left the child blocks should start.
@@ -427,7 +449,10 @@
                     compare = stringCompare;
                 } else {
                     var elementValue = element.value;
-                    value = (typeof elementValue == 'number') ? elementValue : parseFloat(elementValue.replace(/[^0-9-\.]+/g, ''));
+
+                    value = (typeof elementValue == 'number') ?
+                        elementValue : parseFloat(elementValue.replace(/[^0-9-\.]+/g, ''));
+
                     compare = numericCompare;
                 }
 
@@ -447,8 +472,9 @@
     /**
      * Returns the pixel length of the string based on the font size.
      *
-     * @param str {string} The string to get the length of.
+     * @param {string} str The string to get the length of.
      * @returns {Number} The pixel length of the string.
+     * @public
      */
     RelationshipGraph.prototype.getPixelLength = function(str) {
         if (containsKey(this.measuredCache, str)) {
@@ -469,7 +495,8 @@
     /**
      * Verify that the JSON passed in is correct.
      *
-     * @param json {Array} The array of JSON objects to verify.
+     * @param {Array} json The array of JSON objects to verify.
+     * @public
      */
     RelationshipGraph.prototype.verifyJson = function(json) {
         if (!(isArray(json)) || (json.length < 0) || (typeof json[0] !== 'object')) {
@@ -509,8 +536,9 @@
     /**
      * Generate the graph.
      *
-     * @param json {Array} The array of JSON to feed to the graph.
+     * @param {Array} json The array of JSON to feed to the graph.
      * @return {RelationshipGraph} The RelationshipGraph object to keep d3's chaining functionality.
+     * @public
      */
     RelationshipGraph.prototype.data = function(json) {
         if (this.verifyJson(json)) {
@@ -530,8 +558,11 @@
             // Ensure that the JSON is sorted by parent.
             config.sortFunction(json);
 
-            // Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per parent. This will also
-            // calculate the row and index for each block and truncate the parent names to 25 characters.
+            /**
+             * Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per
+             * parent. This will also calculate the row and index for each block and truncate the parent names to 25
+             * characters.
+             */
             var jsonLength = json.length;
 
             for (i = 0; i < jsonLength; i++) {
@@ -545,8 +576,10 @@
                 }
             }
 
-            // Assign the indexes and rows to each child. This method also calculates the maximum amount of children per row, the longest
-            // row width, and how many rows there are.
+            /**
+             * Assign the indexes and rows to each child. This method also calculates the maximum amount of children
+             * per row, the longest row width, and how many rows there are.
+             */
             var calculatedResults = assignIndexAndRow(this, json, parentSizes, parents),
                 parentSizesKeys = Object.keys(parentSizes);
 
@@ -603,13 +636,16 @@
                         return 0;
                     }
 
-                    // Determine the Y coordinate by determining the Y coordinate of all of the parents before. This has to be calculated completely
-                    // because it is an update and can occur anywhere.
+                    /**
+                     * Determine the Y coordinate by determining the Y coordinate of all of the parents before. This
+                     * has to be calculated completely because it is an update and can occur anywhere.
+                     */
                     var previousParentSize = 0,
                         i = index - 1;
 
                     while (i > -1) {
-                        previousParentSize += Math.ceil(parentSizes[parentSizesKeys[i]] / calculatedMaxChildren) * calculatedMaxChildren;
+                        previousParentSize += Math.ceil(parentSizes[parentSizesKeys[i]] / calculatedMaxChildren) *
+                            calculatedMaxChildren;
                         i--;
                     }
 
