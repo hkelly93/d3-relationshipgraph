@@ -53,4 +53,6 @@
 * Added a way to set a custom string for the `value` key instead of having it always say 'value' on the tooltip.`
 * Added support for private data by using the `_private_` key in the JSON data.
 
-# 1.5.1 (6/12/2016-)
+# 2.0.0 (6/12/2016-)
+* Added a way to set the onclick function for a parent label.
+* Cleaned up some of the code.

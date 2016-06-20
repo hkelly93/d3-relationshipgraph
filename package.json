@@ -21,7 +21,7 @@
     "url": "https://github.com/hkelly93/d3-relationshipgraph"
   },
   "main": "d3.relationshipgraph.min.js",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "files": [
     "src",
     "d3.relationshipgraph.min.js"
