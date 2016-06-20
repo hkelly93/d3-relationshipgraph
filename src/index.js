@@ -143,7 +143,15 @@
          * @type {Element}
          */
         this.measurementDiv = document.createElement('div');
-        this.measurementDiv.className = 'relationshipGraph-measurement';
+        var measurementStyle = this.measurementDiv.style;
+        measurementStyle.fontFamily = 'Helvetica';
+        measurementStyle.fontSize = '13px';
+        measurementStyle.position = 'absolute';
+        measurementStyle.width = 'auto';
+        measurementStyle.height = 'auto';
+        measurementStyle.left = '-100%';
+        measurementStyle.top = '-100%';
+
         document.body.appendChild(this.measurementDiv);
 
         /**
