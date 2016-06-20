@@ -656,7 +656,7 @@ describe('RelationshipGraph', function() {
 
             chai.expect(rects.length).to.equal(expectedX.length);
 
-            var addition = (rects[0].getAttribute('x') != expectedX[0]) ? 23 : 0;
+            var addition = (rects[0].getAttribute('x') != expectedX[0]) ? 17 : 0;
 
             for (var j = 0; j < rects.length; j++) {
                 var block = rects[j];
