@@ -30,7 +30,8 @@ describe('RelationshipGraph', function() {
 
             chai.expect(config.showTooltips).to.equal(true);
             chai.expect(config.maxChildCount).to.equal(0);
-            chai.expect(typeof config.onClick).to.equal('function');
+            chai.expect(typeof config.onClick.parent).to.equal('function');
+            chai.expect(typeof config.onClick.child).to.equal('function');
             chai.expect(typeof config.thresholds).to.equal('object');
             chai.expect(config.thresholds.length).to.equal(0);
         });
@@ -160,11 +161,16 @@ describe('RelationshipGraph', function() {
     });
 
     describe('#ValidateConfigurations()', function() {
+        var noop = function() {};
+
         it('Should be the same.', function() {
             var config = config = {
                 showTooltips: true,
                 maxChildCount: 10,
-                onClick: function() {},
+                onClick: {
+                    parent: noop,
+                    child: noop
+                },
                 showKeys: true,
                 thresholds: [100, 200, 300],
                 colors: ['red', 'green', 'blue'],
@@ -650,7 +656,7 @@ describe('RelationshipGraph', function() {
 
             chai.expect(rects.length).to.equal(expectedX.length);
 
-            var addition = (rects[0].getAttribute('x') != expectedX[0]) ? 23 : 0;
+            var addition = (rects[0].getAttribute('x') != expectedX[0]) ? 17 : 0;
 
             for (var j = 0; j < rects.length; j++) {
                 var block = rects[j];

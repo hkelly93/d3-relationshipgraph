@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * D3-relationshipgraph - 1.5.0
+ * D3-relationshipgraph - 2.0.0
  */
 
 /**
@@ -82,9 +82,6 @@
     var RelationshipGraph = function(selection, userConfig) {
         if (userConfig === undefined) {
             userConfig = {
-                showTooltips: true,
-                maxChildCount: 0,
-                onClick: noop,
                 thresholds: []
             };
         } else {
@@ -95,6 +92,11 @@
                 throw 'Thresholds must be an Object.';
             }
         }
+
+        var defaultOnClick = {
+            parent: noop,
+            child: noop
+        };
 
         /**
          * Contains the configuration for the graph.
@@ -108,7 +110,7 @@
             selection: selection,  // The ID for the graph.
             showTooltips: userConfig.showTooltips,  // Whether or not to show the tooltips on hover.
             maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show before wrapping.
-            onClick: userConfig.onClick || noop,  // The callback function to call when a child is clicked.
+            onClick: userConfig.onClick || defaultOnClick,  // The callback function to call when a node is clicked.
             showKeys: userConfig.showKeys,  // Whether or not to show the keys in the tooltip.
             thresholds: userConfig.thresholds,  // Thresholds to determine the colors of the child blocks with.
             colors: userConfig.colors || ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
@@ -141,23 +143,14 @@
          * @type {Element}
          */
         this.measurementDiv = document.createElement('div');
+        this.measurementDiv.className = 'relationshipGraph-measurement';
+        document.body.appendChild(this.measurementDiv);
 
         /**
          * Used for caching measurements.
          * @type {{}}
          */
         this.measuredCache = {};
-
-        var measurementStyle = this.measurementDiv.style;
-        measurementStyle.fontFamily = 'Helvetica';
-        measurementStyle.fontSize = '13px';
-        measurementStyle.position = 'absolute';
-        measurementStyle.width = 'auto';
-        measurementStyle.height = 'auto';
-        measurementStyle.left = '-100%';
-        measurementStyle.top = '-100%';
-
-        document.body.appendChild(this.measurementDiv);
 
         /**
          * Function that turns a string into title case.
@@ -534,6 +527,168 @@
     };
 
     /**
+     * Creates the parent labels.
+     *
+     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
+     * @param {d3.selection} parentNodes The parentNodes.
+     * @param {Object} parentSizes The child count for each parent.
+     * @param {number} longestWidth The longest width of a parent node.
+     * @param {number} calculatedMaxChildren The maxiumum amount of children nodes per row.
+     * @private
+     */
+    var createParents = function(_this, parentNodes, parentSizes, longestWidth, calculatedMaxChildren) {
+        var previousParentSizes = 0,
+            parentSizesKeys = Object.keys(parentSizes);
+
+        parentNodes.enter().append('text')
+            .text(function(obj, index) {
+                return obj + ' (' + parentSizes[parentSizesKeys[index]] + ')';
+            })
+            .attr('x', function(obj, index) {
+                var width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
+                return longestWidth - width;
+            })
+            .attr('y', function(obj, index) {
+                if (index === 0) {
+                    return 0;
+                }
+
+                // Determine the Y coordinate by determining the Y coordinate of all of the parents before.
+                var y = Math.ceil(previousParentSizes / calculatedMaxChildren) * _this.config.blockSize;
+                previousParentSizes += y;
+
+                return y;
+            })
+            .style('text-anchor', 'start')
+            .style('fill', function(obj) {
+                return (obj.parentColor !== undefined) ? _this.config.colors[obj.parentColor] : '#000000';
+            })
+            .attr('class', 'relationshipGraph-Text')
+            .attr('transform', 'translate(-6, ' + _this.config.blockSize / 1.5 + ')')
+            .on('click', function(obj) {
+                _this.config.onClick.parent(obj);
+            });
+    };
+
+    /**
+     * Updates the existing parent nodes with new data.
+     *
+     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
+     * @param {d3.selection} parentNodes The parentNodes.
+     * @param {Object} parentSizes The child count for each parent.
+     * @param {number} longestWidth The longest width of a parent node.
+     * @param {number} calculatedMaxChildren The maxiumum amount of children nodes per row.
+     * @private
+     */
+    var updateParents = function(_this, parentNodes, parentSizes, longestWidth, calculatedMaxChildren) {
+        var parentSizesKeys = Object.keys(parentSizes);
+
+        // noinspection JSUnresolvedFunction
+        parentNodes
+            .text(function(obj, index) {
+                return obj + ' (' + parentSizes[parentSizesKeys[index]] + ')';
+            })
+            .attr('x', function(obj, index) {
+                var width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
+                return longestWidth - width;
+            })
+            .attr('y', function(obj, index) {
+                if (index === 0) {
+                    return 0;
+                }
+
+                /**
+                 * Determine the Y coordinate by determining the Y coordinate of all of the parents before. This
+                 * has to be calculated completely because it is an update and can occur anywhere.
+                 */
+                var previousParentSize = 0,
+                    i = index - 1;
+
+                while (i > -1) {
+                    previousParentSize += Math.ceil(parentSizes[parentSizesKeys[i]] / calculatedMaxChildren) *
+                        calculatedMaxChildren;
+                    i--;
+                }
+
+                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.config.blockSize;
+            })
+            .style('fill', function(obj) {
+                return (obj.parentColor !== undefined) ? _this.config.colors[obj.parentColor] : '#000000';
+            });
+    };
+
+    /**
+     * Creates new children nodes.
+     *
+     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
+     * @param {d3.selection} childrenNodes The children nodes.
+     * @param {number} longestWidth The longest width of a parent node.
+     * @private
+     */
+    var createChildren = function(_this, childrenNodes, longestWidth) {
+        childrenNodes.enter()
+            .append('rect')
+            .attr('x', function(obj) {
+                return longestWidth + ((obj.index - 1) * _this.config.blockSize) + 5;
+            })
+            .attr('y', function(obj) {
+                return (obj.row - 1) * _this.config.blockSize;
+            })
+            .attr('rx', 4)
+            .attr('ry', 4)
+            .attr('class', 'relationshipGraph-block')
+            .attr('width', _this.config.blockSize)
+            .attr('height', _this.config.blockSize)
+            .style('fill', function(obj) {
+                return _this.config.colors[obj.color % _this.config.colors.length] || _this.config.colors[0];
+            })
+            .on('mouseover', _this.tip ? _this.tip.show : noop)
+            .on('mouseout', _this.tip ? _this.tip.hide : noop)
+            .on('click', function(obj) {
+                _this.tip.hide();
+                _this.config.onClick.child(obj);
+            });
+    };
+
+    /**
+     * Updates the existing children nodes with new data.
+     *
+     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
+     * @param {d3.selection} childrenNodes The children nodes.
+     * @param {number} longestWidth The longest width of a parent node.
+     * @private
+     */
+    var updateChildren = function(_this, childrenNodes, longestWidth) {
+        var blockSize = _this.config.blockSize,
+            colors = _this.config.colors,
+            colorsLength = colors.length;
+
+        // noinspection JSUnresolvedFunction
+        childrenNodes.transition(_this.config.transitionTime)
+            .attr('x', function(obj) {
+                return longestWidth + ((obj.index - 1) * blockSize) + 5;
+            })
+            .attr('y', function(obj) {
+                return (obj.row - 1) * blockSize;
+            })
+            .style('fill', function(obj) {
+                return colors[obj.color % colorsLength] || colors[0];
+            });
+    };
+
+    /**
+     * Removes nodes that no longer exist.
+     *
+     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
+     * @param {d3.selection} nodes The nodes.
+     * @private
+     */
+    var removeNodes = function(_this, nodes) {
+        // noinspection JSUnresolvedFunction
+        nodes.exit().transition(_this.config.transitionTime).remove();
+    };
+
+    /**
      * Generate the graph.
      *
      * @param {Array} json The array of JSON to feed to the graph.
@@ -545,8 +700,6 @@
             var row,
                 parents = [],
                 parentSizes = {},
-                previousParentSizes = 0,
-                _this = this,
                 parent,
                 i,
                 maxWidth,
@@ -580,8 +733,7 @@
              * Assign the indexes and rows to each child. This method also calculates the maximum amount of children
              * per row, the longest row width, and how many rows there are.
              */
-            var calculatedResults = assignIndexAndRow(this, json, parentSizes, parents),
-                parentSizesKeys = Object.keys(parentSizes);
+            var calculatedResults = assignIndexAndRow(this, json, parentSizes, parents);
 
             calculatedMaxChildren = calculatedResults.calculatedMaxChildren;
             longestWidth = calculatedResults.longestWidth;
@@ -589,117 +741,33 @@
 
             // Set the max width and height.
             maxHeight = row * config.blockSize;
-            maxWidth = longestWidth + (calculatedMaxChildren * config.blockSize);
+            maxWidth = longestWidth + (config.maxChildCount * config.blockSize);
 
             // Select all of the parent nodes.
             var parentNodes = this.svg.selectAll('.relationshipGraph-Text')
                 .data(parents);
 
             // Add new parent nodes.
-            parentNodes.enter().append('text')
-                .text(function(obj, index) {
-                    return obj + ' (' + parentSizes[parentSizesKeys[index]] + ')';
-                })
-                .attr('x', function(obj, index) {
-                    var width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
-                    return longestWidth - width;
-                })
-                .attr('y', function(obj, index) {
-                    if (index === 0) {
-                        return 0;
-                    }
-
-                    // Determine the Y coordinate by determining the Y coordinate of all of the parents before.
-                    var y = Math.ceil(previousParentSizes / calculatedMaxChildren) * _this.config.blockSize;
-                    previousParentSizes += y;
-
-                    return y;
-                })
-                .style('text-anchor', 'start')
-                .style('fill', function(obj) {
-                    return (obj.parentColor !== undefined) ? _this.config.colors[obj.parentColor] : '#000000';
-                })
-                .attr('class', 'relationshipGraph-Text')
-                .attr('transform', 'translate(-6, ' + this.config.blockSize / 1.5 + ')');
+            createParents(this, parentNodes, parentSizes, longestWidth, calculatedMaxChildren);
 
             // Update existing parent nodes.
-            parentNodes
-                .text(function(obj, index) {
-                    return obj + ' (' + parentSizes[parentSizesKeys[index]] + ')';
-                })
-                .attr('x', function(obj, index) {
-                    var width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
-                    return longestWidth - width;
-                })
-                .attr('y', function(obj, index) {
-                    if (index === 0) {
-                        return 0;
-                    }
-
-                    /**
-                     * Determine the Y coordinate by determining the Y coordinate of all of the parents before. This
-                     * has to be calculated completely because it is an update and can occur anywhere.
-                     */
-                    var previousParentSize = 0,
-                        i = index - 1;
-
-                    while (i > -1) {
-                        previousParentSize += Math.ceil(parentSizes[parentSizesKeys[i]] / calculatedMaxChildren) *
-                            calculatedMaxChildren;
-                        i--;
-                    }
-
-                    return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.config.blockSize;
-                })
-                .style('fill', function(obj) {
-                    return (obj.parentColor !== undefined) ? _this.config.colors[obj.parentColor] : '#000000';
-                });
+            updateParents(this, parentNodes, parentSizes, longestWidth, calculatedMaxChildren);
 
             // Remove deleted parent nodes.
-            parentNodes.exit().remove();
+            removeNodes(this, parentNodes);
 
             // Select all of the children nodes.
             var childrenNodes = this.svg.selectAll('.relationshipGraph-block')
                 .data(json);
 
             // Add new child nodes.
-            childrenNodes.enter()
-                .append('rect')
-                .attr('x', function(obj) {
-                    return longestWidth + ((obj.index - 1) * _this.config.blockSize) + 5;
-                })
-                .attr('y', function(obj) {
-                    return (obj.row - 1) * _this.config.blockSize;
-                })
-                .attr('rx', 4)
-                .attr('ry', 4)
-                .attr('class', 'relationshipGraph-block')
-                .attr('width', _this.config.blockSize)
-                .attr('height', _this.config.blockSize)
-                .style('fill', function(obj) {
-                    return _this.config.colors[obj.color % _this.config.colors.length] || _this.config.colors[0];
-                })
-                .on('mouseover', _this.tip ? _this.tip.show : noop)
-                .on('mouseout', _this.tip ? _this.tip.hide : noop)
-                .on('click', function(obj) {
-                    _this.tip.hide();
-                    _this.config.onClick(obj);
-                });
+            createChildren(this, childrenNodes, longestWidth);
 
             // Update existing child nodes.
-            childrenNodes.transition(_this.config.transitionTime)
-                .attr('x', function(obj) {
-                    return longestWidth + ((obj.index - 1) * _this.config.blockSize) + 5;
-                })
-                .attr('y', function(obj) {
-                    return (obj.row - 1) * _this.config.blockSize;
-                })
-                .style('fill', function(obj) {
-                    return _this.config.colors[obj.color % _this.config.colors.length] || _this.config.colors[0];
-                });
+            updateChildren(this, childrenNodes, longestWidth);
 
             // Delete removed child nodes.
-            childrenNodes.exit().transition(_this.config.transitionTime).remove();
+            removeNodes(this, childrenNodes);
 
             if (this.config.showTooltips) {
                 d3.select('.d3-tip').remove();
@@ -707,8 +775,8 @@
             }
 
             this.config.selection.select('svg')
-                .attr('width', maxWidth + 15)
-                .attr('height', maxHeight + 15);
+                .attr('width', Math.abs(maxWidth + 15))
+                .attr('height', Math.abs(maxHeight + 15));
         }
 
         return this;
