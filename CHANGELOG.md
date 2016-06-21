@@ -58,3 +58,4 @@
 * Cleaned up some of the code.
 * Fixed an SVG width issue where if no data was supplied, the width and height were set to -15, which threw an exception.
 * Fixed a bug where if the tooltip width and height got too big, the arrow wasn't pointing at the child node.
+* Fixed a bug where the width of the SVG was being determined incorrectly.

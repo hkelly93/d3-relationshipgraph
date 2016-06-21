@@ -741,7 +741,7 @@
 
             // Set the max width and height.
             maxHeight = row * config.blockSize;
-            maxWidth = longestWidth + (config.maxChildCount * config.blockSize);
+            maxWidth = longestWidth + calculatedMaxChildren * config.blockSize;
 
             // Select all of the parent nodes.
             var parentNodes = this.svg.selectAll('.relationshipGraph-Text')
