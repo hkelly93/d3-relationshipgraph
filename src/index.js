@@ -122,7 +122,7 @@
             transitionTime: userConfig.transitionTime || 1500,  // Time for a transition to start and complete.
             truncate: userConfig.truncate || 25,  // Maximum length of a parent label before it gets truncated.
             sortFunction: userConfig.sortFunction || sortJson,  // A custom sort function.
-            valueKeyName: userConfig.valueKeyName || 'value'  // Set a custom key value in the tooltip.
+            valueKeyName: userConfig.valueKeyName // Set a custom key value in the tooltip.
         };
 
         if (this.config.showTooltips === undefined) {
@@ -131,6 +131,10 @@
 
         if (this.config.showKeys === undefined) {
             this.config.showKeys = true;
+        }
+
+        if (this.config.keyValueName === undefined) {
+            this.config.keyValueName = 'value';
         }
 
         // If the threshold array is made up of numbers, make sure that it is sorted.
@@ -151,19 +155,6 @@
          * @type {{}}
          */
         this.measuredCache = {};
-
-        /**
-         * Function that turns a string into title case.
-         *
-         * @param {string} str The string to convert.
-         * @returns {string} A title cased string.
-         * @private
-         */
-        var toTitleCase = function(str) {
-            return str.toLowerCase().split(' ').map(function(part) {
-                return part.charAt(0).toUpperCase() + part.substring(1).toLowerCase();
-            }).join(' ');
-        };
 
         /**
          * Function to create the tooltip.
@@ -196,8 +187,12 @@
 
                             if (showKeys) {
                                 key.innerHTML = (upperCaseKey == 'VALUE') ?
-                                    toTitleCase(self.config.valueKeyName) : toTitleCase(element);
+                                    self.config.valueKeyName : element;
                                 row.appendChild(key);
+                            }
+
+                            if (upperCaseKey == 'VALUE' && self.config.valueKeyName.length === 0) {
+                                continue;
                             }
 
                             value.innerHTML = obj[element];
