@@ -469,10 +469,10 @@
     };
 
     /**
-     * Add relationshipGraph to enter.
-     *
-     * @returns {RelationshipGraph} RelationshipGraph object.
-     */
+    * Add relationshipGraph to enter.
+    *
+    * @returns {RelationshipGraph} RelationshipGraph object.
+    */
     d3.selection.enter.prototype.relationshipGraph = function() {
         return this.graph;
     };
@@ -494,6 +494,11 @@
                 userConfig.thresholds = [];
             } else if (typeof userConfig.thresholds !== 'object') {
                 throw 'Thresholds must be an Object.';
+            }
+
+            if (userConfig.onClick !== undefined) {
+                this.parentPointer = userConfig.onClick.parent !== undefined;
+                this.childPointer = userConfig.onClick.child !== undefined;
             }
         }
 
@@ -524,7 +529,7 @@
                 '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
             ],  // Colors to use for blocks.
             transitionTime: userConfig.transitionTime || 1500,  // Time for a transition to start and complete.
-            truncate: userConfig.truncate || 25,  // Maximum length of a parent label before it gets truncated.
+            truncate: userConfig.truncate || 0,  // Maximum length of a parent label before it gets truncated.
             sortFunction: userConfig.sortFunction || sortJson,  // A custom sort function.
             valueKeyName: userConfig.valueKeyName // Set a custom key value in the tooltip.
         };
@@ -962,6 +967,7 @@
             .style('fill', function(obj) {
                 return (obj.parentColor !== undefined) ? _this.config.colors[obj.parentColor] : '#000000';
             })
+            .style('cursor', _this.parentPointer ? 'pointer' : 'default')
             .attr('class', 'relationshipGraph-Text')
             .attr('transform', 'translate(-6, ' + _this.config.blockSize / 1.5 + ')')
             .on('click', function(obj) {
@@ -1013,7 +1019,8 @@
             })
             .style('fill', function(obj) {
                 return (obj.parentColor !== undefined) ? _this.config.colors[obj.parentColor] : '#000000';
-            });
+            })
+            .style('cursor', _this.childPointer ? 'pointer' : 'default');
     };
 
     /**
@@ -1041,6 +1048,7 @@
             .style('fill', function(obj) {
                 return _this.config.colors[obj.color % _this.config.colors.length] || _this.config.colors[0];
             })
+            .style('cursor', _this.childPointer ? 'pointer' : 'default')
             .on('mouseover', _this.tip ? _this.tip.show : noop)
             .on('mouseout', _this.tip ? _this.tip.hide : noop)
             .on('click', function(obj) {

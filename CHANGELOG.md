@@ -60,3 +60,4 @@
 * Fixed a bug where if the tooltip width and height got too big, the arrow wasn't pointing at the child node.
 * Fixed a bug where the width of the SVG was being determined incorrectly.
 * Added a way to not show the value on the tooltip by setting the `valueKeyName` to an empty string.
+* Added a cursor pointer if there is an onClick function.
