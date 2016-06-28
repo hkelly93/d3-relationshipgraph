@@ -469,10 +469,10 @@
     };
 
     /**
-    * Add relationshipGraph to enter.
-    *
-    * @returns {RelationshipGraph} RelationshipGraph object.
-    */
+     * Add relationshipGraph to enter.
+     *
+     * @returns {RelationshipGraph} RelationshipGraph object.
+     */
     d3.selection.enter.prototype.relationshipGraph = function() {
         return this.graph;
     };
@@ -488,6 +488,9 @@
             userConfig = {
                 thresholds: []
             };
+
+            this.parentPointer = false;
+            this.childPointer = false;
         } else {
             // Verify that the user config contains the thresholds.
             if (userConfig.thresholds === undefined) {
@@ -1020,7 +1023,7 @@
             .style('fill', function(obj) {
                 return (obj.parentColor !== undefined) ? _this.config.colors[obj.parentColor] : '#000000';
             })
-            .style('cursor', _this.childPointer ? 'pointer' : 'default');
+            .style('cursor', _this.parentPointer ? 'pointer' : 'default');
     };
 
     /**
