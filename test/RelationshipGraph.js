@@ -797,7 +797,7 @@ describe('RelationshipGraph', function() {
          var strings = ['Test', 'LongerTest', 'Test123', 'Test   ', '   Test'],
              expected = [25, 66, 47, 25, 25],
              graph = d3.select('#test').relationshipGraph(),
-             addition = (graph.getPixelLength(strings[0]) !== expected[0]) ? 2 : 0;
+             addition = (graph.getPixelLength(strings[0]) !== expected[0]) ? 1 : 0;
 
          it('Should be the same.', function() {
              for (var i = 0; i < strings.length; i++) {
