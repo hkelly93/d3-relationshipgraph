@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * D3-relationshipgraph - 1.5.0
+ * D3-relationshipgraph - 2.0.0
  */
 
 class RelationshipGraph {
@@ -254,7 +254,7 @@ class RelationshipGraph {
 
         // Calculate the row and column for each child block.
         let longestWidth = this.ctx.measureText(longest).width,
-            parentDiv = this.configuration.selection[0][0],
+            parentDiv = this.configuration.selection._groups[0][0].parentElement,
             calculatedMaxChildren = (this.configuration.maxChildCount === 0) ?
                 Math.floor((parentDiv.parentElement.clientWidth - 15 - longestWidth) / this.configuration.blockSize) :
                 this.configuration.maxChildCount;
@@ -380,7 +380,6 @@ class RelationshipGraph {
             let row = 1,
                 parents = [],
                 parentSizes = {},
-                previousParentSizes = 0,
                 _this = this,
                 parent,
                 i,
@@ -431,11 +430,17 @@ class RelationshipGraph {
                         return 0;
                     }
 
-                    // Determine the Y coordinate by determining the Y coordinate of all of the parents before.
-                    let y = Math.ceil(previousParentSizes / calculatedMaxChildren) * _this.configuration.blockSize;
-                    previousParentSizes += y;
+                    // Determine the Y coordinate by determining the Y coordinate of all of the parents before. This has to be calculated completely
+                    // because it is an update and can occur anywhere.
+                    let previousParentSize = 0,
+                        i = index - 1;
 
-                    return y;
+                    while (i > -1) {
+                        previousParentSize += Math.ceil(parentSizes[Object.keys(parentSizes)[i]] / calculatedMaxChildren) * calculatedMaxChildren;
+                        i--;
+                    }
+
+                    return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize;
                 })
                 .style('text-anchor', 'start')
                 .style('fill', function(obj) {
@@ -553,15 +558,4 @@ d3.selection.prototype.relationshipGraph = function(userConfig) {
     'use strict';
 
     return new RelationshipGraph(this, userConfig);
-};
-
-/**
- * Add relationshipGraph to enter.
- *
- * @returns {RelationshipGraph} RelationshipGraph object.
- */
-d3.selection.enter.prototype.relationshipGraph = function() {
-    'use strict';
-
-    return this.graph;
 };

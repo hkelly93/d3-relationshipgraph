@@ -6,7 +6,6 @@ describe('RelationshipGraph', function() {
         it('Should be added to d3.', function () {
             chai.expect(typeof d3.relationshipGraph).to.equal('function');
             chai.expect(d3.selection.prototype.relationshipGraph).to.not.equal(undefined);
-            chai.expect(d3.selection.enter.prototype.relationshipGraph).to.not.equal(undefined);
         });
     });
 
