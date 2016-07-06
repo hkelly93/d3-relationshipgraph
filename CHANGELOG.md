@@ -36,8 +36,29 @@
 * Added the ability to not pass in thresholds and all the blocks be the same color.
 * Right aligned the parent labels.
 
-# 1.5.0 (5/26/2016-)
-* Updated .travis.yml to also build with node 6.
+# 1.5.0 (5/26/2016 - 6/12/2016)
 * Created a non-minified js file in dest using grunt-contrib-concat.
 * Added a test to check the colors of the blocks to make sure they're correct.
-* Rewrote source in es6 and added Babel to convert it back to es5 until es6 is supported more.
+* Made the comparison between the value and the threshold case insensitive, added type checking for the threshold comparisons, and made sure that the key appears in title case when the tooltip comes up.
+* Fixed a bug where clicking `Random` twice (or more) on example page causes the demo to keep cycling.
+* Moved the child nodes five pixels away from the parent labels to make the space larger.
+* Optimized the code by using local variables instead of accessing object properties multiple times and made static functions instead of recreating them in loops.
+* Fixed a bug where the number thresholds had to be exact instead of between two thresholds.
+* Fixed a bug where only the first word in the tooltip key was capitalized instead of the key being in title case.
+* Fixed the regex for numeric comparisons so that it would take negative numbers into account.
+* Added additional tests.
+* Fixed the way that the width of the parent labels was determined and added a cache.
+* Optimized parent labels by storing the keys instead of generating it each time.
+* Added a way to add a custom sort function.
+* Added a way to set a custom string for the `value` key instead of having it always say 'value' on the tooltip.`
+* Added support for private data by using the `_private_` key in the JSON data.
+
+# 2.0.0 (6/12/2016-)
+* Added a way to set the onclick function for a parent label.
+* Cleaned up some of the code.
+* Fixed an SVG width issue where if no data was supplied, the width and height were set to -15, which threw an exception.
+* Fixed a bug where if the tooltip width and height got too big, the arrow wasn't pointing at the child node.
+* Fixed a bug where the width of the SVG was being determined incorrectly.
+* Added a way to not show the value on the tooltip by setting the `valueKeyName` to an empty string.
+* Added a cursor pointer if there is an onClick function.
+* Rewrote the source in ES6 and d3 v4.1.0

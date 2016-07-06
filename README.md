@@ -33,10 +33,7 @@ in the directory.
 Since d3.relationshipgraph extends the D3.js framework, it can be easily added to an existing project by adding the following
 
 ```html
-<!-- Add D3.js -->
 <script src="https://d3js.org/d3.v3.min.js"></script>
-
-<!-- Add d3.relationshipgraph.min.js -->
 <script src="path/to/scripts/d3.relationshipgraph.min.js"></script>
 <link type="text/css" rel="stylesheet" href="path/to/css/d3.relationshipgraph.min.css">
 ````
@@ -46,31 +43,65 @@ Once the framework is added to the HTML file, graphs can be created using famili
 ```javascript
 var json = [
         {
-            "Movie Title": "Avatar",
-            "parent": "20th Century Fox",
-            "Value": "$2,787,965,087",
-            "Year": "2009"
+            movietitle: 'Avatar',
+            parent: '20th Century Fox',
+            value: '$2,787,965,087',
+            year: '2009'
         },
         {
-            "Movie Title": "Titanic",
-            "parent": "20th Century Fox",
-            "Value": "$2,186,772,302",
-            "Year": "1997"
+            movietitle: 'Titanic',
+            parent: '20th Century Fox',
+            value: '$2,186,772,302',
+            year: '1997'
         }
     ];
 
 var graph = d3.select('#graph').relationshipGraph({
-    'showTooltips': true,
-    'maxChildCount': 10,
-    'showKeys': false,
-    'thresholds': [1000000000, 2000000000, 3000000000]
+    showTooltips: true,
+    maxChildCount: 10,
+    showKeys: false,
+    thresholds: [1000000000, 2000000000, 3000000000]
 }).data(json);
 ```
 
 This simple code will produce the example at the beginning of the readme.
 
-### Configuration
+### Thresholds
+Thresholds can be `strings` or `numbers`. If you use a `string`, only values that match exactly will be in that threshold. If you use a number, a numeric value will be in the smallest threshold that is greater than the value.
+If the values are `strings` (such as in the example above), the number is extracted from the string and used. This allows you to use string values such as:
 
+```javascript
+var json = [
+    {parent: 'a', value: '$100'},
+    {parent: 'b', value: '$100.15'},
+    {parent: 'c', value: '100%'},
+    {parent: 'd', value: '100.15%'}
+];
+````
+
+and thresholds such as:
+
+```javascript
+var thresholds = [25, 50, 75, 100];
+````
+
+### Private Data
+Private data can be added to the JSON data by using the `_private_` key. This allows you to pass private data into the onClick function that isn't shown in the tooltip.
+
+To use private data, structure your JSON data so that it looks similar to
+
+```javascript
+var myData = {
+    parent: 'parentA',
+    name: 'child1',
+    _private_: {
+        private1: 'Hidden from the tooltip.',
+        private2: 'Also hidden from the tooltip.'
+    }
+}
+```
+
+### Configuration
 d3.relationshipgraph is configured by passing in a JavaScript object into the constructor. The object can have the following properties
 
 ```Javascript
@@ -82,7 +113,9 @@ config = {
     thresholds: [100, 200, 300], // The thresholds for the color changes. If the values are strings, the colors are determined by the value of the child being equal to the threshold. If the thresholds are numbers, the color is determined by the value being less than the threshold.
     colors: ['red', 'green', 'blue'], // The custom color set to use for the child blocks. These can be color names, HEX values, or RGBA values.
     transitionTime: 1000, // The time in milliseconds for the transitions. Set to 0 to disable.
-    truncate: 25 // The maximum length for the parent labels before they get truncated. Set to 0 to disable.
+    truncate: 25, // The maximum length for the parent labels before they get truncated. Set to 0 to disable.
+    sortFunction: sortJson,  // A custom sort function. The parent value must be sorted first.
+    valueKeyName: 'Worldwide Gross'  // Set a custom key value in the tooltip instead of showing 'value'.
 }
 ```
 
@@ -96,56 +129,60 @@ config = {
     showKeys: true,
     thresholds: [], // All chiild blocks will be the same color.
     transitionTime: 1500,
-    truncate: 0
+    truncate: 0,
+    sortFunction: sortJson,
+    valueKeyName: 'value'
 }
 ```
 
+If a custom sorting is used, the `parent` value MUST be sorted first.
+
 ### Updating with New Data
-To update the relationship graph with new data, store the RelationshipGraph object and call the *data* function with the updated JSON
+To update the relationship graph with new data, store the RelationshipGraph object and call the `data` function with the updated JSON
 
 ```Javascript
 var json = [
         {
-            "Movie Title": "Avatar",
-            "parent": "20th Century Fox",
-            "Value": "$2,787,965,087",
-            "Year": "2009"
+            movietitle: 'Avatar',
+            parent: '20th Century Fox',
+            value: '$2,787,965,087',
+            year: '2009'
         },
         {
-            "Movie Title": "Titanic",
-            "parent": "20th Century Fox",
-            "Value": "$2,186,772,302",
-            "Year": "1997"
+            movietitle: 'Titanic',
+            parent: '20th Century Fox',
+            value: '$2,186,772,302',
+            year: '1997'
         }
     ];
 
 var graph = d3.select('#graph').relationshipGraph({
-    'showTooltips': true,
-    'maxChildCount': 10,
-    'showKeys': false,
-    'thresholds': [1000000000, 2000000000, 3000000000]
+    showTooltips: true,
+    maxChildCount: 10,
+    showKeys: false,
+    thresholds: [1000000000, 2000000000, 3000000000]
 });
 
 graph.data(json);  // Add the first set of data.
 
 json = [
         {
-            "Movie Title": "Avatar",
-            "parent": "20th Century Fox",
-            "Value": "$2,787,965,087",
-            "Year": "2009"
+            movietitle: 'Avatar',
+            parent: '20th Century Fox',
+            value: '$2,787,965,087',
+            year: '2009'
         },
         {
-            "Movie Title": "Titanic",
-            "parent": "20th Century Fox",
-            "Value": "$2,186,772,302",
-            "Year": "1997"
+            movietitle: 'Titanic',
+            parent: '20th Century Fox',
+            value: '$2,186,772,302',
+            year: '1997'
         },
         {
-            "Movie Title": "Star Wars: The Force Awakens",
-            "parent": "Walt Disney Studios",
-            "Value": "$2,066,247,462",
-            "Year": "2015"
+            movietitle: 'Star Wars: The Force Awakens',
+            parent: 'Walt Disney Studios',
+            value: '$2,066,247,462',
+            year: '2015'
         }
    ];
 

@@ -11,12 +11,25 @@ describe('RelationshipGraph', function() {
 
     describe('#ValidateRelationshipGraph()', function() {
         it('Should return a RelationshipGraph object.', function() {
-            var graph = d3.select('#test1').relationshipGraph({
-                'thresholds': [200]
+            var graph = d3.select('#test').relationshipGraph({
+                thresholds: [200]
             });
 
             chai.expect(typeof graph).to.equal('object');
             chai.expect(typeof graph.data).to.equal('function');
+        });
+    });
+
+    describe('#ValidateDefaultConfig()', function() {
+        it('Should return the default config.', function() {
+            var graph = d3.select('#test').relationshipGraph();
+
+            var config = graph.configuration;
+
+            chai.expect(config.showTooltips).to.equal(true);
+            chai.expect(config.maxChildCount).to.equal(0);
+            chai.expect(typeof config.thresholds).to.equal('object');
+            chai.expect(config.thresholds.length).to.equal(0);
         });
     });
 
@@ -25,8 +38,8 @@ describe('RelationshipGraph', function() {
             var thresholds = [500, 400, 300, 200, 100],
                 expected = [100, 200, 300, 400, 500];
 
-            var graph = d3.select('#test1').relationshipGraph({
-                'thresholds': thresholds
+            var graph = d3.select('#test').relationshipGraph({
+                thresholds: thresholds
             });
 
             for (var i = 0; i < expected.length; i++) {
@@ -37,8 +50,8 @@ describe('RelationshipGraph', function() {
         it('Should be the same', function() {
             var thresholds = ['test1', 'test2', 'test'];
 
-            var graph = d3.select('#test1').relationshipGraph({
-                'thresholds': thresholds
+            var graph = d3.select('#test').relationshipGraph({
+                thresholds: thresholds
             });
 
             for (var i = 0; i < thresholds.length; i++) {
@@ -47,43 +60,31 @@ describe('RelationshipGraph', function() {
         });
     });
 
-    describe('#ValidateIncorrectThresholds()', function() {
-        it('Should throw an exception', function() {
-            // Test string.
-            chai.expect(d3.select('#graph').relationshipGraph.bind(
-                d3.select('#graph').relationshipGraph, {'thresholds': '15'})).to.throw('Thresholds must be an Object.');
-            // Test number.
-            chai.expect(d3.select('#graph').relationshipGraph.bind(
-                d3.select('#graph').relationshipGraph, {'thresholds': 15})).to.throw('Thresholds must be an Object.');
-        });
-    });
-
-    describe('#ValidateContext()', function() {
-        it('Should exist', function() {
-            var graph = d3.select('#test2').relationshipGraph({
-                'thresholds': [200]
-            });
-
-            chai.expect(typeof graph.ctx).to.equal('object');
-
-            chai.expect(graph.ctx.font).to.equal('13px Helvetica');
-        });
-    });
+    //describe('#ValidateIncorrectThresholds()', function() {
+    //    it('Should throw an exception', function() {
+    //        // Test string.
+    //        chai.expect(d3.select('#graph').relationshipGraph.bind(
+    //            d3.select('#graph').relationshipGraph, {'thresholds': '15'})).to.throw('Thresholds must be an Object.');
+    //        // Test number.
+    //        chai.expect(d3.select('#graph').relationshipGraph.bind(
+    //            d3.select('#graph').relationshipGraph, {'thresholds': 15})).to.throw('Thresholds must be an Object.');
+    //    });
+    //});
 
     describe('#ValidateShowTooltips()', function() {
         it('Should be false', function() {
-            var graph = d3.select('#test3').relationshipGraph({
-                'thresholds': [200],
-                'showTooltips': false
+            var graph = d3.select('#test').relationshipGraph({
+                thresholds: [200],
+                showTooltips: false
             });
 
             chai.expect(graph.configuration.showTooltips).to.equal(false);
             chai.expect(graph.tooltip).to.equal(null);
         });
         it('Should be true', function () {
-            var graph = d3.select('#test3').relationshipGraph({
-                'thresholds': [200],
-                'showTooltips': true
+            var graph = d3.select('#test').relationshipGraph({
+                thresholds: [200],
+                showTooltips: true
             });
 
             chai.expect(graph.configuration.showTooltips).to.equal(true);
@@ -91,7 +92,7 @@ describe('RelationshipGraph', function() {
         });
         it('Should be true', function () {
             var graph = d3.select('#test3').relationshipGraph({
-                'thresholds': [200]
+                thresholds: [200]
             });
 
             chai.expect(graph.configuration.showTooltips).to.equal(true);
@@ -101,25 +102,25 @@ describe('RelationshipGraph', function() {
 
     describe('#ValidateShowKeys()', function() {
         it('Should be false', function() {
-            var graph = d3.select('#test3').relationshipGraph({
-                'thresholds': [200],
-                'showKeys': false
+            var graph = d3.select('#test').relationshipGraph({
+                thresholds: [200],
+                showKeys: false
             });
 
             chai.expect(graph.configuration.showKeys).to.equal(false);
         });
         it('Should be true', function () {
-            var graph = d3.select('#test3').relationshipGraph({
-                'thresholds': [200],
-                'showKeys': true
+            var graph = d3.select('#test').relationshipGraph({
+                thresholds: [200],
+                showKeys: true
             });
 
             chai.expect(graph.configuration.showKeys).to.equal(true);
             chai.expect(typeof graph.tooltip).to.equal('function');
         });
         it('Should be true', function () {
-            var graph = d3.select('#test3').relationshipGraph({
-                'thresholds': [200]
+            var graph = d3.select('#test').relationshipGraph({
+                thresholds: [200]
             });
 
             chai.expect(graph.configuration.showKeys).to.equal(true);
@@ -128,8 +129,8 @@ describe('RelationshipGraph', function() {
     });
 
     describe('#ValidateVerifyJSON()', function() {
-        var graph = d3.select('#test2').relationshipGraph({
-            'thresholds': [200]
+        var graph = d3.select('#test').relationshipGraph({
+            thresholds: [200]
         });
 
         it('Should be an empty object', function() {
@@ -146,7 +147,7 @@ describe('RelationshipGraph', function() {
         it('Should not have a parent', function () {
             // Test no parent
             var json = [{
-                'test': 15
+                test: 15
             }];
 
             chai.expect(RelationshipGraph.verifyJson.bind(RelationshipGraph.verifyJson, json)).to.throw('Child does not have a parent.');
@@ -154,11 +155,16 @@ describe('RelationshipGraph', function() {
     });
 
     describe('#ValidateConfigurations()', function() {
+        var noop = function() {};
+
         it('Should be the same.', function() {
             var config = {
                 showTooltips: true,
                 maxChildCount: 10,
-                onClick: function() {},
+                onClick: {
+                    parent: noop,
+                    child: noop
+                },
                 showKeys: true,
                 thresholds: [100, 200, 300],
                 colors: ['red', 'green', 'blue'],
@@ -194,6 +200,7 @@ describe('RelationshipGraph', function() {
         it('Should not contain the key', function() {
             chai.expect(RelationshipGraph.containsKey({'test': 15}, 'test2')).to.equal(false);
         });
+        
     });
 
     describe('#ValidateContains()', function() {
@@ -233,312 +240,312 @@ describe('RelationshipGraph', function() {
 
     describe('#ValidateCreation()', function() {
         var graph = d3.select('#graph').relationshipGraph({
-            'showTooltips': true,
-            'maxChildCount': 10,
-            'showKeys': false,
-            'thresholds': [1000000000, 2000000000, 3000000000]
+            showTooltips: true,
+            maxChildCount: 10,
+            showKeys: false,
+            thresholds: [1000000000, 2000000000, 3000000000]
         });
 
         var json = [
             {
-                'Movie Title': 'Avatar',
-                'parent': '20th Century Fox',
-                'value': '$2,787,965,087',
-                'Year': '2009'
+                movietitle: 'Avatar',
+                parent: '20th Century Fox',
+                value: '$2,787,965,087',
+                year: '2009'
             },
             {
-                'Movie Title': 'Titanic',
-                'parent': '20th Century Fox',
-                'value': '$2,186,772,302',
-                'Year': '1997'
+                movietitle: 'Titanic',
+                parent: '20th Century Fox',
+                value: '$2,186,772,302',
+                year: '1997'
             },
             {
-                'Movie Title': 'Star Wars: The Force Awakens',
-                'parent': 'Walt Disney Studios',
-                'value': '$2,066,247,462',
-                'Year': '2015'
+                movietitle: 'Star Wars: The Force Awakens',
+                parent: 'Walt Disney Studios',
+                value: '$2,066,247,462',
+                year: '2015'
             },
             {
-                'Movie Title': 'Jurassic World',
-                'parent': 'Universal Pictures',
-                'value': '$1,670,400,637',
-                'Year': '2015'
+                movietitle: 'Jurassic World',
+                parent: 'Universal Pictures',
+                value: '$1,670,400,637',
+                year: '2015'
             },
             {
-                'Movie Title': 'The Avengers',
-                'parent': 'Walt Disney Studios',
-                'value': '$1,519,557,910',
-                'Year': '2012'
+                movietitle: 'The Avengers',
+                parent: 'Walt Disney Studios',
+                value: '$1,519,557,910',
+                year: '2012'
             },
             {
-                'Movie Title': 'Furious 7',
-                'parent': 'Universal Pictures',
-                'value': '$1,516,045,911',
-                'Year': '2015'
+                movietitle: 'Furious 7',
+                parent: 'Universal Pictures',
+                value: '$1,516,045,911',
+                year: '2015'
             },
             {
-                'Movie Title': 'Avengers: Age of Ultron',
-                'parent': 'Walt Disney Studios',
-                'value': '$1,405,413,868',
-                'Year': '2015'
+                movietitle: 'Avengers: Age of Ultron',
+                parent: 'Walt Disney Studios',
+                value: '$1,405,413,868',
+                year: '2015'
             },
             {
-                'Movie Title': 'Harry Potter and the Deathly Hallows -- Part 2',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$1,341,511,219',
-                'Year': '2011'
+                movietitle: 'Harry Potter and the Deathly Hallows -- Part 2',
+                parent: 'Warner Bros. Pictures',
+                value: '$1,341,511,219',
+                year: '2011'
             },
             {
-                'Movie Title': 'Frozen',
-                'parent': 'Walt Disney Studios',
-                'value': '$1,287,000,000',
-                'Year': '2013'
+                movietitle: 'Frozen',
+                parent: 'Walt Disney Studios',
+                value: '$1,287,000,000',
+                year: '2013'
             },
             {
-                'Movie Title': 'Iron Man 3',
-                'parent': 'Walt Disney Studios',
-                'value': '$1,215,439,994',
-                'Year': '2013'
+                movietitle: 'Iron Man 3',
+                parent: 'Walt Disney Studios',
+                value: '$1,215,439,994',
+                year: '2013'
             },
             {
-                'Movie Title': 'Minions',
-                'parent': 'Universal Pictures',
-                'value': '$1,159,398,397',
-                'Year': '2015'
+                movietitle: 'Minions',
+                parent: 'Universal Pictures',
+                value: '$1,159,398,397',
+                year: '2015'
             },
             {
-                'Movie Title': 'Transformers: Dark of the Moon',
-                'parent': 'Paramount Pictures',
-                'value': '$1,123,794,079',
-                'Year': '2011'
+                movietitle: 'Transformers: Dark of the Moon',
+                parent: 'Paramount Pictures',
+                value: '$1,123,794,079',
+                year: '2011'
             },
             {
-                'Movie Title': 'The Lord of the Rings: The Return of the King',
-                'parent': 'New Line Cinema',
-                'value': '$1,119,929,521',
-                'Year': '2003'
+                movietitle: 'The Lord of the Rings: The Return of the King',
+                parent: 'New Line Cinema',
+                value: '$1,119,929,521',
+                year: '2003'
             },
             {
-                'Movie Title': 'Skyfall',
-                'parent': 'Columbia Pictures',
-                'value': '$1,108,561,013',
-                'Year': '2012'
+                movietitle: 'Skyfall',
+                parent: 'Columbia Pictures',
+                value: '$1,108,561,013',
+                year: '2012'
             },
             {
-                'Movie Title': 'Transformers: Age of Extinction',
-                'parent': 'Universal Pictures',
-                'value': '$1,104,054,072',
-                'Year': '2014'
+                movietitle: 'Transformers: Age of Extinction',
+                parent: 'Universal Pictures',
+                value: '$1,104,054,072',
+                year: '2014'
             },
             {
-                'Movie Title': 'The Dark Knight Rises',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$1,084,939,099',
-                'Year': '2012'
+                movietitle: 'The Dark Knight Rises',
+                parent: 'Warner Bros. Pictures',
+                value: '$1,084,939,099',
+                year: '2012'
             },
             {
-                'Movie Title': 'Pirates of the Caribbean: Dead Man\'s Chest',
-                'parent': 'Walt Disney Studios',
-                'value': '$1,066,179,725',
-                'Year': '2006'
+                movietitle: 'Pirates of the Caribbean: Dead Man\'s Chest',
+                parent: 'Walt Disney Studios',
+                value: '$1,066,179,725',
+                year: '2006'
             },
             {
-                'Movie Title': 'Toy Story 3',
-                'parent': 'Walt Disney Studios',
-                'value': '$1,063,171,911',
-                'Year': '2010'
+                movietitle: 'Toy Story 3',
+                parent: 'Walt Disney Studios',
+                value: '$1,063,171,911',
+                year: '2010'
             },
             {
-                'Movie Title': 'Pirates of the Caribbean: On Stranger Ties',
-                'parent': 'Walt Disney Studios',
-                'value': '$1,045,713,802',
-                'Year': '2011'
+                movietitle: 'Pirates of the Caribbean: On Stranger Ties',
+                parent: 'Walt Disney Studios',
+                value: '$1,045,713,802',
+                year: '2011'
             },
             {
-                'Movie Title': 'Jurassic Park',
-                'parent': 'Universal Pictures',
-                'value': '$1,029,939,903',
-                'Year': '1993'
+                movietitle: 'Jurassic Park',
+                parent: 'Universal Pictures',
+                value: '$1,029,939,903',
+                year: '1993'
             },
             {
-                'Movie Title': 'Star Wars: Episode I -- The Phantom Menace',
-                'parent': '20th Century Fox',
-                'value': '$1,027,044,677',
-                'Year': '1999'
+                movietitle: 'Star Wars: Episode I -- The Phantom Menace',
+                parent: '20th Century Fox',
+                value: '$1,027,044,677',
+                year: '1999'
             },
             {
-                'Movie Title': 'Alice in Wonderland',
-                'parent': 'Walt Disney Studios',
-                'value': '$1,025,467,110',
-                'Year': '2010'
+                movietitle: 'Alice in Wonderland',
+                parent: 'Walt Disney Studios',
+                value: '$1,025,467,110',
+                year: '2010'
             },
             {
-                'Movie Title': 'The Hobbit: An Unexpected Journey',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$1,021,103,568',
-                'Year': '2012'
+                movietitle: 'The Hobbit: An Unexpected Journey',
+                parent: 'Warner Bros. Pictures',
+                value: '$1,021,103,568',
+                year: '2012'
             },
             {
-                'Movie Title': 'The Dark Knight',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$1,004,558,444',
-                'Year': '2008'
+                movietitle: 'The Dark Knight',
+                parent: 'Warner Bros. Pictures',
+                value: '$1,004,558,444',
+                year: '2008'
             },
             {
-                'Movie Title': 'The Lion King',
-                'parent': 'Walt Disney Studios',
-                'value': '$987,483,777',
-                'Year': '1994'
+                movietitle: 'The Lion King',
+                parent: 'Walt Disney Studios',
+                value: '$987,483,777',
+                year: '1994'
             },
             {
-                'Movie Title': 'Harry Potter and the Philosopher\'s Stone',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$974,755,371',
-                'Year': '2001'
+                movietitle: 'Harry Potter and the Philosopher\'s Stone',
+                parent: 'Warner Bros. Pictures',
+                value: '$974,755,371',
+                year: '2001'
             },
             {
-                'Movie Title': 'Despicable Me 2',
-                'parent': 'Universal Pictures',
-                'value': '$970,761,885',
-                'Year': '2013'
+                movietitle: 'Despicable Me 2',
+                parent: 'Universal Pictures',
+                value: '$970,761,885',
+                year: '2013'
             },
             {
-                'Movie Title': 'Zootopia',
-                'parent': 'Walt Disney Studios',
-                'value': '$969,831,439',
-                'Year': '2016'
+                movietitle: 'Zootopia',
+                parent: 'Walt Disney Studios',
+                value: '$969,831,439',
+                year: '2016'
             },
             {
-                'Movie Title': 'Pirates of the Caribbean: At World\'s End',
-                'parent': 'Walt Disney Studios',
-                'value': '$963,420,425',
-                'Year': '2007'
+                movietitle: 'Pirates of the Caribbean: At World\'s End',
+                parent: 'Walt Disney Studios',
+                value: '$963,420,425',
+                year: '2007'
             },
             {
-                'Movie Title': 'Harry Potter and the Deathly Hallows -- Part 1',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$960,283,305',
-                'Year': '2010'
+                movietitle: 'Harry Potter and the Deathly Hallows -- Part 1',
+                parent: 'Warner Bros. Pictures',
+                value: '$960,283,305',
+                year: '2010'
             },
             {
-                'Movie Title': 'The Hobbit: The Desolation of Smaug',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$958,366,855',
-                'Year': '2013'
+                movietitle: 'The Hobbit: The Desolation of Smaug',
+                parent: 'Warner Bros. Pictures',
+                value: '$958,366,855',
+                year: '2013'
             },
             {
-                'Movie Title': 'The Hobbit: The Battle of the Five Armies',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$956,892,078',
-                'Year': '2014'
+                movietitle: 'The Hobbit: The Battle of the Five Armies',
+                parent: 'Warner Bros. Pictures',
+                value: '$956,892,078',
+                year: '2014'
             },
             {
-                'Movie Title': 'Captain America: Civil War',
-                'parent': 'Walt Disney Studios',
-                'value': '$940,892,078',
-                'Year': '2016'
+                movietitle: 'Captain America: Civil War',
+                parent: 'Walt Disney Studios',
+                value: '$940,892,078',
+                year: '2016'
             },
             {
-                'Movie Title': 'Harry Potter and the Order of the Phoenix',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$939,885,929',
-                'Year': '2007'
+                movietitle: 'Harry Potter and the Order of the Phoenix',
+                parent: 'Warner Bros. Pictures',
+                value: '$939,885,929',
+                year: '2007'
             },
             {
-                'Movie Title': 'Finding Nemo',
-                'parent': 'Walt Disney Studios',
-                'value': '$936,743,261',
-                'Year': '2003'
+                movietitle: 'Finding Nemo',
+                parent: 'Walt Disney Studios',
+                value: '$936,743,261',
+                year: '2003'
             },
             {
-                'Movie Title': 'Harry Potter and the Half-Blood Prince',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$934,416,487',
-                'Year': '2009'
+                movietitle: 'Harry Potter and the Half-Blood Prince',
+                parent: 'Warner Bros. Pictures',
+                value: '$934,416,487',
+                year: '2009'
             },
             {
-                'Movie Title': 'The Lord of the Rings: The Two Towers',
-                'parent': 'New Line Cinema',
-                'value': '$926,047,111',
-                'Year': '2002'
+                movietitle: 'The Lord of the Rings: The Two Towers',
+                parent: 'New Line Cinema',
+                value: '$926,047,111',
+                year: '2002'
             },
             {
-                'Movie Title': 'Shrek 2',
-                'parent': 'Walt Disney Studios',
-                'value': '$919,838,758',
-                'Year': '2004'
+                movietitle: 'Shrek 2',
+                parent: 'Walt Disney Studios',
+                value: '$919,838,758',
+                year: '2004'
             },
             {
-                'Movie Title': 'Harry Potter and the Goblet of Fire',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$896,911,078',
-                'Year': '2005'
+                movietitle: 'Harry Potter and the Goblet of Fire',
+                parent: 'Warner Bros. Pictures',
+                value: '$896,911,078',
+                year: '2005'
             },
             {
-                'Movie Title': 'Spider-Man 3',
-                'parent': 'Columbia Pictures',
-                'value': '$890,871,626',
-                'Year': '2007'
+                movietitle: 'Spider-Man 3',
+                parent: 'Columbia Pictures',
+                value: '$890,871,626',
+                year: '2007'
             },
             {
-                'Movie Title': 'Ice Age: dawn of the Dinosaurs',
-                'parent': '20th Century Fox',
-                'value': '$886,686,817',
-                'Year': '2009'
+                movietitle: 'Ice Age: dawn of the Dinosaurs',
+                parent: '20th Century Fox',
+                value: '$886,686,817',
+                year: '2009'
             },
             {
-                'Movie Title': 'Spectre',
-                'parent': 'Columbia Pictures',
-                'value': '$880,674,609',
-                'Year': '2015'
+                movietitle: 'Spectre',
+                parent: 'Columbia Pictures',
+                value: '$880,674,609',
+                year: '2015'
             },
             {
-                'Movie Title': 'Harry Potter and the Chamber of Secrets',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$878,979,634',
-                'Year': '2002'
+                movietitle: 'Harry Potter and the Chamber of Secrets',
+                parent: 'Warner Bros. Pictures',
+                value: '$878,979,634',
+                year: '2002'
             },
             {
-                'Movie Title': 'Ice Age: Continental Drift',
-                'parent': '20th Century Fox',
-                'value': '$877,244,782',
-                'Year': '2012'
+                movietitle: 'Ice Age: Continental Drift',
+                parent: '20th Century Fox',
+                value: '$877,244,782',
+                year: '2012'
             },
             {
-                'Movie Title': 'The Lord of the Rings: The Fellowship of the Rings',
-                'parent': 'New Line Cinema',
-                'value': '$871,530,324',
-                'Year': '2001'
+                movietitle: 'The Lord of the Rings: The Fellowship of the Rings',
+                parent: 'New Line Cinema',
+                value: '$871,530,324',
+                year: '2001'
             },
             {
-                'Movie Title': 'Batman v Superman: Dawn of Justice',
-                'parent': 'Warner Bros. Pictures',
-                'value': '$868,814,243',
-                'Year': '2016'
+                movietitle: 'Batman v Superman: Dawn of Justice',
+                parent: 'Warner Bros. Pictures',
+                value: '$868,814,243',
+                year: '2016'
             },
             {
-                'Movie Title': 'The Hunger Games: Catching Fire',
-                'parent': 'Lionsgate Films',
-                'value': '$865,011,746',
-                'Year': '2013'
+                movietitle: 'The Hunger Games: Catching Fire',
+                parent: 'Lionsgate Films',
+                value: '$865,011,746',
+                year: '2013'
             },
             {
-                'Movie Title': 'Inside Out',
-                'parent': 'Walt Disney Studios',
-                'value': '$857,427,711',
-                'Year': '2015'
+                movietitle: 'Inside Out',
+                parent: 'Walt Disney Studios',
+                value: '$857,427,711',
+                year: '2015'
             },
             {
-                'Movie Title': 'Star Wars: Episode III -- Revenge of the Sith',
-                'parent': '20th Century Fox',
-                'value': '$848,754,768',
-                'Year': '2005'
+                movietitle: 'Star Wars: Episode III -- Revenge of the Sith',
+                parent: '20th Century Fox',
+                value: '$848,754,768',
+                year: '2005'
             },
             {
-                'Movie Title': 'Transformers: Revenge of the Fallen',
-                'parent': 'Universal Pictures',
-                'value': '$836,303,693',
-                'Year': '2009'
+                movietitle: 'Transformers: Revenge of the Fallen',
+                parent: 'Universal Pictures',
+                value: '$836,303,693',
+                year: '2009'
             }
         ];
 
@@ -552,7 +559,7 @@ describe('RelationshipGraph', function() {
                 var keys = Object.keys(child1);
 
                 for (var i = 0; i < keys.length; i++) {
-                    if (keys[i] == 'parent') {
+                    if (keys[i] == parent) {
                         continue;
                     }
 
@@ -599,9 +606,9 @@ describe('RelationshipGraph', function() {
             }
 
             var rects = document.getElementsByClassName('relationshipGraph-block'),
-                expectedX = [160, 184, 208, 232, 256, 280, 160, 184, 208, 160, 160, 184, 208, 160, 160, 184, 208, 232,
-                    256, 280, 304, 160, 184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208, 232, 256, 280, 160,
-                    184, 208, 232, 256, 280, 304, 328, 352, 376, 160, 184, 208],
+                expectedX = [162, 186, 210, 234, 258, 282, 162, 186, 210, 162, 162, 186, 210, 162, 162, 186, 210, 234,
+                    258, 282, 306, 162, 186, 210, 234, 258, 282, 306, 330, 354, 378, 162, 186, 210, 234, 258, 282, 162,
+                    186, 210, 234, 258, 282, 306, 330, 354, 378, 162, 186, 210],
                 expectedColors = ['#869d96', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#869d96', '#a2c3a4', '#c4f1be',
                     '#c4f1be', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4',
                     '#a2c3a4', '#a2c3a4', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4', '#c4f1be', '#c4f1be', '#a2c3a4',
@@ -622,8 +629,7 @@ describe('RelationshipGraph', function() {
 
             chai.expect(rects.length).to.equal(expectedX.length);
 
-            // TODO: Fix this.
-            var addition = parseInt(rects[0].getAttribute('x')) === expectedX[0] ? 0 : 24;
+            var addition = (rects[0].getAttribute('x') != expectedX[0]) ? 17 : 0;
 
             for (var j = 0; j < rects.length; j++) {
                 var block = rects[j];
@@ -637,6 +643,195 @@ describe('RelationshipGraph', function() {
                 chai.expect(block.style.fill).to.equal(expectedColors[j]);
             }
 
+        });
+    });
+
+    describe('#VerifySortJson', function() {
+        it('Should be sorted.', function() {
+            var json = [
+                {
+                    movietitle: 'Avatar',
+                    parent: '20th Century Fox',
+                    value: '$2,787,965,087',
+                    year: '2009'
+                },
+                {
+                    movietitle: 'Star Wars: The Force Awakens',
+                    parent: 'Walt Disney Studios',
+                    value: '$2,066,247,462',
+                    year: '2015'
+                },
+                {
+                    movietitle: 'Titanic',
+                    parent: '20th Century Fox',
+                    value: '$2,186,772,302',
+                    year: '1997'
+                }
+            ], expected = [
+                {
+                    movietitle: 'Avatar',
+                    parent: '20th Century Fox',
+                    value: '$2,787,965,087',
+                    year: '2009'
+                },
+                {
+                    movietitle: 'Titanic',
+                    parent: '20th Century Fox',
+                    value: '$2,186,772,302',
+                    year: '1997'
+                },
+                {
+                    movietitle: 'Star Wars: The Force Awakens',
+                    parent: 'Walt Disney Studios',
+                    value: '$2,066,247,462',
+                    year: '2015'
+                }
+            ];
+
+            json.sort(function(child1, child2) {
+                var parent1 = child1.parent.toLowerCase(),
+                    parent2 = child2.parent.toLowerCase();
+
+                return (parent1 > parent2) ? 1 : (parent1 < parent2) ? -1 : 0;
+            });
+
+            for (var i = 0; i < json.length; i++) {
+                chai.expect(json[i].movietitle).to.equal(expected[i].movietitle);
+                chai.expect(json[i].parent).to.equal(expected[i].parent);
+                chai.expect(json[i].value).to.equal(expected[i].value);
+                chai.expect(json[i].year).to.equal(expected[i].year);
+            }
+
+            document.getElementById('graph').innerHTML = '';
+        });
+    });
+
+    describe('#VerifyCustomColors', function() {
+        it('Should have the custom color set.', function() {
+            var custom = ['red', 'green', 'blue'];
+
+            var graph = d3.select('#test').relationshipGraph({
+                colors: custom
+            });
+
+            for (var i = 0; i < custom.length; i++) {
+                chai.expect(graph.configuration.colors[i]).to.equal(custom[i]);
+            }
+        });
+    });
+
+    describe('#VerifyNumericValues', function() {
+        it('Should be 1000.15.', function() {
+            var values = ['1000.15', '$1000.15', '$1,000.15', '1000.15%', '1,000.15%'];
+
+            for (var i = 0; i < values.length; i++) {
+                var converted = parseFloat(values[i].replace(/[^0-9-\.]+/g, ''));
+
+                chai.expect(converted).to.equal(1000.15);
+            }
+        });
+    });
+
+    describe('#VerifyCompare', function() {
+        var strings = ['apples', 'oranges', 'pears'],
+            numbers = [100, 200, 300];
+
+        var stringCompare = function (value, thresholds) {
+            if (typeof value !== 'string') {
+                throw 'Cannot make value comparison between a string and a ' + (typeof value) + '.';
+            }
+
+            var thresholdsLength = thresholds.length;
+
+            for (var i = 0; i < thresholdsLength; i++) {
+                if (value == thresholds[i]) {
+                    return i;
+                }
+            }
+
+            return -1;
+        };
+
+        var numericCompare = function (value, thresholds) {
+            if (typeof value !== 'number') {
+                throw 'Cannot make value comparison between a number and a ' + (typeof value) + '.';
+            }
+
+            var length = thresholds.length;
+
+            for (var i = 0; i < length; i++) {
+                if (value < thresholds[i]) {
+                    return i;
+                }
+            }
+
+            return -1;
+        };
+
+        it('Should be apples (0).', function() {
+            var result = stringCompare('apples', strings);
+
+            chai.expect(result).to.equal(strings.indexOf('apples'));
+        });
+
+        it('Should be -1.', function() {
+            var result = stringCompare('bananas', strings);
+
+            chai.expect(result).to.equal(strings.indexOf('bananas'));
+        });
+
+        it('Should be 200 (1).', function() {
+            var result = numericCompare(115, numbers);
+
+            chai.expect(result).to.equal(numbers.indexOf(200));
+        });
+
+        it('Should be -1.', function() {
+            var result = numericCompare(400, numbers);
+
+            chai.expect(result).to.equal(numbers.indexOf(400));
+        });
+    });
+
+     describe('#VerifyGetPixelLength', function() {
+         var strings = ['Test', 'LongerTest', 'Test123', 'Test   ', '   Test'],
+             expected = [25, 66, 47, 25, 25],
+             graph = d3.select('#test').relationshipGraph(),
+             addition = (graph.getPixelLength(strings[0]) !== expected[0]) ? 2 : 0;
+
+         it('Should be the same.', function() {
+             for (var i = 0; i < strings.length; i++) {
+                 var length = graph.getPixelLength(strings[i]);
+
+                 chai.expect(length).to.equal(expected[i] + addition);
+             }
+         });
+     });
+
+    describe('#VerifyToTitleCase', function() {
+        var toTitleCase = function(str) {
+            return str.toLowerCase().split(' ').map(function(part) {
+                return part.charAt(0).toUpperCase() + part.substring(1).toLowerCase();
+            }).join(' ');
+        };
+
+        var strings = ['this is a test', 'another test', 'What about This?', 'MAYBE ALL CAPS??!!', '123', '$$$'],
+            expected = ['This Is A Test', 'Another Test', 'What About This?', 'Maybe All Caps??!!', '123', '$$$'];
+
+        it('Should be the same.', function() {
+            for (var i = 0; i < strings.length; i++) {
+                chai.expect(toTitleCase(strings[i])).to.equal(expected[i]);
+            }
+        });
+    });
+
+    describe('#VerifyValueKeyName', function() {
+        it('Should be "cool value".', function() {
+            var graph = d3.select('#test').relationshipGraph({
+                valueKeyName: 'cool value'
+            });
+
+            chai.expect(graph.configuration.valueKeyName).to.equal('cool value');
         });
     });
 });

@@ -6,7 +6,7 @@
   "curly": true,
   "eqeqeq": false,
   "forin": true,
-  "freeze": false,
+  "freeze": true,
   "immed": true,
   "latedef": false,
   "newcap": true,
@@ -21,7 +21,7 @@
   "strict": true,
   "indent": 2,
   "asi": false,
-  "boss": true,
+  "boss": false,
   "debug": false,
   "eqnull": true,
   "moz": false,
@@ -63,6 +63,7 @@
   "worker": false,
   "wsh": false,
   "yui": false,
+  "maxlen": 120,
   "predef": [
     "d3",
     "d3.tip"
