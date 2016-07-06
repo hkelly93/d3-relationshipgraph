@@ -24,54 +24,7 @@
  * D3-relationshipgraph - 2.0.0
  */
 
-/**
- * Determine if AMD or CommonJS are being used.
- *
- * @param {object} root The window object.
- * @param {object} factory The factory object.
- */
-(function(root, factory) {  // jshint ignore:line
-    'use strict';
-
-    /* jshint ignore:start */
-    if (typeof define === 'function' && define.amd) {
-        define('d3.relationshipGraph', ['d3'], factory);
-    } else if (typeof exports === 'object' && typeof module === 'object') {
-        module.exports = factory(require('d3'));
-    } else if (typeof exports === 'object') {
-        exports.d3.relationshipGraph = factory(require('d3'));
-    } else {
-        root.d3.relationshipGraph = factory(root.d3);
-    }
-    /* jshint ignore:end */
-})(this, function(d3) {
-    'use strict';
-
-    /**
-     * Add a relationshipGraph function to d3 that returns a RelationshipGraph object.
-     */
-    d3.relationshipGraph = function() {
-        return RelationshipGraph.extend.apply(RelationshipGraph, arguments);
-    };
-
-    /**
-     * Add relationshipGraph to selection.
-     *
-     * @param {Object} userConfig Configuration for graph.
-     * @return {Object} Returns a new RelationshipGraph object.
-     */
-    d3.selection.prototype.relationshipGraph = function(userConfig) {
-        return new RelationshipGraph(this, userConfig);
-    };
-
-    /**
-     * Add relationshipGraph to enter.
-     *
-     * @returns {RelationshipGraph} RelationshipGraph object.
-     */
-    d3.selection.enter.prototype.relationshipGraph = function() {
-        return this.graph;
-    };
+class RelationshipGraph {
 
     /**
      *
@@ -79,75 +32,62 @@
      * @param {Object} userConfig Configuration for graph.
      * @constructor
      */
-    var RelationshipGraph = function(selection, userConfig) {
-        if (userConfig === undefined) {
-            userConfig = {
-                thresholds: []
-            };
-
-            this.parentPointer = false;
-            this.childPointer = false;
-        } else {
-            // Verify that the user config contains the thresholds.
-            if (userConfig.thresholds === undefined) {
-                userConfig.thresholds = [];
-            } else if (typeof userConfig.thresholds !== 'object') {
-                throw 'Thresholds must be an Object.';
-            }
-
-            if (userConfig.onClick !== undefined) {
-                this.parentPointer = userConfig.onClick.parent !== undefined;
-                this.childPointer = userConfig.onClick.child !== undefined;
-            }
+    constructor(selection, userConfig = {showTooltips: true, maxChildCount: 0, thresholds: []}) {
+        // Verify that the user config contains the thresholds.
+        if (userConfig.thresholds === undefined || userConfig.thresholds === null) {
+            userConfig.thresholds = [];
+        } else if (typeof userConfig.thresholds !== 'object') {
+            throw 'Thresholds must be an Object.';
         }
 
-        var defaultOnClick = {
-            parent: noop,
-            child: noop
-        };
+        this.parentPointer = false;
+        this.childPointer = false;
+
+        if (userConfig.onClick !== undefined) {
+            this.parentPointer = userConfig.onClick.parent !== undefined;
+            this.childPointer = userConfig.onClick.child !== undefined;
+        }
+
+        const defaultOnClick = {parent: RelationshipGraph.noop, child: RelationshipGraph.noop};
 
         /**
          * Contains the configuration for the graph.
          *
          * @type {{blockSize: number, selection: d3.selection, showTooltips: boolean, maxChildCount: number,
-         * onClick: function, showKeys: (*|boolean|*|boolean), thresholds: Array, colors: Array, transitionTime: number,
-         * truncate: (*|number), sortFunction: (*|sortJson)}}
+         * onClick: (RelationshipGraph.noop|*), showKeys: (*|boolean), thresholds: Array,
+         * colors: (*|Array|boolean|string[]), transitionTime: (*|number),
+         * truncate: (RelationshipGraph.truncate|*|number)}}
          */
-        this.config = {
+        this.configuration = {
             blockSize: 24,  // The block size for each child.
             selection: selection,  // The ID for the graph.
             showTooltips: userConfig.showTooltips,  // Whether or not to show the tooltips on hover.
-            maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show before wrapping.
-            onClick: userConfig.onClick || defaultOnClick,  // The callback function to call when a node is clicked.
+            maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row.
+            onClick: userConfig.onClick || defaultOnClick,  // The callback function to call.
             showKeys: userConfig.showKeys,  // Whether or not to show the keys in the tooltip.
             thresholds: userConfig.thresholds,  // Thresholds to determine the colors of the child blocks with.
-            colors: userConfig.colors || ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50',
-                '#485447', '#5b7f77', '#6474ad', '#b9c6cb', '#c0d6c1',
-                '#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc',
-                '#0e7c7b', '#17bebb', '#d4f4dd', '#d62246', '#4b1d3f',
-                '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
-            ],  // Colors to use for blocks.
+            colors: userConfig.colors || RelationshipGraph.getColors(),  // Colors to use for blocks.
             transitionTime: userConfig.transitionTime || 1500,  // Time for a transition to start and complete.
-            truncate: userConfig.truncate || 0,  // Maximum length of a parent label before it gets truncated.
-            sortFunction: userConfig.sortFunction || sortJson,  // A custom sort function.
-            valueKeyName: userConfig.valueKeyName // Set a custom key value in the tooltip.
+            truncate: userConfig.truncate || 0,  // Maximum length of a parent label. Use 0 to turn off truncation.
+            sortFunction: userConfig.sortFunction || RelationshipGraph.sortJson,  // A custom sort function
+            valueKeyName: userConfig.valueKeyName // Set a custom key in the tooltip.
         };
 
-        if (this.config.showTooltips === undefined) {
-            this.config.showTooltips = true;
+        if (this.configuration.showTooltips === undefined) {
+            this.configuration.showTooltips = true;
         }
 
-        if (this.config.showKeys === undefined) {
-            this.config.showKeys = true;
+        if (this.configuration.showKeys === undefined) {
+            this.configuration.showKeys = true;
         }
 
-        if (this.config.keyValueName === undefined) {
-            this.config.keyValueName = 'value';
+        if (this.configuration.keyValueName === undefined) {
+            this.configuration.keyValueName = 'value';
         }
 
         // If the threshold array is made up of numbers, make sure that it is sorted.
-        if (this.config.thresholds.length > 0 && (typeof this.config.thresholds[0]) == 'number') {
-            this.config.thresholds.sort();
+        if (this.configuration.thresholds.length > 0 && (typeof this.configuration.thresholds[0]) == 'number') {
+            this.configuration.thresholds.sort();
         }
 
         /**
@@ -168,38 +108,36 @@
          * Function to create the tooltip.
          *
          * @param {RelationshipGraph} self The RelationshipGraph instance.
-         * @returns {d3.tip} the tip object.
-         * @private
+         * @returns {d3.tooltip} the tip object.
          */
-        var createTooltip = function(self) {
-            var hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_'],
-                showKeys = self.config.showKeys;
+        var createTooltip = self => {
+            let hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_'],
+                showKeys = self.configuration.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip')
                 .offset([-8, -10])
                 .html(function(obj) {
-                    var keys = Object.keys(obj),
+                    let keys = Object.keys(obj),
                         table = document.createElement('table'),
                         count = keys.length,
                         rows = [];
 
                     // Loop through the keys in the object and only show values self are not in the hiddenKeys array.
                     while (count--) {
-                        var element = keys[count],
+                        let element = keys[count],
                             upperCaseKey = element.toUpperCase();
 
-                        if (!contains(hiddenKeys, upperCaseKey)) {
-                            var row = document.createElement('tr'),
+                        if (!RelationshipGraph.contains(hiddenKeys, upperCaseKey)) {
+                            let row = document.createElement('tr'),
                                 key = showKeys ? document.createElement('td') : null,
                                 value = document.createElement('td');
 
                             if (showKeys) {
-                                key.innerHTML = (upperCaseKey == 'VALUE') ?
-                                    self.config.valueKeyName : element;
+                                key.innerHTML = element.charAt(0).toUpperCase() + element.substring(1);
                                 row.appendChild(key);
                             }
 
-                            if (upperCaseKey == 'VALUE' && self.config.valueKeyName.length === 0) {
+                            if (upperCaseKey == 'VALUE' && !self.configuration.valueKeyName) {
                                 continue;
                             }
 
@@ -212,7 +150,7 @@
 
                     }
 
-                    var rowCount = rows.length;
+                    let rowCount = rows.length;
 
                     while (rowCount--) {
                         table.appendChild(rows[rowCount]);
@@ -222,19 +160,19 @@
                 });
         };
 
-        if (this.config.showTooltips) {
-            this.tip = createTooltip(this);
-            this.tip.direction('n');
+        if (this.configuration.showTooltips) {
+            this.tooltip = createTooltip(this);
+            this.tooltip.direction('n');
         } else {
-            this.tip = null;
+            this.tooltip = null;
         }
 
         // Check if this selection already has a graph.
-        this.svg = this.config.selection.select('svg').select('g');
+        this.svg = this.configuration.selection.select('svg').select('g');
 
         if (this.svg.empty()) {
             // Create the svg element that will contain the graph.
-            this.svg = this.config.selection
+            this.svg = this.configuration.selection
                 .append('svg')
                 .attr('width', '500')
                 .attr('height', '500')
@@ -244,7 +182,19 @@
         }
 
         this.graph = this;
-    };
+    }
+
+    /**
+     * Generate the basic set of colors.
+     *
+     * @returns {string[]} List of HEX colors.
+     */
+    static getColors() {
+        return ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50', '#485447', '#5b7f77', '#6474ad', '#b9c6cb',
+            '#c0d6c1', '#754668', '#587d71', '#4daa57', '#b5dda4', '#f9eccc', '#0e7c7b', '#17bebb', '#d4f4dd',
+            '#d62246', '#4b1d3f', '#cf4799', '#c42583', '#731451', '#f3d1bf', '#c77745'
+        ];
+    }
 
     /**
      * Checks if the object contains the key.
@@ -252,11 +202,10 @@
      * @param {object} obj The object to check in.
      * @param {string} key They key to check for.
      * @returns {boolean} Whether or not the object contains the key.
-     * @private
      */
-    var containsKey = function(obj, key) {
+    static containsKey(obj, key) {
         return Object.keys(obj).indexOf(key) > -1;
-    };
+    }
 
     /**
      * Checks whether or not the key is in the array.
@@ -264,11 +213,10 @@
      * @param {*[]} arr The array to check in.
      * @param {string} key The key to check for.
      * @returns {boolean} Whether or not the key exists in the array.
-     * @private
      */
-    var contains = function(arr, key) {
+    static contains(arr, key) {
         return arr.indexOf(key) > -1;
-    };
+    }
 
     /**
      * Truncate a string to 25 characters plus an ellipses.
@@ -276,48 +224,43 @@
      * @param {string} str The string to truncate.
      * @param {number} cap The number to cap the string at before it gets truncated.
      * @returns {string} The string truncated (if necessary).
-     * @private
      */
-    var truncate = function(str, cap) {
-        if (cap === 0) {
+    static truncate(str, cap) {
+        if (!cap || !str) {
             return str;
         }
 
         return (str.length > cap) ? str.substring(0, cap) + '...' : str;
-    };
+    }
 
     /**
      * Determines if the array passed in is an Array object.
      *
-     * @param {Array} arr The array object to check.
+     * @param arr {Array} The array object to check.
      * @returns {boolean} Whether or not the array is actually an array object.
-     * @private
      */
-    var isArray = function(arr) {
+    static isArray(arr) {
         return Object.prototype.toString.call(arr) == '[object Array]';
-    };
+    }
 
     /**
      * Noop function.
-     *
-     * @private
      */
-    var noop = function() { };
+    static noop() { }
 
     /**
      * Returns a sorted Array.
      *
-     * @param {Array} json The Array to be sorted.
-     * @private
+     * @param json {Array} The Array to be sorted.
      */
-    var sortJson = function(json) {
+    static sortJson(json) {
         json.sort(function(child1, child2) {
-            var parent1 = child1.parent.toLowerCase(),
+            let parent1 = child1.parent.toLowerCase(),
                 parent2 = child2.parent.toLowerCase();
 
             return (parent1 > parent2) ? 1 : (parent1 < parent2) ? -1 : 0;
         });
-    };
+    }
 
     /**
      * Go through all of the thresholds and find the one that is equal to the value.
@@ -328,21 +271,21 @@
      *  thresholds.
      * @private
      */
-    var stringCompare = function (value, thresholds) {
+    static stringCompare(value, thresholds) {
         if (typeof value !== 'string') {
             throw 'Cannot make value comparison between a string and a ' + (typeof value) + '.';
         }
 
-        var thresholdsLength = thresholds.length;
+        const thresholdsLength = thresholds.length;
 
-        for (var i = 0; i < thresholdsLength; i++) {
+        for (let i = 0; i < thresholdsLength; i++) {
             if (value == thresholds[i]) {
                 return i;
             }
         }
 
         return -1;
-    };
+    }
 
     /**
      * Go through all of the thresholds and find the smallest number that is greater than the value.
@@ -353,12 +296,12 @@
      *  the value isn't between any thresholds.
      * @private
      */
-    var numericCompare = function (value, thresholds) {
+    static numericCompare(value, thresholds) {
         if (typeof value !== 'number') {
             throw 'Cannot make value comparison between a number and a ' + (typeof value) + '.';
         }
 
-        var length = thresholds.length;
+        const length = thresholds.length;
 
         for (var i = 0; i < length; i++) {
             if (value <= thresholds[i]) {
@@ -367,29 +310,50 @@
         }
 
         return -1;
-    };
+    }
+
+    /**
+     * Returns the pixel length of the string based on the font size.
+     *
+     * @param {string} str The string to get the length of.
+     * @returns {Number} The pixel length of the string.
+     * @public
+     */
+    getPixelLength(str) {
+        if (RelationshipGraph.containsKey(this.measuredCache, str)) {
+            return this.measuredCache[str];
+        }
+
+        const text = document.createTextNode(str);
+        this.measurementDiv.appendChild(text);
+
+        const width = this.measurementDiv.offsetWidth;
+        this.measurementDiv.removeChild(text);
+
+        this.measuredCache[str] = width;
+
+        return width;
+    }
 
     /**
      * Assign the index and row to each of the children in the Array of Objects.
      *
-     * @param {RelationshipGraph} that The relationship graph object.
-     * @param {Array} json The array of Objects to loop through.
-     * @param {Object} parentSizes The parent sizes determined.
-     * @param {Array} parents The parent label names.
-     * @returns {Object} Object containing the longest width, the calculated max children per row, and the maximum
-     *  amount of rows.
-     * @private
+     * @param json {Array} The array of Objects to loop through.
+     * @param parentSizes {Object} The parent sizes determined.
+     * @param parents {Array} The parent label names.
+     * @returns {Array} Object containing the longest width, the calculated max children per row, and the maximum amount
+     *  of rows.
      */
-    var assignIndexAndRow = function(that, json, parentSizes, parents) {
+    assignIndexAndRow(json, parentSizes, parents) {
         // Determine the longest parent name to calculate how far from the left the child blocks should start.
-        var longest = '',
+        let longest = '',
             parentNames = Object.keys(parentSizes),
             i,
             index = 0,
             row = 0,
             previousParent = '',
             parentLength = parents.length,
-            config = that.config,
+            config = this.configuration,
             blockSize = config.blockSize;
 
         for (i = 0; i < parentLength; i++) {
@@ -401,8 +365,8 @@
         }
 
         // Calculate the row and column for each child block.
-        var longestWidth = that.getPixelLength(longest),
-            parentDiv = config.selection[0][0],
+        var longestWidth = this.getPixelLength(longest),
+            parentDiv = config.selection._groups[0][0],
             calculatedMaxChildren = (config.maxChildCount === 0) ?
                 Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
                 config.maxChildCount,
@@ -437,72 +401,48 @@
                 element.color = 0;
             } else {
                 // Figure out the color based on the threshold.
-                var value,
+                let value,
                     compare;
 
                 if (typeof thresholds[0] === 'string') {
                     value = element.value;
-                    compare = stringCompare;
+                    compare = RelationshipGraph.stringCompare;
                 } else {
-                    var elementValue = element.value;
+                    const elementValue = element.value;
 
                     value = (typeof elementValue == 'number') ?
                         elementValue : parseFloat(elementValue.replace(/[^0-9-\.]+/g, ''));
 
-                    compare = numericCompare;
+                    compare = RelationshipGraph.numericCompare;
                 }
 
-                var thresholdIndex = compare(value, thresholds);
+                const thresholdIndex = compare(value, thresholds);
 
                 element.color = (thresholdIndex === -1) ? 0 : thresholdIndex;
             }
         }
 
-        return {
-            longestWidth: longestWidth,
-            calculatedMaxChildren: calculatedMaxChildren,
-            maxRow: row
-        };
-    };
-
-    /**
-     * Returns the pixel length of the string based on the font size.
-     *
-     * @param {string} str The string to get the length of.
-     * @returns {Number} The pixel length of the string.
-     * @public
-     */
-    RelationshipGraph.prototype.getPixelLength = function(str) {
-        if (containsKey(this.measuredCache, str)) {
-            return this.measuredCache[str];
-        }
-
-        var text = document.createTextNode(str);
-        this.measurementDiv.appendChild(text);
-
-        var width = this.measurementDiv.offsetWidth;
-        this.measurementDiv.removeChild(text);
-
-        this.measuredCache[str] = width;
-
-        return width;
-    };
+        return [
+            longestWidth,
+            calculatedMaxChildren,
+            row
+        ];
+    }
 
     /**
      * Verify that the JSON passed in is correct.
      *
-     * @param {Array} json The array of JSON objects to verify.
-     * @public
+     * @param json {Array} The array of JSON objects to verify.
      */
-    RelationshipGraph.prototype.verifyJson = function(json) {
-        if (!(isArray(json)) || (json.length < 0) || (typeof json[0] !== 'object')) {
+    static verifyJson(json) {
+        if (!(RelationshipGraph.isArray(json)) || (json.length < 0) || (typeof json[0] !== 'object')) {
             throw 'JSON has to be an Array of JavaScript objects that is not empty.';
         }
 
-        var length = json.length;
+        let length = json.length;
 
         while (length--) {
-            var element = json[length],
+            let element = json[length],
                 keys = Object.keys(element),
                 keyLength = keys.length,
                 parentColor = element.parentColor;
@@ -514,12 +454,10 @@
             }
 
             while (keyLength--) {
-                var currentObj = json[length];
-
                 if (keys[keyLength].toUpperCase() == 'VALUE') {
                     if (keys[keyLength] != 'value') {
-                        currentObj.value = currentObj[keys[keyLength]];
-                        delete currentObj[keys[keyLength]];
+                        json[length].value = json[length][keys[keyLength]];
+                        delete json[length][keys[keyLength]];
                     }
                     break;
                 }
@@ -527,73 +465,27 @@
         }
 
         return true;
-    };
+    }
 
     /**
      * Creates the parent labels.
      *
-     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
      * @param {d3.selection} parentNodes The parentNodes.
      * @param {Object} parentSizes The child count for each parent.
      * @param {number} longestWidth The longest width of a parent node.
      * @param {number} calculatedMaxChildren The maxiumum amount of children nodes per row.
      * @private
      */
-    var createParents = function(_this, parentNodes, parentSizes, longestWidth, calculatedMaxChildren) {
-        var previousParentSizes = 0,
-            parentSizesKeys = Object.keys(parentSizes);
+    createParents(parentNodes, parentSizes, longestWidth, calculatedMaxChildren) {
+        const parentSizesKeys = Object.keys(parentSizes),
+            _this = this;
 
         parentNodes.enter().append('text')
             .text(function(obj, index) {
                 return obj + ' (' + parentSizes[parentSizesKeys[index]] + ')';
             })
             .attr('x', function(obj, index) {
-                var width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
-                return longestWidth - width;
-            })
-            .attr('y', function(obj, index) {
-                if (index === 0) {
-                    return 0;
-                }
-
-                // Determine the Y coordinate by determining the Y coordinate of all of the parents before.
-                var y = Math.ceil(previousParentSizes / calculatedMaxChildren) * _this.config.blockSize;
-                previousParentSizes += y;
-
-                return y;
-            })
-            .style('text-anchor', 'start')
-            .style('fill', function(obj) {
-                return (obj.parentColor !== undefined) ? _this.config.colors[obj.parentColor] : '#000000';
-            })
-            .style('cursor', _this.parentPointer ? 'pointer' : 'default')
-            .attr('class', 'relationshipGraph-Text')
-            .attr('transform', 'translate(-6, ' + _this.config.blockSize / 1.5 + ')')
-            .on('click', function(obj) {
-                _this.config.onClick.parent(obj);
-            });
-    };
-
-    /**
-     * Updates the existing parent nodes with new data.
-     *
-     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
-     * @param {d3.selection} parentNodes The parentNodes.
-     * @param {Object} parentSizes The child count for each parent.
-     * @param {number} longestWidth The longest width of a parent node.
-     * @param {number} calculatedMaxChildren The maxiumum amount of children nodes per row.
-     * @private
-     */
-    var updateParents = function(_this, parentNodes, parentSizes, longestWidth, calculatedMaxChildren) {
-        var parentSizesKeys = Object.keys(parentSizes);
-
-        // noinspection JSUnresolvedFunction
-        parentNodes
-            .text(function(obj, index) {
-                return obj + ' (' + parentSizes[parentSizesKeys[index]] + ')';
-            })
-            .attr('x', function(obj, index) {
-                var width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
+                const width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
                 return longestWidth - width;
             })
             .attr('y', function(obj, index) {
@@ -605,7 +497,7 @@
                  * Determine the Y coordinate by determining the Y coordinate of all of the parents before. This
                  * has to be calculated completely because it is an update and can occur anywhere.
                  */
-                var previousParentSize = 0,
+                let previousParentSize = 0,
                     i = index - 1;
 
                 while (i > -1) {
@@ -614,63 +506,118 @@
                     i--;
                 }
 
-                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.config.blockSize;
+                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize;
+            })
+            .style('text-anchor', 'start')
+            .style('fill', function(obj) {
+                return (obj.parentColor !== undefined) ? _this.configuration.colors[obj.parentColor] : '#000000';
+            })
+            .style('cursor', this.parentPointer ? 'pointer' : 'default')
+            .attr('class', 'relationshipGraph-Text')
+            .attr('transform', 'translate(-6, ' + _this.configuration.blockSize / 1.5 + ')')
+            .on('click', function(obj) {
+                _this.configuration.onClick.parent(obj);
+            });
+    }
+
+    /**
+     * Updates the existing parent nodes with new data.
+     *
+     * @param {d3.selection} parentNodes The parentNodes.
+     * @param {Object} parentSizes The child count for each parent.
+     * @param {number} longestWidth The longest width of a parent node.
+     * @param {number} calculatedMaxChildren The maxiumum amount of children nodes per row.
+     * @private
+     */
+    updateParents(parentNodes, parentSizes, longestWidth, calculatedMaxChildren) {
+        const parentSizesKeys = Object.keys(parentSizes),
+            _this = this;
+
+        // noinspection JSUnresolvedFunction
+        parentNodes
+            .text(function(obj, index) {
+                return obj + ' (' + parentSizes[parentSizesKeys[index]] + ')';
+            })
+            .attr('x', function(obj, index) {
+                const width = _this.getPixelLength(obj + ' (' + parentSizes[parentSizesKeys[index]] + ')');
+                return longestWidth - width;
+            })
+            .attr('y', function(obj, index) {
+                if (index === 0) {
+                    return 0;
+                }
+
+                /**
+                 * Determine the Y coordinate by determining the Y coordinate of all of the parents before. This
+                 * has to be calculated completely because it is an update and can occur anywhere.
+                 */
+                let previousParentSize = 0,
+                    i = index - 1;
+
+                while (i > -1) {
+                    previousParentSize += Math.ceil(parentSizes[parentSizesKeys[i]] / calculatedMaxChildren) *
+                        calculatedMaxChildren;
+                    i--;
+                }
+
+                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize;
             })
             .style('fill', function(obj) {
-                return (obj.parentColor !== undefined) ? _this.config.colors[obj.parentColor] : '#000000';
+                return (obj.parentColor !== undefined) ? _this.configuration.colors[obj.parentColor] : '#000000';
             })
             .style('cursor', _this.parentPointer ? 'pointer' : 'default');
-    };
+    }
 
     /**
      * Creates new children nodes.
      *
-     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
      * @param {d3.selection} childrenNodes The children nodes.
      * @param {number} longestWidth The longest width of a parent node.
      * @private
      */
-    var createChildren = function(_this, childrenNodes, longestWidth) {
+    createChildren(childrenNodes, longestWidth) {
+        const _this = this;
+
         childrenNodes.enter()
             .append('rect')
             .attr('x', function(obj) {
-                return longestWidth + ((obj.index - 1) * _this.config.blockSize) + 5;
+                return longestWidth + ((obj.index - 1) * _this.configuration.blockSize) + 5;
             })
             .attr('y', function(obj) {
-                return (obj.row - 1) * _this.config.blockSize;
+                return (obj.row - 1) * _this.configuration.blockSize;
             })
             .attr('rx', 4)
             .attr('ry', 4)
             .attr('class', 'relationshipGraph-block')
-            .attr('width', _this.config.blockSize)
-            .attr('height', _this.config.blockSize)
+            .attr('width', _this.configuration.blockSize)
+            .attr('height', _this.configuration.blockSize)
             .style('fill', function(obj) {
-                return _this.config.colors[obj.color % _this.config.colors.length] || _this.config.colors[0];
+                return _this.configuration.colors[obj.color % _this.configuration.colors.length] ||
+                    _this.configuration.colors[0];
             })
             .style('cursor', _this.childPointer ? 'pointer' : 'default')
-            .on('mouseover', _this.tip ? _this.tip.show : noop)
-            .on('mouseout', _this.tip ? _this.tip.hide : noop)
+            .on('mouseover', _this.tooltip ? _this.tooltip.show : RelationshipGraph.noop)
+            .on('mouseout', _this.tooltip ? _this.tooltip.hide : RelationshipGraph.noop)
             .on('click', function(obj) {
-                _this.tip.hide();
-                _this.config.onClick.child(obj);
+                _this.tooltip.hide();
+                _this.configuration.onClick.child(obj);
             });
-    };
+    }
 
     /**
      * Updates the existing children nodes with new data.
      *
-     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
      * @param {d3.selection} childrenNodes The children nodes.
      * @param {number} longestWidth The longest width of a parent node.
      * @private
      */
-    var updateChildren = function(_this, childrenNodes, longestWidth) {
-        var blockSize = _this.config.blockSize,
-            colors = _this.config.colors,
+    updateChildren(childrenNodes, longestWidth) {
+        const blockSize = this.configuration.blockSize,
+            colors = this.configuration.colors,
             colorsLength = colors.length;
 
         // noinspection JSUnresolvedFunction
-        childrenNodes.transition(_this.config.transitionTime)
+        childrenNodes.transition(this.configuration.transitionTime)
             .attr('x', function(obj) {
                 return longestWidth + ((obj.index - 1) * blockSize) + 5;
             })
@@ -680,19 +627,18 @@
             .style('fill', function(obj) {
                 return colors[obj.color % colorsLength] || colors[0];
             });
-    };
+    }
 
     /**
      * Removes nodes that no longer exist.
      *
-     * @param {RelationshipGraph} _this RelationshipGraph object for the private method.
      * @param {d3.selection} nodes The nodes.
      * @private
      */
-    var removeNodes = function(_this, nodes) {
+    removeNodes(nodes) {
         // noinspection JSUnresolvedFunction
-        nodes.exit().transition(_this.config.transitionTime).remove();
-    };
+        nodes.exit().transition(this.configuration.transitionTime).remove();
+    }
 
     /**
      * Generate the graph.
@@ -701,18 +647,19 @@
      * @return {RelationshipGraph} The RelationshipGraph object to keep d3's chaining functionality.
      * @public
      */
-    RelationshipGraph.prototype.data = function(json) {
-        if (this.verifyJson(json)) {
-            var row,
-                parents = [],
+    data(json) {
+        if (RelationshipGraph.verifyJson(json)) {
+            const parents = [],
                 parentSizes = {},
+                config = this.configuration;
+
+            let row = 0,
                 parent,
                 i,
                 maxWidth,
                 maxHeight,
-                calculatedMaxChildren,
-                longestWidth,
-                config = this.config;
+                calculatedMaxChildren = 0,
+                longestWidth = 0;
 
             // Ensure that the JSON is sorted by parent.
             config.sortFunction(json);
@@ -722,16 +669,16 @@
              * parent. This will also calculate the row and index for each block and truncate the parent names to 25
              * characters.
              */
-            var jsonLength = json.length;
+            const jsonLength = json.length;
 
             for (i = 0; i < jsonLength; i++) {
                 parent = json[i].parent;
 
-                if (containsKey(parentSizes, parent)) {
+                if (RelationshipGraph.containsKey(parentSizes, parent)) {
                     parentSizes[parent]++;
                 } else {
                     parentSizes[parent] = 1;
-                    parents.push(truncate(parent, config.truncate));
+                    parents.push(RelationshipGraph.truncate(parent, config.truncate));
                 }
             }
 
@@ -739,54 +686,69 @@
              * Assign the indexes and rows to each child. This method also calculates the maximum amount of children
              * per row, the longest row width, and how many rows there are.
              */
-            var calculatedResults = assignIndexAndRow(this, json, parentSizes, parents);
-
-            calculatedMaxChildren = calculatedResults.calculatedMaxChildren;
-            longestWidth = calculatedResults.longestWidth;
-            row = calculatedResults.maxRow;
+            [longestWidth, calculatedMaxChildren, row] = this.assignIndexAndRow(json, parentSizes, parents);
 
             // Set the max width and height.
             maxHeight = row * config.blockSize;
             maxWidth = longestWidth + calculatedMaxChildren * config.blockSize;
 
             // Select all of the parent nodes.
-            var parentNodes = this.svg.selectAll('.relationshipGraph-Text')
+            const parentNodes = this.svg.selectAll('.relationshipGraph-Text')
                 .data(parents);
 
             // Add new parent nodes.
-            createParents(this, parentNodes, parentSizes, longestWidth, calculatedMaxChildren);
+            this.createParents(parentNodes, parentSizes, longestWidth, calculatedMaxChildren);
 
             // Update existing parent nodes.
-            updateParents(this, parentNodes, parentSizes, longestWidth, calculatedMaxChildren);
+            this.updateParents(parentNodes, parentSizes, longestWidth, calculatedMaxChildren);
 
             // Remove deleted parent nodes.
-            removeNodes(this, parentNodes);
+            this.removeNodes(parentNodes);
 
             // Select all of the children nodes.
-            var childrenNodes = this.svg.selectAll('.relationshipGraph-block')
+            const childrenNodes = this.svg.selectAll('.relationshipGraph-block')
                 .data(json);
 
             // Add new child nodes.
-            createChildren(this, childrenNodes, longestWidth);
+            this.createChildren(childrenNodes, longestWidth);
 
             // Update existing child nodes.
-            updateChildren(this, childrenNodes, longestWidth);
+            this.updateChildren(childrenNodes, longestWidth);
 
             // Delete removed child nodes.
-            removeNodes(this, childrenNodes);
+            this.removeNodes(childrenNodes);
 
-            if (this.config.showTooltips) {
+            if (this.configuration.showTooltips) {
                 d3.select('.d3-tip').remove();
-                this.svg.call(this.tip);
+                this.svg.call(this.tooltip);
             }
 
-            this.config.selection.select('svg')
+            this.configuration.selection.select('svg')
                 .attr('width', Math.abs(maxWidth + 15))
                 .attr('height', Math.abs(maxHeight + 15));
         }
 
         return this;
-    };
+    }
+}
 
-    return RelationshipGraph;
-});
+/**
+ * Add a relationshipGraph function to d3 that returns a RelationshipGraph object.
+ */
+d3.relationshipGraph = function() {
+    'use strict';
+
+    return RelationshipGraph.extend.apply(RelationshipGraph, arguments);
+};
+
+/**
+ * Add relationshipGraph to selection.
+ *
+ * @param {Object} userConfig Configuration for graph.
+ * @return {Object} Returns a new RelationshipGraph object.
+ */
+d3.selection.prototype.relationshipGraph = function(userConfig) {
+    'use strict';
+
+    return new RelationshipGraph(this, userConfig);
+};
