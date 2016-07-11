@@ -62,3 +62,4 @@
 * Added a way to not show the value on the tooltip by setting the `valueKeyName` to an empty string.
 * Added a cursor pointer if there is an onClick function.
 * Rewrote the source in ES6 and d3 v4.1.0
+* Added in some missing ES6 conversions.

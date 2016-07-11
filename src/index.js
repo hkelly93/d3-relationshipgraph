@@ -34,18 +34,18 @@ class RelationshipGraph {
      */
     constructor(selection, userConfig = {showTooltips: true, maxChildCount: 0, thresholds: []}) {
         // Verify that the user config contains the thresholds.
-        if (userConfig.thresholds === undefined || userConfig.thresholds === null) {
+        if (!userConfig.thresholds) {
             userConfig.thresholds = [];
         } else if (typeof userConfig.thresholds !== 'object') {
             throw 'Thresholds must be an Object.';
         }
 
-        this.parentPointer = false;
-        this.childPointer = false;
-
         if (userConfig.onClick !== undefined) {
             this.parentPointer = userConfig.onClick.parent !== undefined;
             this.childPointer = userConfig.onClick.child !== undefined;
+        } else {
+            this.parentPointer = false;
+            this.childPointer = false;
         }
 
         const defaultOnClick = {parent: RelationshipGraph.noop, child: RelationshipGraph.noop};
@@ -60,7 +60,7 @@ class RelationshipGraph {
          */
         this.configuration = {
             blockSize: 24,  // The block size for each child.
-            selection: selection,  // The ID for the graph.
+            selection,  // The ID for the graph.
             showTooltips: userConfig.showTooltips,  // Whether or not to show the tooltips on hover.
             maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row.
             onClick: userConfig.onClick || defaultOnClick,  // The callback function to call.
@@ -110,7 +110,7 @@ class RelationshipGraph {
          * @param {RelationshipGraph} self The RelationshipGraph instance.
          * @returns {d3.tooltip} the tip object.
          */
-        var createTooltip = self => {
+        const createTooltip = self => {
             let hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_'],
                 showKeys = self.configuration.showKeys;
 
@@ -303,7 +303,7 @@ class RelationshipGraph {
 
         const length = thresholds.length;
 
-        for (var i = 0; i < length; i++) {
+        for (let i = 0; i < length; i++) {
             if (value <= thresholds[i]) {
                 return i;
             }
@@ -353,11 +353,11 @@ class RelationshipGraph {
             row = 0,
             previousParent = '',
             parentLength = parents.length,
-            config = this.configuration,
-            blockSize = config.blockSize;
+            {configuration} = this,
+            {blockSize} = configuration;
 
         for (i = 0; i < parentLength; i++) {
-            var current = parents[i] + ' ( ' + parentSizes[parentNames[i]] + ') ';
+            let current = parents[i] + ' ( ' + parentSizes[parentNames[i]] + ') ';
 
             if (current.length > longest.length) {
                 longest = current;
@@ -365,17 +365,17 @@ class RelationshipGraph {
         }
 
         // Calculate the row and column for each child block.
-        var longestWidth = this.getPixelLength(longest),
-            parentDiv = config.selection._groups[0][0],
-            calculatedMaxChildren = (config.maxChildCount === 0) ?
+        let longestWidth = this.getPixelLength(longest),
+            parentDiv = configuration.selection._groups[0][0],
+            calculatedMaxChildren = (configuration.maxChildCount === 0) ?
                 Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
-                config.maxChildCount,
+                configuration.maxChildCount,
             jsonLength = json.length,
-            thresholds = config.thresholds;
+            {thresholds} = configuration;
 
         for (i = 0; i < jsonLength; i++) {
-            var element = json[i],
-                parent = element.parent;
+            let element = json[i],
+                {parent} = element;
 
             if (previousParent !== null && previousParent !== parent) {
                 element.row = row + 1;
@@ -411,7 +411,7 @@ class RelationshipGraph {
                     const elementValue = element.value;
 
                     value = (typeof elementValue == 'number') ?
-                        elementValue : parseFloat(elementValue.replace(/[^0-9-\.]+/g, ''));
+                        elementValue : parseFloat(elementValue.replace(/[^0-9-.]+/g, ''));
 
                     compare = RelationshipGraph.numericCompare;
                 }
@@ -445,7 +445,7 @@ class RelationshipGraph {
             let element = json[length],
                 keys = Object.keys(element),
                 keyLength = keys.length,
-                parentColor = element.parentColor;
+                {parentColor} = element;
 
             if (element.parent === undefined) {
                 throw 'Child does not have a parent.';
@@ -612,8 +612,8 @@ class RelationshipGraph {
      * @private
      */
     updateChildren(childrenNodes, longestWidth) {
-        const blockSize = this.configuration.blockSize,
-            colors = this.configuration.colors,
+        const {blockSize} = this.configuration,
+            {colors} = this.configuration,
             colorsLength = colors.length;
 
         // noinspection JSUnresolvedFunction
@@ -651,7 +651,7 @@ class RelationshipGraph {
         if (RelationshipGraph.verifyJson(json)) {
             const parents = [],
                 parentSizes = {},
-                config = this.configuration;
+                {configuration} = this;
 
             let row = 0,
                 parent,
@@ -662,7 +662,7 @@ class RelationshipGraph {
                 longestWidth = 0;
 
             // Ensure that the JSON is sorted by parent.
-            config.sortFunction(json);
+            configuration.sortFunction(json);
 
             /**
              * Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per
@@ -678,7 +678,7 @@ class RelationshipGraph {
                     parentSizes[parent]++;
                 } else {
                     parentSizes[parent] = 1;
-                    parents.push(RelationshipGraph.truncate(parent, config.truncate));
+                    parents.push(RelationshipGraph.truncate(parent, configuration.truncate));
                 }
             }
 
@@ -689,8 +689,8 @@ class RelationshipGraph {
             [longestWidth, calculatedMaxChildren, row] = this.assignIndexAndRow(json, parentSizes, parents);
 
             // Set the max width and height.
-            maxHeight = row * config.blockSize;
-            maxWidth = longestWidth + calculatedMaxChildren * config.blockSize;
+            maxHeight = row * configuration.blockSize;
+            maxWidth = longestWidth + calculatedMaxChildren * configuration.blockSize;
 
             // Select all of the parent nodes.
             const parentNodes = this.svg.selectAll('.relationshipGraph-Text')

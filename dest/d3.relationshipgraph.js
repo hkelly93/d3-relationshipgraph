@@ -487,18 +487,18 @@ var RelationshipGraph = function () {
         _classCallCheck(this, RelationshipGraph);
 
         // Verify that the user config contains the thresholds.
-        if (userConfig.thresholds === undefined || userConfig.thresholds === null) {
+        if (!userConfig.thresholds) {
             userConfig.thresholds = [];
         } else if (_typeof(userConfig.thresholds) !== 'object') {
             throw 'Thresholds must be an Object.';
         }
 
-        this.parentPointer = false;
-        this.childPointer = false;
-
         if (userConfig.onClick !== undefined) {
             this.parentPointer = userConfig.onClick.parent !== undefined;
             this.childPointer = userConfig.onClick.child !== undefined;
+        } else {
+            this.parentPointer = false;
+            this.childPointer = false;
         }
 
         var defaultOnClick = { parent: RelationshipGraph.noop, child: RelationshipGraph.noop };
@@ -676,15 +676,16 @@ var RelationshipGraph = function () {
         key: 'assignIndexAndRow',
         value: function assignIndexAndRow(json, parentSizes, parents) {
             // Determine the longest parent name to calculate how far from the left the child blocks should start.
-            var longest = '',
-                parentNames = Object.keys(parentSizes),
-                i = void 0,
-                index = 0,
-                row = 0,
-                previousParent = '',
-                parentLength = parents.length,
-                config = this.configuration,
-                blockSize = config.blockSize;
+            var longest = '';
+            var parentNames = Object.keys(parentSizes);
+            var i = void 0;
+            var index = 0;
+            var row = 0;
+            var previousParent = '';
+            var parentLength = parents.length;
+            var configuration = this.configuration;
+            var blockSize = configuration.blockSize;
+
 
             for (i = 0; i < parentLength; i++) {
                 var current = parents[i] + ' ( ' + parentSizes[parentNames[i]] + ') ';
@@ -695,15 +696,17 @@ var RelationshipGraph = function () {
             }
 
             // Calculate the row and column for each child block.
-            var longestWidth = this.getPixelLength(longest),
-                parentDiv = config.selection._groups[0][0],
-                calculatedMaxChildren = config.maxChildCount === 0 ? Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) : config.maxChildCount,
-                jsonLength = json.length,
-                thresholds = config.thresholds;
+            var longestWidth = this.getPixelLength(longest);
+            var parentDiv = configuration.selection._groups[0][0];
+            var calculatedMaxChildren = configuration.maxChildCount === 0 ? Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) : configuration.maxChildCount;
+            var jsonLength = json.length;
+            var thresholds = configuration.thresholds;
+
 
             for (i = 0; i < jsonLength; i++) {
-                var element = json[i],
-                    parent = element.parent;
+                var element = json[i];
+                var parent = element.parent;
+
 
                 if (previousParent !== null && previousParent !== parent) {
                     element.row = row + 1;
@@ -738,7 +741,7 @@ var RelationshipGraph = function () {
                     } else {
                         var elementValue = element.value;
 
-                        value = typeof elementValue == 'number' ? elementValue : parseFloat(elementValue.replace(/[^0-9-\.]+/g, ''));
+                        value = typeof elementValue == 'number' ? elementValue : parseFloat(elementValue.replace(/[^0-9-.]+/g, ''));
 
                         compare = RelationshipGraph.numericCompare;
                     }
@@ -886,9 +889,9 @@ var RelationshipGraph = function () {
     }, {
         key: 'updateChildren',
         value: function updateChildren(childrenNodes, longestWidth) {
-            var blockSize = this.configuration.blockSize,
-                colors = this.configuration.colors,
-                colorsLength = colors.length;
+            var blockSize = this.configuration.blockSize;
+            var colors = this.configuration.colors;
+            var colorsLength = colors.length;
 
             // noinspection JSUnresolvedFunction
             childrenNodes.transition(this.configuration.transitionTime).attr('x', function (obj) {
@@ -926,9 +929,10 @@ var RelationshipGraph = function () {
         key: 'data',
         value: function data(json) {
             if (RelationshipGraph.verifyJson(json)) {
-                var parents = [],
-                    parentSizes = {},
-                    config = this.configuration;
+                var parents = [];
+                var parentSizes = {};
+                var configuration = this.configuration;
+
 
                 var row = 0,
                     parent = void 0,
@@ -939,7 +943,7 @@ var RelationshipGraph = function () {
                     longestWidth = 0;
 
                 // Ensure that the JSON is sorted by parent.
-                config.sortFunction(json);
+                configuration.sortFunction(json);
 
                 /**
                  * Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per
@@ -955,7 +959,7 @@ var RelationshipGraph = function () {
                         parentSizes[parent]++;
                     } else {
                         parentSizes[parent] = 1;
-                        parents.push(RelationshipGraph.truncate(parent, config.truncate));
+                        parents.push(RelationshipGraph.truncate(parent, configuration.truncate));
                     }
                 }
 
@@ -974,8 +978,8 @@ var RelationshipGraph = function () {
                 longestWidth = _assignIndexAndRow2[0];
                 calculatedMaxChildren = _assignIndexAndRow2[1];
                 row = _assignIndexAndRow2[2];
-                maxHeight = row * config.blockSize;
-                maxWidth = longestWidth + calculatedMaxChildren * config.blockSize;
+                maxHeight = row * configuration.blockSize;
+                maxWidth = longestWidth + calculatedMaxChildren * configuration.blockSize;
 
                 // Select all of the parent nodes.
                 var parentNodes = this.svg.selectAll('.relationshipGraph-Text').data(parents);
@@ -1166,10 +1170,11 @@ var RelationshipGraph = function () {
             var length = json.length;
 
             while (length--) {
-                var element = json[length],
-                    keys = Object.keys(element),
-                    keyLength = keys.length,
-                    parentColor = element.parentColor;
+                var element = json[length];
+                var keys = Object.keys(element);
+                var keyLength = keys.length;
+                var parentColor = element.parentColor;
+
 
                 if (element.parent === undefined) {
                     throw 'Child does not have a parent.';
