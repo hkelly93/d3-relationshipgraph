@@ -188,6 +188,7 @@ class RelationshipGraph {
      * Generate the basic set of colors.
      *
      * @returns {string[]} List of HEX colors.
+     * @private
      */
     static getColors() {
         return ['#c4f1be', '#a2c3a4', '#869d96', '#525b76', '#201e50', '#485447', '#5b7f77', '#6474ad', '#b9c6cb',
@@ -202,6 +203,7 @@ class RelationshipGraph {
      * @param {object} obj The object to check in.
      * @param {string} key They key to check for.
      * @returns {boolean} Whether or not the object contains the key.
+     * @private
      */
     static containsKey(obj, key) {
         return Object.keys(obj).indexOf(key) > -1;
@@ -213,6 +215,7 @@ class RelationshipGraph {
      * @param {*[]} arr The array to check in.
      * @param {string} key The key to check for.
      * @returns {boolean} Whether or not the key exists in the array.
+     * @private
      */
     static contains(arr, key) {
         return arr.indexOf(key) > -1;
@@ -224,6 +227,7 @@ class RelationshipGraph {
      * @param {string} str The string to truncate.
      * @param {number} cap The number to cap the string at before it gets truncated.
      * @returns {string} The string truncated (if necessary).
+     * @private
      */
     static truncate(str, cap) {
         if (!cap || !str) {
@@ -245,6 +249,8 @@ class RelationshipGraph {
 
     /**
      * Noop function.
+     *
+     * @private
      */
     static noop() { }
 
@@ -310,6 +316,16 @@ class RelationshipGraph {
         }
 
         return -1;
+    }
+
+    /**
+     * Return the ID of the selection.
+     *
+     * @returns {string} The ID of the selection.
+     * @private
+     */
+    getId() {
+        return this.configuration.selection._groups[0][0].id;
     }
 
     /**
@@ -473,7 +489,7 @@ class RelationshipGraph {
      * @param {d3.selection} parentNodes The parentNodes.
      * @param {Object} parentSizes The child count for each parent.
      * @param {number} longestWidth The longest width of a parent node.
-     * @param {number} calculatedMaxChildren The maxiumum amount of children nodes per row.
+     * @param {number} calculatedMaxChildren The maximum amount of children nodes per row.
      * @private
      */
     createParents(parentNodes, parentSizes, longestWidth, calculatedMaxChildren) {
@@ -580,6 +596,9 @@ class RelationshipGraph {
 
         childrenNodes.enter()
             .append('rect')
+            .attr('id', function(obj) {
+                return _this.getId() + '-child-node' + obj.row + obj.index;
+            })
             .attr('x', function(obj) {
                 return longestWidth + ((obj.index - 1) * _this.configuration.blockSize) + 5;
             })
@@ -614,10 +633,14 @@ class RelationshipGraph {
     updateChildren(childrenNodes, longestWidth) {
         const {blockSize} = this.configuration,
             {colors} = this.configuration,
-            colorsLength = colors.length;
+            colorsLength = colors.length,
+            _this = this;
 
         // noinspection JSUnresolvedFunction
         childrenNodes.transition(this.configuration.transitionTime)
+            .attr('id', function(obj) {
+                return _this.getId() + '-child-node' + obj.row + obj.index;
+            })
             .attr('x', function(obj) {
                 return longestWidth + ((obj.index - 1) * blockSize) + 5;
             })

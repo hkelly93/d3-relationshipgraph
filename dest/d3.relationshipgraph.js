@@ -632,12 +632,23 @@ var RelationshipGraph = function () {
      * Generate the basic set of colors.
      *
      * @returns {string[]} List of HEX colors.
+     * @private
      */
 
 
     _createClass(RelationshipGraph, [{
-        key: 'getPixelLength',
+        key: 'getId',
 
+
+        /**
+         * Return the ID of the selection.
+         *
+         * @returns {string} The ID of the selection.
+         * @private
+         */
+        value: function getId() {
+            return this.configuration.selection._groups[0][0].id;
+        }
 
         /**
          * Returns the pixel length of the string based on the font size.
@@ -646,6 +657,9 @@ var RelationshipGraph = function () {
          * @returns {Number} The pixel length of the string.
          * @public
          */
+
+    }, {
+        key: 'getPixelLength',
         value: function getPixelLength(str) {
             if (RelationshipGraph.containsKey(this.measuredCache, str)) {
                 return this.measuredCache[str];
@@ -771,7 +785,7 @@ var RelationshipGraph = function () {
          * @param {d3.selection} parentNodes The parentNodes.
          * @param {Object} parentSizes The child count for each parent.
          * @param {number} longestWidth The longest width of a parent node.
-         * @param {number} calculatedMaxChildren The maxiumum amount of children nodes per row.
+         * @param {number} calculatedMaxChildren The maximum amount of children nodes per row.
          * @private
          */
         value: function createParents(parentNodes, parentSizes, longestWidth, calculatedMaxChildren) {
@@ -866,7 +880,9 @@ var RelationshipGraph = function () {
         value: function createChildren(childrenNodes, longestWidth) {
             var _this = this;
 
-            childrenNodes.enter().append('rect').attr('x', function (obj) {
+            childrenNodes.enter().append('rect').attr('id', function (obj) {
+                return _this.getId() + '-child-node' + obj.row + obj.index;
+            }).attr('x', function (obj) {
                 return longestWidth + (obj.index - 1) * _this.configuration.blockSize + 5;
             }).attr('y', function (obj) {
                 return (obj.row - 1) * _this.configuration.blockSize;
@@ -892,9 +908,12 @@ var RelationshipGraph = function () {
             var blockSize = this.configuration.blockSize;
             var colors = this.configuration.colors;
             var colorsLength = colors.length;
+            var _this = this;
 
             // noinspection JSUnresolvedFunction
-            childrenNodes.transition(this.configuration.transitionTime).attr('x', function (obj) {
+            childrenNodes.transition(this.configuration.transitionTime).attr('id', function (obj) {
+                return _this.getId() + '-child-node' + obj.row + obj.index;
+            }).attr('x', function (obj) {
                 return longestWidth + (obj.index - 1) * blockSize + 5;
             }).attr('y', function (obj) {
                 return (obj.row - 1) * blockSize;
@@ -1027,6 +1046,7 @@ var RelationshipGraph = function () {
          * @param {object} obj The object to check in.
          * @param {string} key They key to check for.
          * @returns {boolean} Whether or not the object contains the key.
+         * @private
          */
 
     }, {
@@ -1041,6 +1061,7 @@ var RelationshipGraph = function () {
          * @param {*[]} arr The array to check in.
          * @param {string} key The key to check for.
          * @returns {boolean} Whether or not the key exists in the array.
+         * @private
          */
 
     }, {
@@ -1055,6 +1076,7 @@ var RelationshipGraph = function () {
          * @param {string} str The string to truncate.
          * @param {number} cap The number to cap the string at before it gets truncated.
          * @returns {string} The string truncated (if necessary).
+         * @private
          */
 
     }, {
@@ -1082,6 +1104,8 @@ var RelationshipGraph = function () {
 
         /**
          * Noop function.
+         *
+         * @private
          */
 
     }, {

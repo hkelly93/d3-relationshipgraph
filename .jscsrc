@@ -62,7 +62,7 @@
     "catch",
     "typeof"
   ],
-  "safeContextKeyword": "_this",
+  /*"safeContextKeyword": "_this",*/
   "requireSemicolons": true,
   "validateLineBreaks": "LF",
   "validateQuoteMarks": "'",
