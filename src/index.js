@@ -111,7 +111,8 @@ class RelationshipGraph {
          * @returns {d3.tooltip} the tip object.
          */
         const createTooltip = self => {
-            let hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_'],
+            let hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_', 'COLORVALUE',
+                    'SETNODECOLOR', 'SETNODESTROKECOLOR'],
                 showKeys = self.configuration.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip')
@@ -435,7 +436,36 @@ class RelationshipGraph {
                 const thresholdIndex = compare(value, thresholds);
 
                 element.color = (thresholdIndex === -1) ? 0 : thresholdIndex;
+                element.colorValue = this.configuration.colors[element.color % this.configuration.colors.length];
             }
+
+            // Add the interaction methods
+            /**
+             * Set the color of the node.
+             *
+             * @param {String} color The new color of the node to set.
+             */
+            element.setNodeColor = function(color) {
+                const node = document.getElementById(this.getId() + '-child-node' + element.row + element.index);
+
+                if (node) {
+                    node.style.fill = color;
+                }
+            };
+
+            /**
+             * Set the color of the node's stroke.
+             *
+             * @param {String} color The color to set the stroke to. Set this to a falsy value to remove the stroke.
+             */
+            element.setNodeStrokeColor = function(color) {
+                const node = document.getElementById(this.getId() + '-child-node' + element.row + element.index);
+
+                if (node) {
+                    node.style.strokeWidth = color ? '1px' : 0;
+                    node.style.stroke = color ? color : '';
+                }
+            };
         }
 
         return [
@@ -611,8 +641,7 @@ class RelationshipGraph {
             .attr('width', _this.configuration.blockSize)
             .attr('height', _this.configuration.blockSize)
             .style('fill', function(obj) {
-                return _this.configuration.colors[obj.color % _this.configuration.colors.length] ||
-                    _this.configuration.colors[0];
+                return obj.colorValue;
             })
             .style('cursor', _this.childPointer ? 'pointer' : 'default')
             .on('mouseover', _this.tooltip ? _this.tooltip.show : RelationshipGraph.noop)
@@ -632,8 +661,6 @@ class RelationshipGraph {
      */
     updateChildren(childrenNodes, longestWidth) {
         const {blockSize} = this.configuration,
-            {colors} = this.configuration,
-            colorsLength = colors.length,
             _this = this;
 
         // noinspection JSUnresolvedFunction
@@ -648,7 +675,7 @@ class RelationshipGraph {
                 return (obj.row - 1) * blockSize;
             })
             .style('fill', function(obj) {
-                return colors[obj.color % colorsLength] || colors[0];
+                return obj.colorValue;
             });
     }
 

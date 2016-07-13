@@ -564,7 +564,7 @@ var RelationshipGraph = function () {
          * @returns {d3.tooltip} the tip object.
          */
         var createTooltip = function createTooltip(self) {
-            var hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_'],
+            var hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_', 'COLORVALUE', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
                 showKeys = self.configuration.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip').offset([-8, -10]).html(function (obj) {
@@ -689,6 +689,8 @@ var RelationshipGraph = function () {
     }, {
         key: 'assignIndexAndRow',
         value: function assignIndexAndRow(json, parentSizes, parents) {
+            var _this2 = this;
+
             // Determine the longest parent name to calculate how far from the left the child blocks should start.
             var longest = '';
             var parentNames = Object.keys(parentSizes);
@@ -716,8 +718,7 @@ var RelationshipGraph = function () {
             var jsonLength = json.length;
             var thresholds = configuration.thresholds;
 
-
-            for (i = 0; i < jsonLength; i++) {
+            var _loop = function _loop() {
                 var element = json[i];
                 var parent = element.parent;
 
@@ -763,7 +764,40 @@ var RelationshipGraph = function () {
                     var thresholdIndex = compare(value, thresholds);
 
                     element.color = thresholdIndex === -1 ? 0 : thresholdIndex;
+                    element.colorValue = _this2.configuration.colors[element.color % _this2.configuration.colors.length];
                 }
+
+                // Add the interaction methods
+                /**
+                 * Set the color of the node.
+                 *
+                 * @param {String} color The new color of the node to set.
+                 */
+                element.setNodeColor = function (color) {
+                    var node = document.getElementById(this.getId() + '-child-node' + element.row + element.index);
+
+                    if (node) {
+                        node.style.fill = color;
+                    }
+                };
+
+                /**
+                 * Set the color of the node's stroke.
+                 *
+                 * @param {String} color The color to set the stroke to. Set this to a falsy value to remove the stroke.
+                 */
+                element.setNodeStrokeColor = function (color) {
+                    var node = document.getElementById(this.getId() + '-child-node' + element.row + element.index);
+
+                    if (node) {
+                        node.style.strokeWidth = color ? '1px' : 0;
+                        node.style.stroke = color ? color : '';
+                    }
+                };
+            };
+
+            for (i = 0; i < jsonLength; i++) {
+                _loop();
             }
 
             return [longestWidth, calculatedMaxChildren, row];
@@ -887,7 +921,7 @@ var RelationshipGraph = function () {
             }).attr('y', function (obj) {
                 return (obj.row - 1) * _this.configuration.blockSize;
             }).attr('rx', 4).attr('ry', 4).attr('class', 'relationshipGraph-block').attr('width', _this.configuration.blockSize).attr('height', _this.configuration.blockSize).style('fill', function (obj) {
-                return _this.configuration.colors[obj.color % _this.configuration.colors.length] || _this.configuration.colors[0];
+                return obj.colorValue;
             }).style('cursor', _this.childPointer ? 'pointer' : 'default').on('mouseover', _this.tooltip ? _this.tooltip.show : RelationshipGraph.noop).on('mouseout', _this.tooltip ? _this.tooltip.hide : RelationshipGraph.noop).on('click', function (obj) {
                 _this.tooltip.hide();
                 _this.configuration.onClick.child(obj);
@@ -906,8 +940,6 @@ var RelationshipGraph = function () {
         key: 'updateChildren',
         value: function updateChildren(childrenNodes, longestWidth) {
             var blockSize = this.configuration.blockSize;
-            var colors = this.configuration.colors;
-            var colorsLength = colors.length;
             var _this = this;
 
             // noinspection JSUnresolvedFunction
@@ -918,7 +950,7 @@ var RelationshipGraph = function () {
             }).attr('y', function (obj) {
                 return (obj.row - 1) * blockSize;
             }).style('fill', function (obj) {
-                return colors[obj.color % colorsLength] || colors[0];
+                return obj.colorValue;
             });
         }
 
@@ -1194,13 +1226,13 @@ var RelationshipGraph = function () {
             var length = json.length;
 
             while (length--) {
-                var element = json[length];
-                var keys = Object.keys(element);
+                var _element = json[length];
+                var keys = Object.keys(_element);
                 var keyLength = keys.length;
-                var parentColor = element.parentColor;
+                var parentColor = _element.parentColor;
 
 
-                if (element.parent === undefined) {
+                if (_element.parent === undefined) {
                     throw 'Child does not have a parent.';
                 } else if (parentColor !== undefined && (parentColor > 4 || parentColor < 0)) {
                     throw 'Parent color is unsupported.';
