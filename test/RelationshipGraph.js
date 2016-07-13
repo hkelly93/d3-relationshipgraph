@@ -834,4 +834,12 @@ describe('RelationshipGraph', function() {
             chai.expect(graph.configuration.valueKeyName).to.equal('cool value');
         });
     });
+
+    describe('#VerifyGetId', function() {
+        it('Should be returned correctly.', function() {
+            var graph = d3.select('#graph').relationshipGraph();
+
+            chai.expect(graph.getId()).to.equals('graph');
+        });
+    });
 });
