@@ -53,7 +53,7 @@
 * Added a way to set a custom string for the `value` key instead of having it always say 'value' on the tooltip.`
 * Added support for private data by using the `_private_` key in the JSON data.
 
-# 2.0.0 (6/12/2016-)
+# 2.0.0 (6/12/2016-7/08/2016)
 * Added a way to set the onclick function for a parent label.
 * Cleaned up some of the code.
 * Fixed an SVG width issue where if no data was supplied, the width and height were set to -15, which threw an exception.
@@ -63,3 +63,6 @@
 * Added a cursor pointer if there is an onClick function.
 * Rewrote the source in ES6 and d3 v4.1.0
 * Added in some missing ES6 conversions.
+
+# 2.1.0 (7/08/2016-)
+* Added interaction methods with the child nodes to allow users to change the color of the node and the stroke color.
