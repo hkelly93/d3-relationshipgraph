@@ -189,6 +189,34 @@ json = [
 graph.data(json);  // Update the graph with new data.
 ````
 
+## Child Node Interaction
+To interact with the child nodes once they are in the graph, you can query for them based on subobjects. Thiswill return the objects that match the query. Once these objects have been returned,
+you can change the color of the nodes by using the `setNodeColor` method on the object, or change the stroke color of the node by using the `setNodeStrokeColor` method.
+
+An example of a query is if I was lookingfor all nodes in the following example that are from the year 2009
+ 
+ ```javascript
+ var json = [
+         {
+             movietitle: 'Avatar',
+             parent: '20th Century Fox',
+             value: '$2,787,965,087',
+             year: '2009'
+         },
+         {
+             movietitle: 'Titanic',
+             parent: '20th Century Fox',
+             value: '$2,186,772,302',
+             year: '1997'
+         }
+     ];
+ 
+ var graph = d3.select('#graph').relationshipGraph();
+ 
+ graph.query({year: '2009'});
+ ```
+That would return the Javascript object(s) that match the query.
+
 ## License
 This project is licensed under the MIT license -- see the [LICENSE.md](LICENSE.md) file for details.
 

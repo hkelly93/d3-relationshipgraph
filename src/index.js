@@ -105,14 +105,19 @@ class RelationshipGraph {
         this.measuredCache = {};
 
         /**
+         * Represents the current data that is shown by the graph.
+         * @type {Array}
+         */
+        this.representation = [];
+
+        /**
          * Function to create the tooltip.
          *
          * @param {RelationshipGraph} self The RelationshipGraph instance.
-         * @returns {d3.tooltip} the tip object.
+         * @returns {function} the tip object.
          */
         const createTooltip = self => {
-            let hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_', 'COLORVALUE',
-                    'SETNODECOLOR', 'SETNODESTROKECOLOR'],
+            let hiddenKeys = ['_PRIVATE_', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
                 showKeys = self.configuration.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip')
@@ -128,7 +133,7 @@ class RelationshipGraph {
                         let element = keys[count],
                             upperCaseKey = element.toUpperCase();
 
-                        if (!RelationshipGraph.contains(hiddenKeys, upperCaseKey)) {
+                        if (!RelationshipGraph.contains(hiddenKeys, upperCaseKey) && !upperCaseKey.startsWith('__')) {
                             let row = document.createElement('tr'),
                                 key = showKeys ? document.createElement('td') : null,
                                 value = document.createElement('td');
@@ -395,8 +400,8 @@ class RelationshipGraph {
                 {parent} = element;
 
             if (previousParent !== null && previousParent !== parent) {
-                element.row = row + 1;
-                element.index = 1;
+                element.__row = row + 1;
+                element.__index = 1;
 
                 index = 2;
                 row++;
@@ -406,8 +411,8 @@ class RelationshipGraph {
                     row++;
                 }
 
-                element.row = row;
-                element.index = index;
+                element.__row = row;
+                element.__index = index;
 
                 index++;
             }
@@ -415,7 +420,7 @@ class RelationshipGraph {
             previousParent = parent;
 
             if (thresholds.length === 0) {
-                element.color = 0;
+                element.__color = 0;
             } else {
                 // Figure out the color based on the threshold.
                 let value,
@@ -435,8 +440,8 @@ class RelationshipGraph {
 
                 const thresholdIndex = compare(value, thresholds);
 
-                element.color = (thresholdIndex === -1) ? 0 : thresholdIndex;
-                element.colorValue = this.configuration.colors[element.color % this.configuration.colors.length];
+                element.__color = (thresholdIndex === -1) ? 0 : thresholdIndex;
+                element.__colorValue = this.configuration.colors[element.__color % this.configuration.colors.length];
             }
 
             // Add the interaction methods
@@ -446,7 +451,7 @@ class RelationshipGraph {
              * @param {String} color The new color of the node to set.
              */
             element.setNodeColor = function(color) {
-                const node = document.getElementById(this.getId() + '-child-node' + element.row + element.index);
+                const node = document.getElementById(this.__id);
 
                 if (node) {
                     node.style.fill = color;
@@ -459,13 +464,15 @@ class RelationshipGraph {
              * @param {String} color The color to set the stroke to. Set this to a falsy value to remove the stroke.
              */
             element.setNodeStrokeColor = function(color) {
-                const node = document.getElementById(this.getId() + '-child-node' + element.row + element.index);
+                const node = document.getElementById(this.__id);
 
                 if (node) {
                     node.style.strokeWidth = color ? '1px' : 0;
                     node.style.stroke = color ? color : '';
                 }
             };
+
+            element.__id = this.getId() + '-child-node' + element.__row + element.__index;
         }
 
         return [
@@ -627,13 +634,13 @@ class RelationshipGraph {
         childrenNodes.enter()
             .append('rect')
             .attr('id', function(obj) {
-                return _this.getId() + '-child-node' + obj.row + obj.index;
+                return obj.__id;
             })
             .attr('x', function(obj) {
-                return longestWidth + ((obj.index - 1) * _this.configuration.blockSize) + 5;
+                return longestWidth + ((obj.__index - 1) * _this.configuration.blockSize) + 5;
             })
             .attr('y', function(obj) {
-                return (obj.row - 1) * _this.configuration.blockSize;
+                return (obj.__row - 1) * _this.configuration.blockSize;
             })
             .attr('rx', 4)
             .attr('ry', 4)
@@ -641,7 +648,7 @@ class RelationshipGraph {
             .attr('width', _this.configuration.blockSize)
             .attr('height', _this.configuration.blockSize)
             .style('fill', function(obj) {
-                return obj.colorValue;
+                return obj.__colorValue;
             })
             .style('cursor', _this.childPointer ? 'pointer' : 'default')
             .on('mouseover', _this.tooltip ? _this.tooltip.show : RelationshipGraph.noop)
@@ -660,22 +667,21 @@ class RelationshipGraph {
      * @private
      */
     updateChildren(childrenNodes, longestWidth) {
-        const {blockSize} = this.configuration,
-            _this = this;
+        const {blockSize} = this.configuration;
 
         // noinspection JSUnresolvedFunction
         childrenNodes.transition(this.configuration.transitionTime)
             .attr('id', function(obj) {
-                return _this.getId() + '-child-node' + obj.row + obj.index;
+                return obj.__id;
             })
             .attr('x', function(obj) {
-                return longestWidth + ((obj.index - 1) * blockSize) + 5;
+                return longestWidth + ((obj.__index - 1) * blockSize) + 5;
             })
             .attr('y', function(obj) {
-                return (obj.row - 1) * blockSize;
+                return (obj.__row - 1) * blockSize;
             })
             .style('fill', function(obj) {
-                return obj.colorValue;
+                return obj.__colorValue;
             });
     }
 
@@ -713,6 +719,8 @@ class RelationshipGraph {
 
             // Ensure that the JSON is sorted by parent.
             configuration.sortFunction(json);
+
+            this.representation = json;
 
             /**
              * Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per
@@ -779,6 +787,42 @@ class RelationshipGraph {
         }
 
         return this;
+    }
+
+    /**
+     * Searches through the representation and returns the child nodes that match the search query.
+     *
+     * @param {object} query The partial object match to search for.
+     * @returns {Array} An array with the objects that matched the partial query or an empty array if none are found.
+     */
+    search(query) {
+        const results = [],
+            queryKeys = Object.keys(query),
+            queryKeysLength = queryKeys.length;
+
+        if (this.representation && query) {
+            const length = this.representation.length;
+
+            for (let i = 0; i < length; i++) {
+                const currentObject = this.representation[i];
+
+                let isMatch = false;
+
+                for (let j = 0; j < queryKeysLength; j++) {
+                    const queryVal = query[queryKeys[j]];
+
+                    if (!(isMatch = currentObject[queryKeys[j]] == queryVal)) {
+                        break;
+                    }
+                }
+
+                if (isMatch) {
+                    results.push(currentObject);
+                }
+            }
+        }
+
+        return results;
     }
 }
 
