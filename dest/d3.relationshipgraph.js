@@ -774,29 +774,35 @@ var RelationshipGraph = function () {
 
                 // Add the interaction methods
                 /**
-                 * Set the color of the node.
+                 * Set the color of the node. This method gets the object lazily and is only gets the object from the DOM
+                 * once.
                  *
                  * @param {String} color The new color of the node to set.
                  */
                 element.setNodeColor = function (color) {
-                    var node = document.getElementById(this.__id);
+                    if (!this.__node) {
+                        this.__node = document.getElementById(this.__id);
+                    }
 
-                    if (node) {
-                        node.style.fill = color;
+                    if (this.__node) {
+                        this.__node.style.fill = color;
                     }
                 };
 
                 /**
-                 * Set the color of the node's stroke.
+                 * Set the color of the node's stroke. This method gets the object lazily and is only gets the object from
+                 * the DOM once.
                  *
                  * @param {String} color The color to set the stroke to. Set this to a falsy value to remove the stroke.
                  */
                 element.setNodeStrokeColor = function (color) {
-                    var node = document.getElementById(this.__id);
+                    if (!this.__node) {
+                        this.__node = document.getElementById(this.__id);
+                    }
 
-                    if (node) {
-                        node.style.strokeWidth = color ? '1px' : 0;
-                        node.style.stroke = color ? color : '';
+                    if (this.__node) {
+                        this.__node.style.strokeWidth = color ? '1px' : 0;
+                        this.__node.style.stroke = color ? color : '';
                     }
                 };
 
