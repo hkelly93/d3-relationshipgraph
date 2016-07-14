@@ -270,7 +270,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             nodel.html(content).style('position', 'absolute').style('opacity', 1).style('pointer-events', 'all');
 
             // Figure out the correct direction.
-            var node = nodel._groups[0][0],
+            var node = nodel._groups ? nodel._groups[0][0] : nodel[0][0],
                 nodeWidth = node.clientWidth,
                 nodeHeight = node.clientHeight,
                 windowWidth = window.innerWidth,
@@ -570,7 +570,7 @@ var RelationshipGraph = function () {
          * @returns {function} the tip object.
          */
         var createTooltip = function createTooltip(self) {
-            var hiddenKeys = ['_PRIVATE_', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
+            var hiddenKeys = ['_PRIVATE_', 'PARENT', 'PARENTCOLOR', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
                 showKeys = self.configuration.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip').offset([-8, -10]).html(function (obj) {
@@ -653,7 +653,9 @@ var RelationshipGraph = function () {
          * @private
          */
         value: function getId() {
-            return this.configuration.selection._groups[0][0].id;
+            var parent = this.configuration.selection._groups ? this.configuration.selection._groups[0][0] : this.configuration.selection[0][0];
+
+            return parent.id;
         }
 
         /**
@@ -717,11 +719,13 @@ var RelationshipGraph = function () {
 
             // Calculate the row and column for each child block.
             var longestWidth = this.getPixelLength(longest);
-            var parentDiv = configuration.selection._groups[0][0];
+            var parentDiv = void 0;
             var calculatedMaxChildren = configuration.maxChildCount === 0 ? Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) : configuration.maxChildCount;
             var jsonLength = json.length;
             var thresholds = configuration.thresholds;
 
+
+            parentDiv = configuration.selection._groups ? configuration.selection._groups[0][0] : configuration.selection[0][0];
 
             for (i = 0; i < jsonLength; i++) {
                 var element = json[i];

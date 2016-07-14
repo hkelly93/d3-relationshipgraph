@@ -117,7 +117,7 @@ class RelationshipGraph {
          * @returns {function} the tip object.
          */
         const createTooltip = self => {
-            let hiddenKeys = ['_PRIVATE_', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
+            let hiddenKeys = ['_PRIVATE_', 'PARENT', 'PARENTCOLOR', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
                 showKeys = self.configuration.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip')
@@ -331,7 +331,10 @@ class RelationshipGraph {
      * @private
      */
     getId() {
-        return this.configuration.selection._groups[0][0].id;
+        const parent = this.configuration.selection._groups ? this.configuration.selection._groups[0][0] :
+            this.configuration.selection[0][0];
+
+        return parent.id;
     }
 
     /**
@@ -388,12 +391,15 @@ class RelationshipGraph {
 
         // Calculate the row and column for each child block.
         let longestWidth = this.getPixelLength(longest),
-            parentDiv = configuration.selection._groups[0][0],
+            parentDiv,
             calculatedMaxChildren = (configuration.maxChildCount === 0) ?
                 Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
                 configuration.maxChildCount,
             jsonLength = json.length,
             {thresholds} = configuration;
+
+        parentDiv = configuration.selection._groups ? configuration.selection._groups[0][0] :
+            configuration.selection[0][0];
 
         for (i = 0; i < jsonLength; i++) {
             let element = json[i],
