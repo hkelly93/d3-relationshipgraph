@@ -268,7 +268,7 @@
                 .style('pointer-events', 'all');
 
             // Figure out the correct direction.
-            const node = nodel._groups[0][0],
+            const node = nodel._groups ? nodel._groups[0][0] : nodel[0][0],
                 nodeWidth = node.clientWidth,
                 nodeHeight = node.clientHeight,
                 windowWidth = window.innerWidth,
