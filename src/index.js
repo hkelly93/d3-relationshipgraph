@@ -391,15 +391,13 @@ class RelationshipGraph {
 
         // Calculate the row and column for each child block.
         let longestWidth = this.getPixelLength(longest),
-            parentDiv,
+            parentDiv = configuration.selection._groups ? configuration.selection._groups[0][0] :
+                configuration.selection[0][0],
             calculatedMaxChildren = (configuration.maxChildCount === 0) ?
                 Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
                 configuration.maxChildCount,
             jsonLength = json.length,
             {thresholds} = configuration;
-
-        parentDiv = configuration.selection._groups ? configuration.selection._groups[0][0] :
-            configuration.selection[0][0];
 
         for (i = 0; i < jsonLength; i++) {
             let element = json[i],

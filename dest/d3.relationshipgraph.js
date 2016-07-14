@@ -719,13 +719,11 @@ var RelationshipGraph = function () {
 
             // Calculate the row and column for each child block.
             var longestWidth = this.getPixelLength(longest);
-            var parentDiv = void 0;
+            var parentDiv = configuration.selection._groups ? configuration.selection._groups[0][0] : configuration.selection[0][0];
             var calculatedMaxChildren = configuration.maxChildCount === 0 ? Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) : configuration.maxChildCount;
             var jsonLength = json.length;
             var thresholds = configuration.thresholds;
 
-
-            parentDiv = configuration.selection._groups ? configuration.selection._groups[0][0] : configuration.selection[0][0];
 
             for (i = 0; i < jsonLength; i++) {
                 var element = json[i];
