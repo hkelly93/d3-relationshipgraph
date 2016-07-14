@@ -558,13 +558,19 @@ var RelationshipGraph = function () {
         this.measuredCache = {};
 
         /**
+         * Represents the current data that is shown by the graph.
+         * @type {Array}
+         */
+        this.representation = [];
+
+        /**
          * Function to create the tooltip.
          *
          * @param {RelationshipGraph} self The RelationshipGraph instance.
-         * @returns {d3.tooltip} the tip object.
+         * @returns {function} the tip object.
          */
         var createTooltip = function createTooltip(self) {
-            var hiddenKeys = ['ROW', 'INDEX', 'COLOR', 'PARENTCOLOR', 'PARENT', '_PRIVATE_', 'COLORVALUE', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
+            var hiddenKeys = ['_PRIVATE_', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
                 showKeys = self.configuration.showKeys;
 
             return d3.tip().attr('class', 'relationshipGraph-tip').offset([-8, -10]).html(function (obj) {
@@ -578,7 +584,7 @@ var RelationshipGraph = function () {
                     var element = keys[count],
                         upperCaseKey = element.toUpperCase();
 
-                    if (!RelationshipGraph.contains(hiddenKeys, upperCaseKey)) {
+                    if (!RelationshipGraph.contains(hiddenKeys, upperCaseKey) && !upperCaseKey.startsWith('__')) {
                         var row = document.createElement('tr'),
                             key = showKeys ? document.createElement('td') : null,
                             value = document.createElement('td');
@@ -689,8 +695,6 @@ var RelationshipGraph = function () {
     }, {
         key: 'assignIndexAndRow',
         value: function assignIndexAndRow(json, parentSizes, parents) {
-            var _this2 = this;
-
             // Determine the longest parent name to calculate how far from the left the child blocks should start.
             var longest = '';
             var parentNames = Object.keys(parentSizes);
@@ -718,14 +722,15 @@ var RelationshipGraph = function () {
             var jsonLength = json.length;
             var thresholds = configuration.thresholds;
 
-            var _loop = function _loop() {
+
+            for (i = 0; i < jsonLength; i++) {
                 var element = json[i];
                 var parent = element.parent;
 
 
                 if (previousParent !== null && previousParent !== parent) {
-                    element.row = row + 1;
-                    element.index = 1;
+                    element.__row = row + 1;
+                    element.__index = 1;
 
                     index = 2;
                     row++;
@@ -735,8 +740,8 @@ var RelationshipGraph = function () {
                         row++;
                     }
 
-                    element.row = row;
-                    element.index = index;
+                    element.__row = row;
+                    element.__index = index;
 
                     index++;
                 }
@@ -744,7 +749,7 @@ var RelationshipGraph = function () {
                 previousParent = parent;
 
                 if (thresholds.length === 0) {
-                    element.color = 0;
+                    element.__color = 0;
                 } else {
                     // Figure out the color based on the threshold.
                     var value = void 0,
@@ -763,8 +768,8 @@ var RelationshipGraph = function () {
 
                     var thresholdIndex = compare(value, thresholds);
 
-                    element.color = thresholdIndex === -1 ? 0 : thresholdIndex;
-                    element.colorValue = _this2.configuration.colors[element.color % _this2.configuration.colors.length];
+                    element.__color = thresholdIndex === -1 ? 0 : thresholdIndex;
+                    element.__colorValue = this.configuration.colors[element.__color % this.configuration.colors.length];
                 }
 
                 // Add the interaction methods
@@ -774,7 +779,7 @@ var RelationshipGraph = function () {
                  * @param {String} color The new color of the node to set.
                  */
                 element.setNodeColor = function (color) {
-                    var node = document.getElementById(this.getId() + '-child-node' + element.row + element.index);
+                    var node = document.getElementById(this.__id);
 
                     if (node) {
                         node.style.fill = color;
@@ -787,17 +792,15 @@ var RelationshipGraph = function () {
                  * @param {String} color The color to set the stroke to. Set this to a falsy value to remove the stroke.
                  */
                 element.setNodeStrokeColor = function (color) {
-                    var node = document.getElementById(this.getId() + '-child-node' + element.row + element.index);
+                    var node = document.getElementById(this.__id);
 
                     if (node) {
                         node.style.strokeWidth = color ? '1px' : 0;
                         node.style.stroke = color ? color : '';
                     }
                 };
-            };
 
-            for (i = 0; i < jsonLength; i++) {
-                _loop();
+                element.__id = this.getId() + '-child-node' + element.__row + element.__index;
             }
 
             return [longestWidth, calculatedMaxChildren, row];
@@ -915,13 +918,13 @@ var RelationshipGraph = function () {
             var _this = this;
 
             childrenNodes.enter().append('rect').attr('id', function (obj) {
-                return _this.getId() + '-child-node' + obj.row + obj.index;
+                return obj.__id;
             }).attr('x', function (obj) {
-                return longestWidth + (obj.index - 1) * _this.configuration.blockSize + 5;
+                return longestWidth + (obj.__index - 1) * _this.configuration.blockSize + 5;
             }).attr('y', function (obj) {
-                return (obj.row - 1) * _this.configuration.blockSize;
+                return (obj.__row - 1) * _this.configuration.blockSize;
             }).attr('rx', 4).attr('ry', 4).attr('class', 'relationshipGraph-block').attr('width', _this.configuration.blockSize).attr('height', _this.configuration.blockSize).style('fill', function (obj) {
-                return obj.colorValue;
+                return obj.__colorValue;
             }).style('cursor', _this.childPointer ? 'pointer' : 'default').on('mouseover', _this.tooltip ? _this.tooltip.show : RelationshipGraph.noop).on('mouseout', _this.tooltip ? _this.tooltip.hide : RelationshipGraph.noop).on('click', function (obj) {
                 _this.tooltip.hide();
                 _this.configuration.onClick.child(obj);
@@ -940,17 +943,17 @@ var RelationshipGraph = function () {
         key: 'updateChildren',
         value: function updateChildren(childrenNodes, longestWidth) {
             var blockSize = this.configuration.blockSize;
-            var _this = this;
 
             // noinspection JSUnresolvedFunction
+
             childrenNodes.transition(this.configuration.transitionTime).attr('id', function (obj) {
-                return _this.getId() + '-child-node' + obj.row + obj.index;
+                return obj.__id;
             }).attr('x', function (obj) {
-                return longestWidth + (obj.index - 1) * blockSize + 5;
+                return longestWidth + (obj.__index - 1) * blockSize + 5;
             }).attr('y', function (obj) {
-                return (obj.row - 1) * blockSize;
+                return (obj.__row - 1) * blockSize;
             }).style('fill', function (obj) {
-                return obj.colorValue;
+                return obj.__colorValue;
             });
         }
 
@@ -995,6 +998,8 @@ var RelationshipGraph = function () {
 
                 // Ensure that the JSON is sorted by parent.
                 configuration.sortFunction(json);
+
+                this.representation = json;
 
                 /**
                  * Loop through all of the childrenNodes in the JSON array and determine the amount of childrenNodes per
@@ -1065,6 +1070,45 @@ var RelationshipGraph = function () {
             }
 
             return this;
+        }
+
+        /**
+         * Searches through the representation and returns the child nodes that match the search query.
+         *
+         * @param {object} query The partial object match to search for.
+         * @returns {Array} An array with the objects that matched the partial query or an empty array if none are found.
+         */
+
+    }, {
+        key: 'search',
+        value: function search(query) {
+            var results = [],
+                queryKeys = Object.keys(query),
+                queryKeysLength = queryKeys.length;
+
+            if (this.representation && query) {
+                var length = this.representation.length;
+
+                for (var i = 0; i < length; i++) {
+                    var currentObject = this.representation[i];
+
+                    var isMatch = false;
+
+                    for (var j = 0; j < queryKeysLength; j++) {
+                        var queryVal = query[queryKeys[j]];
+
+                        if (!(isMatch = currentObject[queryKeys[j]] == queryVal)) {
+                            break;
+                        }
+                    }
+
+                    if (isMatch) {
+                        results.push(currentObject);
+                    }
+                }
+            }
+
+            return results;
         }
     }], [{
         key: 'getColors',
@@ -1226,13 +1270,13 @@ var RelationshipGraph = function () {
             var length = json.length;
 
             while (length--) {
-                var _element = json[length];
-                var keys = Object.keys(_element);
+                var element = json[length];
+                var keys = Object.keys(element);
                 var keyLength = keys.length;
-                var parentColor = _element.parentColor;
+                var parentColor = element.parentColor;
 
 
-                if (_element.parent === undefined) {
+                if (element.parent === undefined) {
                     throw 'Child does not have a parent.';
                 } else if (parentColor !== undefined && (parentColor > 4 || parentColor < 0)) {
                     throw 'Parent color is unsupported.';

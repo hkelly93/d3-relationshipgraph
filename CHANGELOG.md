@@ -66,3 +66,4 @@
 
 # 2.1.0 (7/08/2016-)
 * Added interaction methods with the child nodes to allow users to change the color of the node and the stroke color.
+* Added a way to query objects based on sub objects.
