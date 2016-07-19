@@ -564,6 +564,12 @@ var RelationshipGraph = function () {
         this.representation = [];
 
         /**
+         * The _spacing (in pixels) between child nodes.
+         * @type {number}
+         */
+        this._spacing = 1;
+
+        /**
          * Function to create the tooltip.
          *
          * @param {RelationshipGraph} self The RelationshipGraph instance.
@@ -859,7 +865,7 @@ var RelationshipGraph = function () {
                     i--;
                 }
 
-                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize;
+                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize + _this._spacing * index;
             }).style('text-anchor', 'start').style('fill', function (obj) {
                 return obj.parentColor !== undefined ? _this.configuration.colors[obj.parentColor] : '#000000';
             }).style('cursor', this.parentPointer ? 'pointer' : 'default').attr('class', 'relationshipGraph-Text').attr('transform', 'translate(-6, ' + _this.configuration.blockSize / 1.5 + ')').on('click', function (obj) {
@@ -906,7 +912,7 @@ var RelationshipGraph = function () {
                     i--;
                 }
 
-                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize;
+                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize + _this._spacing * index;
             }).style('fill', function (obj) {
                 return obj.parentColor !== undefined ? _this.configuration.colors[obj.parentColor] : '#000000';
             }).style('cursor', _this.parentPointer ? 'pointer' : 'default');
@@ -928,9 +934,9 @@ var RelationshipGraph = function () {
             childrenNodes.enter().append('rect').attr('id', function (obj) {
                 return obj.__id;
             }).attr('x', function (obj) {
-                return longestWidth + (obj.__index - 1) * _this.configuration.blockSize + 5;
+                return longestWidth + (obj.__index - 1) * _this.configuration.blockSize + 5 + (_this._spacing * obj.__index - 1);
             }).attr('y', function (obj) {
-                return (obj.__row - 1) * _this.configuration.blockSize;
+                return (obj.__row - 1) * _this.configuration.blockSize + (_this._spacing * obj.__row - 1);
             }).attr('rx', 4).attr('ry', 4).attr('class', 'relationshipGraph-block').attr('width', _this.configuration.blockSize).attr('height', _this.configuration.blockSize).style('fill', function (obj) {
                 return obj.__colorValue;
             }).style('cursor', _this.childPointer ? 'pointer' : 'default').on('mouseover', _this.tooltip ? _this.tooltip.show : RelationshipGraph.noop).on('mouseout', _this.tooltip ? _this.tooltip.hide : RelationshipGraph.noop).on('click', function (obj) {
@@ -951,15 +957,15 @@ var RelationshipGraph = function () {
         key: 'updateChildren',
         value: function updateChildren(childrenNodes, longestWidth) {
             var blockSize = this.configuration.blockSize;
+            var _this = this;
 
             // noinspection JSUnresolvedFunction
-
             childrenNodes.transition(this.configuration.transitionTime).attr('id', function (obj) {
                 return obj.__id;
             }).attr('x', function (obj) {
-                return longestWidth + (obj.__index - 1) * blockSize + 5;
+                return longestWidth + (obj.__index - 1) * blockSize + 5 + (_this._spacing * obj.__index - 1);
             }).attr('y', function (obj) {
-                return (obj.__row - 1) * blockSize;
+                return (obj.__row - 1) * blockSize + (_this._spacing * obj.__row - 1);
             }).style('fill', function (obj) {
                 return obj.__colorValue;
             });
@@ -1044,6 +1050,15 @@ var RelationshipGraph = function () {
                 row = _assignIndexAndRow2[2];
                 maxHeight = row * configuration.blockSize;
                 maxWidth = longestWidth + calculatedMaxChildren * configuration.blockSize;
+
+                // Account for the added _spacing.
+                for (i = 0; i < calculatedMaxChildren; i++) {
+                    maxWidth += this._spacing * i;
+                }
+
+                for (i = 0; i < row; i++) {
+                    maxHeight += this._spacing * i;
+                }
 
                 // Select all of the parent nodes.
                 var parentNodes = this.svg.selectAll('.relationshipGraph-Text').data(parents);
