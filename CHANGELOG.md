@@ -70,3 +70,5 @@
 * Lazily loaded the node interaction methods.
 * Made graph backwards compatible with d3 v3.
 * Changed the CSS to SCSS.
+* Fixed the spacing between the child nodes.
+* Updated uglify to version 2.0.0

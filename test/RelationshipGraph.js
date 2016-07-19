@@ -588,6 +588,8 @@ describe('RelationshipGraph', function() {
         it('Should be created correctly', function() {
             graph.data(json);
 
+            var spacing = graph._spacing;
+
             var text = document.getElementsByClassName('relationshipGraph-Text');
 
             var expectedText = ['20th Century Fox (6)', 'Columbia Pictures (3)', 'Lionsgate Films (1)', 'New Line Cinema (3)',
@@ -601,14 +603,14 @@ describe('RelationshipGraph', function() {
                     elementText = element.firstChild.textContent;
 
                 chai.expect(element).to.not.equal(undefined);
-                chai.expect(parseInt(element.getAttribute('y'))).to.equal(expectedY[i]);
+                chai.expect(parseInt(element.getAttribute('y'))).to.equal(expectedY[i] + (expectedY[i] === 0 ? 0 : spacing * i));
                 chai.expect(elementText).to.equal(expectedText[i]);
             }
 
             var rects = document.getElementsByClassName('relationshipGraph-block'),
-                expectedX = [162, 186, 210, 234, 258, 282, 162, 186, 210, 162, 162, 186, 210, 162, 162, 186, 210, 234,
-                    258, 282, 306, 162, 186, 210, 234, 258, 282, 306, 330, 354, 378, 162, 186, 210, 234, 258, 282, 162,
-                    186, 210, 234, 258, 282, 306, 330, 354, 378, 162, 186, 210],
+                expectedX = [162, 187, 212, 237, 262, 287, 162, 187, 212, 162, 162, 187, 212, 162, 162, 187, 212, 237, 262,
+                    287, 312, 162, 187, 212, 237, 262, 287, 312, 337, 362, 387, 162, 187, 212, 237, 262, 287, 162, 187,
+                    212, 237, 262, 287, 312, 337, 362, 387, 162, 187, 212],
                 expectedColors = ['#869d96', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#869d96', '#a2c3a4', '#c4f1be',
                     '#c4f1be', '#c4f1be', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4',
                     '#a2c3a4', '#a2c3a4', '#a2c3a4', '#c4f1be', '#a2c3a4', '#a2c3a4', '#c4f1be', '#c4f1be', '#a2c3a4',
@@ -623,9 +625,9 @@ describe('RelationshipGraph', function() {
                     '#c4f1be', '#c4f1be'
                 ];
 
-            expectedY = [0, 0, 0, 0, 0, 0, 24, 24, 24, 48, 72, 72, 72, 96, 120, 120, 120, 120, 120, 120, 120, 144,
-                144, 144, 144, 144, 144, 144, 144, 144, 144, 168, 168, 168, 168, 168, 168, 192, 192, 192, 192, 192,
-                192, 192, 192, 192, 192, 216, 216, 216, 216];
+            expectedY = [0, 0, 0, 0, 0, 0, 25, 25, 25, 50, 75, 75, 75, 100, 125, 125, 125, 125, 125, 125, 125, 150, 150,
+                150, 150, 150, 150, 150, 150, 150, 150, 175, 175, 175, 175, 175, 175, 200, 200, 200, 200, 200, 200, 200,
+                200, 200, 200, 225, 225, 225];
 
             chai.expect(rects.length).to.equal(expectedX.length);
 

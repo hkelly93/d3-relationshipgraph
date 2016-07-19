@@ -111,6 +111,12 @@ class RelationshipGraph {
         this.representation = [];
 
         /**
+         * The _spacing (in pixels) between child nodes.
+         * @type {number}
+         */
+        this._spacing = 1;
+
+        /**
          * Function to create the tooltip.
          *
          * @param {RelationshipGraph} self The RelationshipGraph instance.
@@ -569,7 +575,8 @@ class RelationshipGraph {
                     i--;
                 }
 
-                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize;
+                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize +
+                    (_this._spacing * index);
             })
             .style('text-anchor', 'start')
             .style('fill', function(obj) {
@@ -623,7 +630,8 @@ class RelationshipGraph {
                     i--;
                 }
 
-                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize;
+                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize +
+                    (_this._spacing * index);
             })
             .style('fill', function(obj) {
                 return (obj.parentColor !== undefined) ? _this.configuration.colors[obj.parentColor] : '#000000';
@@ -647,10 +655,11 @@ class RelationshipGraph {
                 return obj.__id;
             })
             .attr('x', function(obj) {
-                return longestWidth + ((obj.__index - 1) * _this.configuration.blockSize) + 5;
+                return longestWidth + ((obj.__index - 1) * _this.configuration.blockSize) + 5 +
+                    (_this._spacing * obj.__index - 1);
             })
             .attr('y', function(obj) {
-                return (obj.__row - 1) * _this.configuration.blockSize;
+                return (obj.__row - 1) * _this.configuration.blockSize + (_this._spacing * obj.__row - 1);
             })
             .attr('rx', 4)
             .attr('ry', 4)
@@ -677,7 +686,8 @@ class RelationshipGraph {
      * @private
      */
     updateChildren(childrenNodes, longestWidth) {
-        const {blockSize} = this.configuration;
+        const {blockSize} = this.configuration,
+            _this = this;
 
         // noinspection JSUnresolvedFunction
         childrenNodes.transition(this.configuration.transitionTime)
@@ -685,10 +695,10 @@ class RelationshipGraph {
                 return obj.__id;
             })
             .attr('x', function(obj) {
-                return longestWidth + ((obj.__index - 1) * blockSize) + 5;
+                return longestWidth + ((obj.__index - 1) * blockSize) + 5 + (_this._spacing * obj.__index - 1);
             })
             .attr('y', function(obj) {
-                return (obj.__row - 1) * blockSize;
+                return (obj.__row - 1) * blockSize + (_this._spacing * obj.__row - 1);
             })
             .style('fill', function(obj) {
                 return obj.__colorValue;
@@ -759,6 +769,15 @@ class RelationshipGraph {
             // Set the max width and height.
             maxHeight = row * configuration.blockSize;
             maxWidth = longestWidth + calculatedMaxChildren * configuration.blockSize;
+
+            // Account for the added _spacing.
+            for (i = 0; i < calculatedMaxChildren; i++) {
+                maxWidth += this._spacing * i;
+            }
+
+            for (i = 0; i < row; i++) {
+                maxHeight += this._spacing * i;
+            }
 
             // Select all of the parent nodes.
             const parentNodes = this.svg.selectAll('.relationshipGraph-Text')
