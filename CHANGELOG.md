@@ -69,3 +69,4 @@
 * Added a way to query objects based on sub objects.
 * Lazily loaded the node interaction methods.
 * Made graph backwards compatible with d3 v3.
+* Changed the CSS to SCSS.
