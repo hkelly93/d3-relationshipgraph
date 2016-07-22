@@ -526,6 +526,7 @@ var RelationshipGraph = function () {
             valueKeyName: userConfig.valueKeyName // Set a custom key in the tooltip.
         };
 
+        // TODO: Find a better way to handles these.
         if (this.configuration.showTooltips === undefined) {
             this.configuration.showTooltips = true;
         }
@@ -539,7 +540,7 @@ var RelationshipGraph = function () {
         }
 
         // If the threshold array is made up of numbers, make sure that it is sorted.
-        if (this.configuration.thresholds.length > 0 && typeof this.configuration.thresholds[0] == 'number') {
+        if (this.configuration.thresholds.length && typeof this.configuration.thresholds[0] == 'number') {
             this.configuration.thresholds.sort();
         }
 
@@ -568,6 +569,14 @@ var RelationshipGraph = function () {
          * @type {number}
          */
         this._spacing = 1;
+
+        /**
+         * Used to determine whether or not d3 V3 or V4 is being used.
+         *
+         * @type {boolean}
+         * @private
+         */
+        this._d3V4 = !!this.configuration.selection._groups;
 
         /**
          * Function to create the tooltip.
@@ -659,7 +668,8 @@ var RelationshipGraph = function () {
          * @private
          */
         value: function getId() {
-            var parent = this.configuration.selection._groups ? this.configuration.selection._groups[0][0] : this.configuration.selection[0][0];
+            var selection = this.configuration.selection,
+                parent = this._d3V4 ? selection._groups[0][0] : selection[0][0];
 
             return parent.id;
         }
@@ -713,6 +723,7 @@ var RelationshipGraph = function () {
             var parentLength = parents.length;
             var configuration = this.configuration;
             var blockSize = configuration.blockSize;
+            var selection = configuration.selection;
 
 
             for (i = 0; i < parentLength; i++) {
@@ -725,7 +736,7 @@ var RelationshipGraph = function () {
 
             // Calculate the row and column for each child block.
             var longestWidth = this.getPixelLength(longest);
-            var parentDiv = configuration.selection._groups ? configuration.selection._groups[0][0] : configuration.selection[0][0];
+            var parentDiv = this._d3V4 ? selection._groups[0][0] : selection[0][0];
             var calculatedMaxChildren = configuration.maxChildCount === 0 ? Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) : configuration.maxChildCount;
             var jsonLength = json.length;
             var thresholds = configuration.thresholds;
@@ -814,7 +825,7 @@ var RelationshipGraph = function () {
                     }
                 };
 
-                element.__id = this.getId() + '-child-node' + element.__row + element.__index;
+                element.__id = this.getId() + '-child-node' + element.__row + '-' + element.__index;
             }
 
             return [longestWidth, calculatedMaxChildren, row];
@@ -1052,9 +1063,7 @@ var RelationshipGraph = function () {
                 maxWidth = longestWidth + calculatedMaxChildren * configuration.blockSize;
 
                 // Account for the added _spacing.
-                for (i = 0; i < calculatedMaxChildren; i++) {
-                    maxWidth += this._spacing * i;
-                }
+                maxWidth += this._spacing * calculatedMaxChildren;
 
                 for (i = 0; i < row; i++) {
                     maxHeight += this._spacing * i;
@@ -1212,7 +1221,7 @@ var RelationshipGraph = function () {
         value: function noop() {}
 
         /**
-         * Returns a sorted Array.
+         * Sorts the array of JSON by parent name. This method is case insensitive.
          *
          * @param json {Array} The Array to be sorted.
          */
@@ -1245,6 +1254,10 @@ var RelationshipGraph = function () {
                 throw 'Cannot make value comparison between a string and a ' + (typeof value === 'undefined' ? 'undefined' : _typeof(value)) + '.';
             }
 
+            if (!thresholds || !thresholds.length) {
+                throw 'Cannot find correct threshold because there are no thresholds.';
+            }
+
             var thresholdsLength = thresholds.length;
 
             for (var i = 0; i < thresholdsLength; i++) {
@@ -1271,6 +1284,10 @@ var RelationshipGraph = function () {
         value: function numericCompare(value, thresholds) {
             if (typeof value !== 'number') {
                 throw 'Cannot make value comparison between a number and a ' + (typeof value === 'undefined' ? 'undefined' : _typeof(value)) + '.';
+            }
+
+            if (!thresholds || !thresholds.length) {
+                throw 'Cannot find correct threshold because there are no thresholds.';
             }
 
             var length = thresholds.length;
