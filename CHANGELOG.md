@@ -70,3 +70,6 @@
 * Lazily loaded the node interaction methods.
 * Made graph backwards compatible with d3 v3.
 * Changed the CSS to SCSS.
+* Fixed the spacing between the child nodes.
+* Updated uglify to version 2.0.0
+* Fixed a bug where the IDs given to the child nodes were the same. This caused the node in row 1, index 22, to have the same ID as the node in row 12, index 2 (for example).

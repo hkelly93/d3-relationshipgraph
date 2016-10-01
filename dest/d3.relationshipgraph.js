@@ -526,6 +526,7 @@ var RelationshipGraph = function () {
             valueKeyName: userConfig.valueKeyName // Set a custom key in the tooltip.
         };
 
+        // TODO: Find a better way to handles these.
         if (this.configuration.showTooltips === undefined) {
             this.configuration.showTooltips = true;
         }
@@ -539,7 +540,7 @@ var RelationshipGraph = function () {
         }
 
         // If the threshold array is made up of numbers, make sure that it is sorted.
-        if (this.configuration.thresholds.length > 0 && typeof this.configuration.thresholds[0] == 'number') {
+        if (this.configuration.thresholds.length && typeof this.configuration.thresholds[0] == 'number') {
             this.configuration.thresholds.sort(function (a, b) {
                 return a - b;
             });
@@ -564,6 +565,20 @@ var RelationshipGraph = function () {
          * @type {Array}
          */
         this.representation = [];
+
+        /**
+         * The _spacing (in pixels) between child nodes.
+         * @type {number}
+         */
+        this._spacing = 1;
+
+        /**
+         * Used to determine whether or not d3 V3 or V4 is being used.
+         *
+         * @type {boolean}
+         * @private
+         */
+        this._d3V4 = !!this.configuration.selection._groups;
 
         /**
          * Function to create the tooltip.
@@ -655,7 +670,8 @@ var RelationshipGraph = function () {
          * @private
          */
         value: function getId() {
-            var parent = this.configuration.selection._groups ? this.configuration.selection._groups[0][0] : this.configuration.selection[0][0];
+            var selection = this.configuration.selection,
+                parent = this._d3V4 ? selection._groups[0][0] : selection[0][0];
 
             return parent.id;
         }
@@ -709,6 +725,7 @@ var RelationshipGraph = function () {
             var parentLength = parents.length;
             var configuration = this.configuration;
             var blockSize = configuration.blockSize;
+            var selection = configuration.selection;
 
 
             for (i = 0; i < parentLength; i++) {
@@ -721,7 +738,7 @@ var RelationshipGraph = function () {
 
             // Calculate the row and column for each child block.
             var longestWidth = this.getPixelLength(longest);
-            var parentDiv = configuration.selection._groups ? configuration.selection._groups[0][0] : configuration.selection[0][0];
+            var parentDiv = this._d3V4 ? selection._groups[0][0] : selection[0][0];
             var calculatedMaxChildren = configuration.maxChildCount === 0 ? Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) : configuration.maxChildCount;
             var jsonLength = json.length;
             var thresholds = configuration.thresholds;
@@ -810,7 +827,7 @@ var RelationshipGraph = function () {
                     }
                 };
 
-                element.__id = this.getId() + '-child-node' + element.__row + element.__index;
+                element.__id = this.getId() + '-child-node' + element.__row + '-' + element.__index;
             }
 
             return [longestWidth, calculatedMaxChildren, row];
@@ -861,7 +878,7 @@ var RelationshipGraph = function () {
                     i--;
                 }
 
-                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize;
+                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize + _this._spacing * index;
             }).style('text-anchor', 'start').style('fill', function (obj) {
                 return obj.parentColor !== undefined ? _this.configuration.colors[obj.parentColor] : '#000000';
             }).style('cursor', this.parentPointer ? 'pointer' : 'default').attr('class', 'relationshipGraph-Text').attr('transform', 'translate(-6, ' + _this.configuration.blockSize / 1.5 + ')').on('click', function (obj) {
@@ -908,7 +925,7 @@ var RelationshipGraph = function () {
                     i--;
                 }
 
-                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize;
+                return Math.ceil(previousParentSize / calculatedMaxChildren) * _this.configuration.blockSize + _this._spacing * index;
             }).style('fill', function (obj) {
                 return obj.parentColor !== undefined ? _this.configuration.colors[obj.parentColor] : '#000000';
             }).style('cursor', _this.parentPointer ? 'pointer' : 'default');
@@ -930,9 +947,9 @@ var RelationshipGraph = function () {
             childrenNodes.enter().append('rect').attr('id', function (obj) {
                 return obj.__id;
             }).attr('x', function (obj) {
-                return longestWidth + (obj.__index - 1) * _this.configuration.blockSize + 5;
+                return longestWidth + (obj.__index - 1) * _this.configuration.blockSize + 5 + (_this._spacing * obj.__index - 1);
             }).attr('y', function (obj) {
-                return (obj.__row - 1) * _this.configuration.blockSize;
+                return (obj.__row - 1) * _this.configuration.blockSize + (_this._spacing * obj.__row - 1);
             }).attr('rx', 4).attr('ry', 4).attr('class', 'relationshipGraph-block').attr('width', _this.configuration.blockSize).attr('height', _this.configuration.blockSize).style('fill', function (obj) {
                 return obj.__colorValue;
             }).style('cursor', _this.childPointer ? 'pointer' : 'default').on('mouseover', _this.tooltip ? _this.tooltip.show : RelationshipGraph.noop).on('mouseout', _this.tooltip ? _this.tooltip.hide : RelationshipGraph.noop).on('click', function (obj) {
@@ -953,15 +970,15 @@ var RelationshipGraph = function () {
         key: 'updateChildren',
         value: function updateChildren(childrenNodes, longestWidth) {
             var blockSize = this.configuration.blockSize;
+            var _this = this;
 
             // noinspection JSUnresolvedFunction
-
             childrenNodes.transition(this.configuration.transitionTime).attr('id', function (obj) {
                 return obj.__id;
             }).attr('x', function (obj) {
-                return longestWidth + (obj.__index - 1) * blockSize + 5;
+                return longestWidth + (obj.__index - 1) * blockSize + 5 + (_this._spacing * obj.__index - 1);
             }).attr('y', function (obj) {
-                return (obj.__row - 1) * blockSize;
+                return (obj.__row - 1) * blockSize + (_this._spacing * obj.__row - 1);
             }).style('fill', function (obj) {
                 return obj.__colorValue;
             });
@@ -1046,6 +1063,13 @@ var RelationshipGraph = function () {
                 row = _assignIndexAndRow2[2];
                 maxHeight = row * configuration.blockSize;
                 maxWidth = longestWidth + calculatedMaxChildren * configuration.blockSize;
+
+                // Account for the added _spacing.
+                maxWidth += this._spacing * calculatedMaxChildren;
+
+                for (i = 0; i < row; i++) {
+                    maxHeight += this._spacing * i;
+                }
 
                 // Select all of the parent nodes.
                 var parentNodes = this.svg.selectAll('.relationshipGraph-Text').data(parents);
@@ -1199,7 +1223,7 @@ var RelationshipGraph = function () {
         value: function noop() {}
 
         /**
-         * Returns a sorted Array.
+         * Sorts the array of JSON by parent name. This method is case insensitive.
          *
          * @param json {Array} The Array to be sorted.
          */
@@ -1232,6 +1256,10 @@ var RelationshipGraph = function () {
                 throw 'Cannot make value comparison between a string and a ' + (typeof value === 'undefined' ? 'undefined' : _typeof(value)) + '.';
             }
 
+            if (!thresholds || !thresholds.length) {
+                throw 'Cannot find correct threshold because there are no thresholds.';
+            }
+
             var thresholdsLength = thresholds.length;
 
             for (var i = 0; i < thresholdsLength; i++) {
@@ -1258,6 +1286,10 @@ var RelationshipGraph = function () {
         value: function numericCompare(value, thresholds) {
             if (typeof value !== 'number') {
                 throw 'Cannot make value comparison between a number and a ' + (typeof value === 'undefined' ? 'undefined' : _typeof(value)) + '.';
+            }
+
+            if (!thresholds || !thresholds.length) {
+                throw 'Cannot find correct threshold because there are no thresholds.';
             }
 
             var length = thresholds.length;
