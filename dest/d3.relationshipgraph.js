@@ -540,7 +540,9 @@ var RelationshipGraph = function () {
 
         // If the threshold array is made up of numbers, make sure that it is sorted.
         if (this.configuration.thresholds.length > 0 && typeof this.configuration.thresholds[0] == 'number') {
-            this.configuration.thresholds.sort();
+            this.configuration.thresholds.sort(function (a, b) {
+                return a - b;
+            });
         }
 
         /**
