@@ -526,6 +526,16 @@ var RelationshipGraph = function () {
             valueKeyName: userConfig.valueKeyName // Set a custom key in the tooltip.
         };
 
+        // Make sure that the colors are in the correct format.
+        for (var i = 0; i < this.configuration.colors.length; i++) {
+            var color = this.configuration.colors[i];
+
+            if (color.indexOf('#') < 0 && typeof color === 'string' && color.length === 6 && !isNaN(parseInt(color, 16))) {
+                color = '#' + color;
+                this.configuration.colors[i] = color;
+            }
+        }
+
         // TODO: Find a better way to handles these.
         if (this.configuration.showTooltips === undefined) {
             this.configuration.showTooltips = true;

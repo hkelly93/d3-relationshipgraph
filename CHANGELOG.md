@@ -64,7 +64,7 @@
 * Rewrote the source in ES6 and d3 v4.1.0
 * Added in some missing ES6 conversions.
 
-# 2.1.0 (7/08/2016-)
+# 2.1.0 (7/08/2016-10/02/2016)
 * Added interaction methods with the child nodes to allow users to change the color of the node and the stroke color.
 * Added a way to query objects based on sub objects.
 * Lazily loaded the node interaction methods.
@@ -73,3 +73,6 @@
 * Fixed the spacing between the child nodes.
 * Updated uglify to version 2.0.0
 * Fixed a bug where the IDs given to the child nodes were the same. This caused the node in row 1, index 22, to have the same ID as the node in row 12, index 2 (for example).
+
+# 2.1.2 (10/02/2016-)
+* Fixed a bug where the colors were not being set correctly for the children nodes because the color was being returned as `000000` instead of `#000000`.
