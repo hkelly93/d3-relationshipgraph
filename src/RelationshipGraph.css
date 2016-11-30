@@ -32,6 +32,14 @@
   z-index: 50;
   max-width: 350px;
   max-height: 300px; }
+  .relationshipGraph-tip table {
+    border: none;
+    padding: 5px; }
+    .relationshipGraph-tip table td {
+      border: none;
+      padding: 5px; }
+    .relationshipGraph-tip table tr:last-child {
+      border: none; }
 
 .relationshipGraph-tip:after {
   display: inline-block;

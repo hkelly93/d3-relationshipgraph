@@ -39,6 +39,20 @@ $tooltip-gray: #323232;
   z-index: 50;
   max-width: 350px;
   max-height: 300px;
+
+  table {
+    border: none;
+    padding: 5px;
+
+    td {
+      border: none;
+      padding: 5px;
+    }
+
+    tr:last-child {
+      border: none;
+    }
+  }
 }
 
 .relationshipGraph-tip:after {

@@ -1,3 +1,9 @@
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3-collection'), require('d3-selection')) :
+    typeof define === 'function' && define.amd ? define(['exports', 'd3-collection', 'd3-selection'], factory) :
+    (factory((global.d3 = global.d3 || {}),global.d3Collection,global.d3Selection));
+}(this, (function (exports,d3Collection,d3Selection) { 'use strict';
+console.log(d3Collection);
 /**
  * The MIT License (MIT).
  *
@@ -23,9 +29,6 @@
  *
  * D3-relationshipgraph - 2.0.0
  */
-
-import {map as d3Map} from 'd3-collection';
-import {select, selection as d3Selection} from 'd3-selection';
 
 /* jshint ignore:start */
 /**
@@ -67,7 +70,7 @@ const d3tip = () => {
      * @returns {*} The node.
      */
     const initNode = () => {
-        const node = select(document.createElement('div'));
+        const node = d3Selection.select(document.createElement('div'));
         node
             .style('position', 'absolute')
             .style('top', 0)
@@ -85,7 +88,7 @@ const d3tip = () => {
             document.body.appendChild(node);
         }
 
-        return select(node);
+        return d3Selection.select(node);
     };
 
     /**
@@ -234,7 +237,7 @@ const d3tip = () => {
         };
     };
 
-    const direction_callbacks = d3Map({
+    const direction_callbacks = d3Collection.map({
             n: directionN,
             s: directionS,
             e: directionE,
@@ -362,7 +365,7 @@ const d3tip = () => {
             return getNodeEl().attr(n);
         } else {
             const args = Array.prototype.slice.call(arguments);
-            d3Selection.prototype.attr.apply(getNodeEl(), args);
+            d3Selection.selection.prototype.attr.apply(getNodeEl(), args);
         }
 
         return tip;
@@ -386,7 +389,7 @@ const d3tip = () => {
                     keys = Object.keys(styles);
 
                 for (let key = 0; key < keys.length; key++) {
-                    d3Selection.prototype.style.apply(getNodeEl(), styles[key]);
+                    d3Selection.selection.prototype.style.apply(getNodeEl(), styles[key]);
                 }
             }
         }
@@ -462,9 +465,8 @@ const d3tip = () => {
 
     return tip;
 };
-
 /* jshint ignore:end */
-export default class RelationshipGraph {
+class RelationshipGraph {
 
     /**
      *
@@ -472,7 +474,7 @@ export default class RelationshipGraph {
      * @param {Object} userConfig Configuration for graph.
      * @constructor
      */
-    constructor(selection, userConfig = {showTooltips: true, maxChildCount: 0, thresholds: []}) {
+    constructor(selection$$1, userConfig = {showTooltips: true, maxChildCount: 0, thresholds: []}) {
         // Verify that the user config contains the thresholds.
         if (!userConfig.thresholds) {
             userConfig.thresholds = [];
@@ -500,7 +502,7 @@ export default class RelationshipGraph {
          */
         this.configuration = {
             blockSize: 24,  // The block size for each child.
-            selection,  // The ID for the graph.
+            selection: selection$$1,  // The ID for the graph.
             showTooltips: userConfig.showTooltips,  // Whether or not to show the tooltips on hover.
             maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row.
             onClick: userConfig.onClick || defaultOnClick,  // The callback function to call.
@@ -808,8 +810,8 @@ export default class RelationshipGraph {
      * @private
      */
     getId() {
-        const selection = this.configuration.selection,
-            parent = this._d3V4 ? selection._groups[0][0] : selection[0][0];
+        const selection$$1 = this.configuration.selection,
+            parent = this._d3V4 ? selection$$1._groups[0][0] : selection$$1[0][0];
 
         return parent.id;
     }
@@ -857,7 +859,7 @@ export default class RelationshipGraph {
             parentLength = parents.length,
             {configuration} = this,
             {blockSize} = configuration,
-            {selection} = configuration;
+            {selection: selection$$1} = configuration;
 
         for (i = 0; i < parentLength; i++) {
             let current = parents[i] + ' ( ' + parentSizes[parentNames[i]] + ') ';
@@ -869,7 +871,7 @@ export default class RelationshipGraph {
 
         // Calculate the row and column for each child block.
         let longestWidth = this.getPixelLength(longest),
-            parentDiv = this._d3V4 ? selection._groups[0][0] : selection[0][0],
+            parentDiv = this._d3V4 ? selection$$1._groups[0][0] : selection$$1[0][0],
             calculatedMaxChildren = (configuration.maxChildCount === 0) ?
                 Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
                 configuration.maxChildCount,
@@ -1275,7 +1277,7 @@ export default class RelationshipGraph {
             this.removeNodes(childrenNodes);
 
             if (this.configuration.showTooltips) {
-                select('.d3-tip').remove();
+                d3Selection.select('.d3-tip').remove();
                 this.svg.call(this.tooltip);
             }
 
@@ -1324,7 +1326,6 @@ export default class RelationshipGraph {
     }
 }
 
-// Make the tests work in the browser..
 window.RelationshipGraph = RelationshipGraph;
 
 if (window.d3) {
@@ -1349,3 +1350,9 @@ if (window.d3) {
         return new RelationshipGraph(this, userConfig);
     };
 }
+
+exports.relationshipgraph = RelationshipGraph;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));

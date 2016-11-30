@@ -1,4 +1,5 @@
-/* global describe, it, d3, chai, RelationshipGraph */
+/* global describe, it, chai, RelationshipGraph */
+
 describe('RelationshipGraph', function() {
     'use strict';
 

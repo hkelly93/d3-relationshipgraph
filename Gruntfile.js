@@ -80,5 +80,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-mocha');
 
     grunt.registerTask('default', ['jshint', 'jscs', 'concat', 'babel', 'uglify', 'csslint', 'cssmin']);
-    grunt.registerTask('test', ['jshint', 'jscs', 'concat', 'babel', 'uglify', 'csslint', 'cssmin', 'mocha']);
+    grunt.registerTask('css', ['cssmin']);
+    grunt.registerTask('test', ['concat', 'babel', 'uglify', 'csslint', 'cssmin', 'mocha']);
 };
