@@ -639,7 +639,7 @@ class RelationshipGraph {
 
         if (this.configuration.showTooltips) {
             this.tooltip = createTooltip(this);
-            this.tooltip.direction('n');
+            this.tooltip.tipDirection('n');
         } else {
             this.tooltip = null;
         }

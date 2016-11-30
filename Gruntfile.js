@@ -8,8 +8,8 @@ module.exports = function(grunt) {
                 separator: ' '
             },
             dist: {
-                src: ['src/d3-tip.js', 'src/index.js'],
-                dest: 'dest/d3.relationshipgraph.js'
+                src: ['src/d3-tip-es6.js', 'src/index.js'],
+                dest: 'index.js'
             }
         },
         babel: {
@@ -18,7 +18,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    'dest/d3.relationshipgraph.js': 'dest/d3.relationshipgraph.js'
+                    'index.js': 'index.js'
                 }
             }
         },
@@ -28,7 +28,7 @@ module.exports = function(grunt) {
             },
             target: {
                 files: {
-                    'dest/d3.relationshipgraph.min.js': 'dest/d3.relationshipgraph.js'
+                    'index.js': 'index.js'
                 }
             }
         },
@@ -79,7 +79,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-csslint');
     grunt.loadNpmTasks('grunt-mocha');
 
-    grunt.registerTask('default', ['jshint', 'jscs', 'concat', 'babel', 'uglify', 'csslint', 'cssmin']);
+    grunt.registerTask('default', ['concat', 'babel', 'csslint', 'cssmin']);
     grunt.registerTask('css', ['cssmin']);
     grunt.registerTask('test', ['concat', 'babel', 'uglify', 'csslint', 'cssmin', 'mocha']);
 };

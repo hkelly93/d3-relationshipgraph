@@ -20,11 +20,11 @@
     "type": "git",
     "url": "https://github.com/hkelly93/d3-relationshipgraph"
   },
-  "main": "d3.relationshipgraph.min.js",
-  "version": "3.0.0",
+  "main": "index.js",
+  "version": "3.0.0-pre-5",
   "files": [
     "src",
-    "d3.relationshipgraph.min.js"
+    "index.js"
   ],
   "scripts": {
     "test": "grunt test"
