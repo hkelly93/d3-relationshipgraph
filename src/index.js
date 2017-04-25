@@ -24,6 +24,8 @@
  * D3-relationshipgraph - 2.0.0
  */
 
+require('d3-transition');  // Add it to d3-selection.
+
 import {map as d3Map} from 'd3-collection';
 import {select, selection as d3Selection} from 'd3-selection';
 
@@ -96,8 +98,8 @@ export default class RelationshipGraph {
             this.configuration.showKeys = true;
         }
 
-        if (this.configuration.keyValueName === undefined) {
-            this.configuration.keyValueName = 'value';
+        if (this.configuration.valueKeyName === undefined) {
+            this.configuration.valueKeyName = 'value';
         }
 
         // If the threshold array is made up of numbers, make sure that it is sorted.
@@ -845,8 +847,8 @@ export default class RelationshipGraph {
             }
 
             this.configuration.selection.select('svg')
-                .attr('width', Math.abs(maxWidth + 15))
-                .attr('height', Math.abs(maxHeight + 15));
+                .attr('width', Math.abs(maxWidth))
+                .attr('height', Math.abs(maxHeight));
         }
 
         return this;
