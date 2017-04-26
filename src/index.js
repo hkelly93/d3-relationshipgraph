@@ -27,7 +27,7 @@
 require('d3-transition');  // Add it to d3-selection.
 
 import {map as d3Map} from 'd3-collection';
-import {select, selection as d3Selection} from 'd3-selection';
+import {select, selection as d3Selection, selectAll} from 'd3-selection';
 
 export default class RelationshipGraph {
 
@@ -110,13 +110,17 @@ export default class RelationshipGraph {
             });
         }
 
-        /**
-         * Used for measuring text widths.
-         * @type {Element}
-         */
-        this.measurementDiv = document.createElement('div');
-        this.measurementDiv.className = 'relationshipGraph-measurement';
-        document.body.appendChild(this.measurementDiv);
+        // Check if the measurement div already exists.
+        const measurementDiv = document.getElementsByClassName('relationshipGraph-measurement'),
+            measurementDivExists = !!measurementDiv.length;
+        
+        if (measurementDivExists) {
+            this.measurementDiv = measurementDiv[0];
+        } else {
+            this.measurementDiv = document.createElement('div');
+            this.measurementDiv.className = 'relationshipGraph-measurement';
+            document.body.appendChild(this.measurementDiv);
+        }
 
         /**
          * Used for caching measurements.
@@ -146,6 +150,9 @@ export default class RelationshipGraph {
 
         const _this = this;
 
+        // Remove all of the previous relationshipGraph-tip elements.
+        selectAll('.relationshipGraph-tip').remove();
+
         /**
          * Function to create the tooltip.
          *
@@ -156,8 +163,8 @@ export default class RelationshipGraph {
             let hiddenKeys = ['_PRIVATE_', 'PARENT', 'PARENTCOLOR', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
                 showKeys = self.configuration.showKeys;
 
-            return new d3Tip(_this.configuration.selection.append('svg')).attr('class', 'relationshipGraph-tip')
-                .offset([-8, 10])
+            return new d3Tip(select('body').append('svg')).attr('class', 'relationshipGraph-tip')
+                .offset([-10, -10])
                 .html(function(obj) {
                     let keys = Object.keys(obj),
                         table = document.createElement('table'),
@@ -438,7 +445,7 @@ export default class RelationshipGraph {
         let longestWidth = this.getPixelLength(longest),
             parentDiv = this._d3V4 ? selection._groups[0][0] : selection[0][0],
             calculatedMaxChildren = (configuration.maxChildCount === 0) ?
-                Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
+                Math.floor((parentDiv.parentElement.clientWidth - (2 * blockSize) - longestWidth) / blockSize) :
                 configuration.maxChildCount,
             jsonLength = json.length,
             {thresholds} = configuration;
@@ -847,8 +854,8 @@ export default class RelationshipGraph {
             }
 
             this.configuration.selection.select('svg')
-                .attr('width', Math.abs(maxWidth))
-                .attr('height', Math.abs(maxHeight));
+                .attr('width', Math.abs(maxWidth + 15))
+                .attr('height', Math.abs(maxHeight + 15));
         }
 
         return this;

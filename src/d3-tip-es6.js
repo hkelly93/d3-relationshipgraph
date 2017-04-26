@@ -274,6 +274,8 @@ class d3Tip {
             dir = 'n';
         } else if (!breaksTop && breaksRight && !breaksBottom && !breaksLeft) {  // Case 8: E
             dir = 'w';
+        } else {
+            dir = 's';
         }
 
         this.direction(dir);
@@ -284,7 +286,7 @@ class d3Tip {
 
         coords = this.directionCallbacks.get(dir)();
 
-        nodel.classed(nodel, true)
+        nodel.classed(dir, true)
             .style('top', (coords.top + pOffset[0]) + scrollTop + 'px')
             .style('left', (coords.left + pOffset[1]) + scrollLeft + 'px');
 
