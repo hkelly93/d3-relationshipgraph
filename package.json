@@ -21,7 +21,7 @@
     "url": "https://github.com/hkelly93/d3-relationshipgraph"
   },
   "main": "index.js",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "files": [
     "src",
     "index.js"
