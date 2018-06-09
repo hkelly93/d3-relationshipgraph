@@ -262,6 +262,8 @@ var d3Tip = function () {
             } else if (!breaksTop && breaksRight && !breaksBottom && !breaksLeft) {
                 // Case 8: E
                 dir = 'w';
+            } else {
+                dir = 's';
             }
 
             this.direction(dir);
@@ -272,7 +274,7 @@ var d3Tip = function () {
 
             coords = this.directionCallbacks.get(dir)();
 
-            nodel.classed(nodel, true).style('top', coords.top + pOffset[0] + scrollTop + 'px').style('left', coords.left + pOffset[1] + scrollLeft + 'px');
+            nodel.classed(dir, true).style('top', coords.top + pOffset[0] + scrollTop + 'px').style('left', coords.left + pOffset[1] + scrollLeft + 'px');
 
             return this;
         }
@@ -444,6 +446,8 @@ var d3Tip = function () {
 * D3-relationshipgraph - 2.0.0
 */
 
+require('d3-transition'); // Add it to d3-selection.
+
 var RelationshipGraph = function () {
 
     /**
@@ -517,8 +521,8 @@ var RelationshipGraph = function () {
             this.configuration.showKeys = true;
         }
 
-        if (this.configuration.keyValueName === undefined) {
-            this.configuration.keyValueName = 'value';
+        if (this.configuration.valueKeyName === undefined) {
+            this.configuration.valueKeyName = 'value';
         }
 
         // If the threshold array is made up of numbers, make sure that it is sorted.
@@ -528,13 +532,17 @@ var RelationshipGraph = function () {
             });
         }
 
-        /**
-         * Used for measuring text widths.
-         * @type {Element}
-         */
-        this.measurementDiv = document.createElement('div');
-        this.measurementDiv.className = 'relationshipGraph-measurement';
-        document.body.appendChild(this.measurementDiv);
+        // Check if the measurement div already exists.
+        var measurementDiv = document.getElementsByClassName('relationshipGraph-measurement'),
+            measurementDivExists = !!measurementDiv.length;
+
+        if (measurementDivExists) {
+            this.measurementDiv = measurementDiv[0];
+        } else {
+            this.measurementDiv = document.createElement('div');
+            this.measurementDiv.className = 'relationshipGraph-measurement';
+            document.body.appendChild(this.measurementDiv);
+        }
 
         /**
          * Used for caching measurements.
@@ -564,6 +572,9 @@ var RelationshipGraph = function () {
 
         var _this = this;
 
+        // Remove all of the previous relationshipGraph-tip elements.
+        (0, _d3Selection.selectAll)('.relationshipGraph-tip').remove();
+
         /**
          * Function to create the tooltip.
          *
@@ -574,7 +585,7 @@ var RelationshipGraph = function () {
             var hiddenKeys = ['_PRIVATE_', 'PARENT', 'PARENTCOLOR', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
                 showKeys = self.configuration.showKeys;
 
-            return new d3Tip(_this.configuration.selection.append('svg')).attr('class', 'relationshipGraph-tip').offset([-8, 10]).html(function (obj) {
+            return new d3Tip((0, _d3Selection.select)('body').append('svg')).attr('class', 'relationshipGraph-tip').offset([-10, -10]).html(function (obj) {
                 var keys = Object.keys(obj),
                     table = document.createElement('table'),
                     count = keys.length,
@@ -723,7 +734,7 @@ var RelationshipGraph = function () {
             // Calculate the row and column for each child block.
             var longestWidth = this.getPixelLength(longest);
             var parentDiv = this._d3V4 ? selection._groups[0][0] : selection[0][0];
-            var calculatedMaxChildren = configuration.maxChildCount === 0 ? Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) : configuration.maxChildCount;
+            var calculatedMaxChildren = configuration.maxChildCount === 0 ? Math.floor((parentDiv.parentElement.clientWidth - 2 * blockSize - longestWidth) / blockSize) : configuration.maxChildCount;
             var jsonLength = json.length;
             var thresholds = configuration.thresholds;
 

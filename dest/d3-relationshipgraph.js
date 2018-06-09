@@ -1,3 +1,9 @@
+(function (global, factory) {
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3-collection'), require('d3-selection')) :
+    typeof define === 'function' && define.amd ? define(['exports', 'd3-collection', 'd3-selection'], factory) :
+    (factory((global.d3 = global.d3 || {}),global.d3Collection,global.d3Selection));
+}(this, (function (exports,d3Collection,d3Selection) { 'use strict';
+console.log(d3Collection);
 /**
  * The MIT License (MIT).
  *
@@ -24,12 +30,443 @@
  * D3-relationshipgraph - 2.0.0
  */
 
-require('d3-transition');  // Add it to d3-selection.
+/* jshint ignore:start */
+/**
+ * Constructs a new tooltip.
+ *
+ * @returns {*} a tip.
+ * @public
+ */
+const d3tip = () => {
+    let node;
+    let point;
+    let target;
+    'use strict';
 
-import {map as d3Map} from 'd3-collection';
-import {select, selection as d3Selection, selectAll} from 'd3-selection';
+    /**
+     * @returns {string} The direction.
+     */
+    const d3TipDirection = () => {
+        return 'n';
+    };
 
-export default class RelationshipGraph {
+    /**
+     * @returns {Array} The offset.
+     */
+    const d3TipOffset = () => {
+        return [0, 0];
+    };
+
+    /**
+     * @returns {string} The HTML.
+     */
+    const d3TipHtml = () => {
+        return ' ';
+    };
+
+    /**
+     * Initializes the node.
+     *
+     * @returns {*} The node.
+     */
+    const initNode = () => {
+        const node = d3Selection.select(document.createElement('div'));
+        node
+            .style('position', 'absolute')
+            .style('top', 0)
+            .style('opacity', 0)
+            .style('pointer-events', 'none')
+            .style('box-sizing', 'border-box');
+
+        return node.node();
+    };
+
+    const getNodeEl = () => {
+        if (node === null) {
+            node = initNode();
+            // re-add node to DOM
+            document.body.appendChild(node);
+        }
+
+        return d3Selection.select(node);
+    };
+
+    /**
+     * Given a shape on the screen, will return an SVGPoint for the directions:
+     *     north, south, east, west, northeast, southeast, northwest, southwest.
+     *
+     *     +-+-+
+     *     |   |
+     *     +   |
+     *     |   |
+     *     +-+-+
+     *
+     * @returns {{}} an Object {n, s, e, w, nw, sw, ne, se}
+     * @private
+     */
+    const getScreenBBox = () => {
+        let targetel = target || event.target;
+
+        while (typeof targetel.getScreenCTM === 'undefined' && targetel.parentNode === 'undefined') {
+            targetel = targetel.parentNode;
+        }
+
+        const bbox = {},
+            matrix = targetel.getScreenCTM(),
+            tbbox = targetel.getBBox(),
+            width = tbbox.width,
+            height = tbbox.height,
+            y = tbbox.y;
+
+        point.x = tbbox.x;
+        point.y = y;
+        bbox.nw = point.matrixTransform(matrix);
+        point.x += width;
+        bbox.ne = point.matrixTransform(matrix);
+        point.y += height;
+        bbox.se = point.matrixTransform(matrix);
+        point.x -= width;
+        bbox.sw = point.matrixTransform(matrix);
+        point.y -= height / 2;
+        bbox.w = point.matrixTransform(matrix);
+        point.x += width;
+        bbox.e = point.matrixTransform(matrix);
+        point.x -= width / 2;
+        point.y -= height / 2;
+        bbox.n = point.matrixTransform(matrix);
+        point.y += height;
+        bbox.s = point.matrixTransform(matrix);
+
+        return bbox;
+    };
+
+    let direction = d3TipDirection,
+        offset = d3TipOffset,
+        html = d3TipHtml;
+
+    node = initNode();
+    let svg = null;
+    point = null;
+    target = null;
+
+    /**
+     * Gets the top of the page left http://stackoverflow.com/a/7611054.
+     *
+     * @param {*} el The element.
+     * @returns {{left: number, top: number}} An object containing the left and top positions.
+     */
+    const getPageTopLeft = (el) => {
+        const rect = el.getBoundingClientRect(),
+            docEl = document.documentElement;
+
+        return {
+            top: rect.top + (window.pageYOffset || docEl.scrollTop || 0),
+            right: rect.right + (window.pageXOffset || 0),
+            bottom: rect.bottom + (window.pageYOffset || 0),
+            left: rect.left + (window.pageXOffset || docEl.scrollLeft || 0)
+        };
+    };
+
+    const functor = (val) => {
+        return typeof val === 'function' ? val : () => {
+            return val;
+        };
+    };
+
+    const directionN = () => {
+        const bbox = getScreenBBox();
+        return {
+            top: bbox.n.y - node.offsetHeight,
+            left: bbox.n.x - node.offsetWidth / 2
+        };
+    };
+
+    const directionS = () => {
+        const bbox = getScreenBBox();
+        return {
+            top: bbox.s.y,
+            left: bbox.s.x - node.offsetWidth / 2
+        };
+    };
+
+    const directionE = () => {
+        const bbox = getScreenBBox();
+        return {
+            top: bbox.e.y - node.offsetHeight / 2,
+            left: bbox.e.x
+        };
+    };
+
+    const directionW = () => {
+        const bbox = getScreenBBox();
+        return {
+            top: bbox.w.y - node.offsetHeight / 2,
+            left: bbox.w.x - node.offsetWidth
+        };
+    };
+
+    const directionNW = () => {
+        const bbox = getScreenBBox();
+        return {
+            top: bbox.nw.y - node.offsetHeight,
+            left: bbox.nw.x - node.offsetWidth
+        };
+    };
+
+    const directionNE = () => {
+        const bbox = getScreenBBox();
+        return {
+            top: bbox.ne.y - node.offsetHeight,
+            left: bbox.ne.x
+        };
+    };
+
+    const directionSW = () => {
+        const bbox = getScreenBBox();
+        return {
+            top: bbox.sw.y,
+            left: bbox.sw.x - node.offsetWidth
+        };
+    };
+
+    const directionSE = () => {
+        const bbox = getScreenBBox();
+        return {
+            top: bbox.se.y,
+            left: bbox.e.x
+        };
+    };
+
+    const direction_callbacks = d3Collection.map({
+            n: directionN,
+            s: directionS,
+            e: directionE,
+            w: directionW,
+            nw: directionNW,
+            ne: directionNE,
+            sw: directionSW,
+            se: directionSE
+        }),
+
+        directions = direction_callbacks.keys();
+
+    const getSVGNode = (el) => {
+        el = el.node();
+
+        if (el.tagName.toLowerCase() === 'svg') {
+            return el;
+        }
+
+        return el.ownerSVGElement;
+    };
+
+    const tip = (vis) => {
+        svg = getSVGNode(vis);
+        point = svg.createSVGPoint();
+        document.body.appendChild(node);
+    };
+
+    /**
+     * Show the tooltip on the screen.
+     *
+     * @returns {function()} a tip
+     * @public
+     */
+    tip.show = function () {
+        const args = Array.prototype.slice.call(arguments);
+        if (args[args.length - 1] instanceof SVGElement) {
+            target = args.pop();
+        }
+
+        const content = html.apply(this, args),
+            poffset = offset.apply(this, args),
+            nodel = getNodeEl(),
+            scrollTop = document.documentElement.scrollTop || document.body.scrollTop,
+            scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
+
+        let coords,
+            dir = direction.apply(this, args),
+            i = directions.length;
+
+        nodel.html(content)
+            .style('position', 'absolute')
+            .style('opacity', 1)
+            .style('pointer-events', 'all');
+
+        // Figure out the correct direction.
+        const node = nodel._groups ? nodel._groups[0][0] : nodel[0][0],
+            nodeWidth = node.clientWidth,
+            nodeHeight = node.clientHeight,
+            windowWidth = window.innerWidth,
+            windowHeight = window.innerHeight,
+            elementCoords = getPageTopLeft(this),
+            breaksTop = (elementCoords.top - nodeHeight < 0),
+            breaksLeft = (elementCoords.left - nodeWidth < 0),
+            breaksRight = (elementCoords.right + nodeHeight > windowWidth),
+            breaksBottom = (elementCoords.bottom + nodeHeight > windowHeight);
+
+        if (breaksTop && !breaksRight && !breaksBottom && breaksLeft) {  // Case 1: NW
+            dir = 'e';
+        } else if (breaksTop && !breaksRight && !breaksBottom && !breaksLeft) {  // Case 2: N
+            dir = 's';
+        } else if (breaksTop && breaksRight && !breaksBottom && !breaksLeft) {  // Case 3: NE
+            dir = 'w';
+        } else if (!breaksTop && !breaksRight && !breaksBottom && breaksLeft) {  // Case 4: W
+            dir = 'e';
+        } else if (!breaksTop && !breaksRight && breaksBottom && breaksLeft) {  // Case 5: SW
+            dir = 'e';
+        } else if (!breaksTop && !breaksRight && breaksBottom && !breaksLeft) {  // Case 6: S
+            dir = 'e';
+        } else if (!breaksTop && breaksRight && breaksBottom && !breaksLeft) {  // Case 7: SE
+            dir = 'n';
+        } else if (!breaksTop && breaksRight && !breaksBottom && !breaksLeft) {  // Case 8: E
+            dir = 'w';
+        }
+
+        direction(dir);
+
+        while (i--) {
+            nodel.classed(directions[i], false);
+        }
+
+        coords = direction_callbacks.get(dir).apply(this);
+        nodel.classed(dir, true)
+            .style('top', (coords.top + poffset[0]) + scrollTop + 'px')
+            .style('left', (coords.left + poffset[1]) + scrollLeft + 'px');
+
+        return tip;
+    };
+
+    /**
+     * Hide the tooltip
+     *
+     * @returns {function()} a tup
+     * @public
+     */
+    tip.hide = function () {
+        const nodel = getNodeEl();
+
+        nodel
+            .style('opacity', 0)
+            .style('pointer-events', 'none');
+
+        return tip;
+    };
+
+    /**
+     * Proxy attr calls to the d3 tip container. Sets or gets attribute value.
+     *
+     * @param n {String} The name of the attribute
+     * @returns {*} The tip or attribute value
+     * @public
+     */
+    tip.attr = function (n) {
+        if (arguments.length < 2 && typeof n === 'string') {
+            return getNodeEl().attr(n);
+        } else {
+            const args = Array.prototype.slice.call(arguments);
+            d3Selection.selection.prototype.attr.apply(getNodeEl(), args);
+        }
+
+        return tip;
+    };
+
+    /**
+     * Proxy style calls to the d3 tip container. Sets or gets a style value.
+     *
+     * @param n {String} name of the property.
+     * @returns {*} The tip or style property value
+     * @public
+     */
+    tip.style = function (n) {
+        if (arguments.length < 2 && typeof n === 'string') {
+            return getNodeEl().style(n);
+        } else {
+            const args = Array.prototype.slice.call(arguments);
+
+            if (args.length === 1) {
+                const styles = args[0],
+                    keys = Object.keys(styles);
+
+                for (let key = 0; key < keys.length; key++) {
+                    d3Selection.selection.prototype.style.apply(getNodeEl(), styles[key]);
+                }
+            }
+        }
+
+        return tip;
+    };
+
+    /**
+     * Set or get the direction of the tooltip
+     *
+     * @param v {String} One of: n, s, e, w, nw, sw, ne, se.
+     * @returns {function()} The tip or the direction
+     * @public
+     */
+    tip.direction = function (v) {
+        if (!arguments.length) {
+            return direction;
+        }
+
+        direction = v == null ? v : functor(v);
+
+        return tip;
+    };
+
+    /**
+     * Sets or gets the offset of the tip
+     *
+     * @param v {Array} Array of [x, y,] offset
+     * @returns {function()} The offset or the tip.
+     * @public
+     */
+    tip.offset = function (v) {
+        if (!arguments.length) {
+            return offset;
+        }
+
+        offset = v == null ? v : functor(v);
+
+        return tip;
+    };
+
+    /**
+     * Sets or gets the html value of the tooltip.
+     *
+     * @param v {String} Thes tring value of the tip
+     * @returns {function()} The html value or the tip.
+     * @public
+     */
+    tip.html = function (v) {
+        if (!arguments.length) {
+            return html;
+        }
+
+        html = v == null ? v : functor(v);
+
+        return tip;
+    };
+
+    /**
+     * Destroys the tooltip and removes it from the DOM.
+     *
+     * @returns {function()} A tip.
+     * @public
+     */
+    tip.destroy = function () {
+        if (node) {
+            getNodeEl().remove();
+            node = null;
+        }
+
+        return tip;
+    };
+
+    return tip;
+};
+/* jshint ignore:end */
+class RelationshipGraph {
 
     /**
      *
@@ -37,7 +474,7 @@ export default class RelationshipGraph {
      * @param {Object} userConfig Configuration for graph.
      * @constructor
      */
-    constructor(selection, userConfig = {showTooltips: true, maxChildCount: 0, thresholds: []}) {
+    constructor(selection$$1, userConfig = {showTooltips: true, maxChildCount: 0, thresholds: []}) {
         // Verify that the user config contains the thresholds.
         if (!userConfig.thresholds) {
             userConfig.thresholds = [];
@@ -65,7 +502,7 @@ export default class RelationshipGraph {
          */
         this.configuration = {
             blockSize: 24,  // The block size for each child.
-            selection,  // The ID for the graph.
+            selection: selection$$1,  // The ID for the graph.
             showTooltips: userConfig.showTooltips,  // Whether or not to show the tooltips on hover.
             maxChildCount: userConfig.maxChildCount || 0,  // The maximum amount of children to show per row.
             onClick: userConfig.onClick || defaultOnClick,  // The callback function to call.
@@ -98,8 +535,8 @@ export default class RelationshipGraph {
             this.configuration.showKeys = true;
         }
 
-        if (this.configuration.valueKeyName === undefined) {
-            this.configuration.valueKeyName = 'value';
+        if (this.configuration.keyValueName === undefined) {
+            this.configuration.keyValueName = 'value';
         }
 
         // If the threshold array is made up of numbers, make sure that it is sorted.
@@ -110,17 +547,13 @@ export default class RelationshipGraph {
             });
         }
 
-        // Check if the measurement div already exists.
-        const measurementDiv = document.getElementsByClassName('relationshipGraph-measurement'),
-            measurementDivExists = !!measurementDiv.length;
-        
-        if (measurementDivExists) {
-            this.measurementDiv = measurementDiv[0];
-        } else {
-            this.measurementDiv = document.createElement('div');
-            this.measurementDiv.className = 'relationshipGraph-measurement';
-            document.body.appendChild(this.measurementDiv);
-        }
+        /**
+         * Used for measuring text widths.
+         * @type {Element}
+         */
+        this.measurementDiv = document.createElement('div');
+        this.measurementDiv.className = 'relationshipGraph-measurement';
+        document.body.appendChild(this.measurementDiv);
 
         /**
          * Used for caching measurements.
@@ -148,11 +581,6 @@ export default class RelationshipGraph {
          */
         this._d3V4 = !!this.configuration.selection._groups;
 
-        const _this = this;
-
-        // Remove all of the previous relationshipGraph-tip elements.
-        selectAll('.relationshipGraph-tip').remove();
-
         /**
          * Function to create the tooltip.
          *
@@ -163,8 +591,8 @@ export default class RelationshipGraph {
             let hiddenKeys = ['_PRIVATE_', 'PARENT', 'PARENTCOLOR', 'SETNODECOLOR', 'SETNODESTROKECOLOR'],
                 showKeys = self.configuration.showKeys;
 
-            return new d3Tip(select('body').append('svg')).attr('class', 'relationshipGraph-tip')
-                .offset([-10, -10])
+            return d3tip().attr('class', 'relationshipGraph-tip')
+                .offset([-8, -10])
                 .html(function(obj) {
                     let keys = Object.keys(obj),
                         table = document.createElement('table'),
@@ -211,7 +639,7 @@ export default class RelationshipGraph {
 
         if (this.configuration.showTooltips) {
             this.tooltip = createTooltip(this);
-            this.tooltip.direction('n');
+            this.tooltip.tipDirection('n');
         } else {
             this.tooltip = null;
         }
@@ -382,8 +810,8 @@ export default class RelationshipGraph {
      * @private
      */
     getId() {
-        const selection = this.configuration.selection,
-            parent = this._d3V4 ? selection._groups[0][0] : selection[0][0];
+        const selection$$1 = this.configuration.selection,
+            parent = this._d3V4 ? selection$$1._groups[0][0] : selection$$1[0][0];
 
         return parent.id;
     }
@@ -431,7 +859,7 @@ export default class RelationshipGraph {
             parentLength = parents.length,
             {configuration} = this,
             {blockSize} = configuration,
-            {selection} = configuration;
+            {selection: selection$$1} = configuration;
 
         for (i = 0; i < parentLength; i++) {
             let current = parents[i] + ' ( ' + parentSizes[parentNames[i]] + ') ';
@@ -443,9 +871,9 @@ export default class RelationshipGraph {
 
         // Calculate the row and column for each child block.
         let longestWidth = this.getPixelLength(longest),
-            parentDiv = this._d3V4 ? selection._groups[0][0] : selection[0][0],
+            parentDiv = this._d3V4 ? selection$$1._groups[0][0] : selection$$1[0][0],
             calculatedMaxChildren = (configuration.maxChildCount === 0) ?
-                Math.floor((parentDiv.parentElement.clientWidth - (2 * blockSize) - longestWidth) / blockSize) :
+                Math.floor((parentDiv.parentElement.clientWidth - blockSize - longestWidth) / blockSize) :
                 configuration.maxChildCount,
             jsonLength = json.length,
             {thresholds} = configuration;
@@ -849,8 +1277,8 @@ export default class RelationshipGraph {
             this.removeNodes(childrenNodes);
 
             if (this.configuration.showTooltips) {
-                select('.d3-tip').remove();
-                this.svg.call(this.tooltip.generateTip);
+                d3Selection.select('.d3-tip').remove();
+                this.svg.call(this.tooltip);
             }
 
             this.configuration.selection.select('svg')
@@ -898,7 +1326,6 @@ export default class RelationshipGraph {
     }
 }
 
-// Make the tests work in the browser..
 window.RelationshipGraph = RelationshipGraph;
 
 if (window.d3) {
@@ -923,3 +1350,9 @@ if (window.d3) {
         return new RelationshipGraph(this, userConfig);
     };
 }
+
+exports.relationshipgraph = RelationshipGraph;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
